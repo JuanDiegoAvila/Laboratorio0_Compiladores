@@ -1,0 +1,14 @@
+ class MyClass [inherits ParentClass] {
+    feature: myMethod(someParam: Int): Bool {
+        let x: Int <- 5;
+        let y: Int <- 10;
+        let z: Int <- x + y;
+        if z < 20 then
+            z <- z + 5;
+        else
+            z <- z - 5;
+        fi;
+        return z > 0;
+    };
+};
+
