@@ -4,7 +4,6 @@ from dist.yalpParser import yalpParser
 from dist.yalpListener import yalpListener
 from dist.yalpVisitor import yalpVisitor
 
-
 TAMAÑO_MAXIMO_STRING = 100
 
 def scanner(input_file):
@@ -69,6 +68,9 @@ def parse(tokens_reconocidos, stream):
     tree = parser.program()
 
     print(tree.toStringTree(recog=parser))
+
+    
+
     # 
     # token_stream.tokens = common_tokens
 

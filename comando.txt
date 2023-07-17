@@ -1,1 +1,3 @@
 antlr4 -Dlanguage=Python3 ./gramatica/yalp.g4 -visitor -o dist
+
+antlr4-parse ./gramatica/yalp.g4 program -gui ./entrada.txt
