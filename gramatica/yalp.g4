@@ -97,3 +97,5 @@ STRING: '"' .*? '"';
 COMMENT: '--' ~[\r\n]* -> skip;
 CLOSED_COMMENT: '(*' .*? '*)' -> skip;
 WHITESPACE: [ \t\r\n\f]+ -> skip;
+
+ERROR: . ;
