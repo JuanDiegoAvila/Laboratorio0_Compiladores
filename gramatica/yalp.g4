@@ -4,9 +4,9 @@ grammar yalp;
 
 program: (class SEMICOLON)+;
 
-class: CLASS TYPE (INHERITS TYPE)? LBRACE (feature';')+ RBRACE ;
+class: CLASS TYPE (INHERITS TYPE)? LBRACE (feature SEMICOLON)* RBRACE ;
 
-feature: ID LPAR (formal (COMMA formal)*)? RPAR TYPE LBRACE expr RBRACE
+feature: ID LPAR (formal (COMMA formal)*)? RPAR COLON TYPE LBRACE expr RBRACE
     | ID COLON TYPE (ASSIGN expr)? ;
 
 formal: ID COLON TYPE;
@@ -40,7 +40,6 @@ expr: ID ASSIGN expr
 
 // ENTEROS
 DIGIT: [0-9];
-
 UPPERCASE: [A-Z];
 LOWERCASE: [a-z];
 LETTER: [a-zA-Z];
@@ -57,7 +56,6 @@ LT: '<';
 LE: '<=';
 EQUALS: '=';
 ASSIGN: '<-';
-
 LPAR: '(';
 RPAR: ')';
 COLON: ':';
@@ -89,19 +87,13 @@ WHILE: [wW][hH][iI][lL][eE];
 NEW: [nN][eE][wW];
 NOT: [nN][oO][tT];
 LET: [lL][eE][tT];
-TYPE: UPPERCASE (ID)*;
-OBJECT: LOWERCASE ID;
+TYPE: UPPERCASE (LETTER | DIGIT | '_')*;
+// OBJECT: LOWERCASE ID;
 
-ID: LETTER (LETTER | DIGIT)*;
-// cadenas
-// STRING : '"' ( ESC_SEQ | ~["\b\t\n\f\r\\] )* '"';
-// fragment ESC_SEQ : '\\' [btnf];
+ID: LOWERCASE (LETTER | DIGIT | '_')*;
 STRING: '"' .*? '"';
 
 // comentarios
 COMMENT: '--' ~[\r\n]* -> skip;
 CLOSED_COMMENT: '(*' .*? '*)' -> skip;
-
 WHITESPACE: [ \t\r\n\f]+ -> skip;
-
-ERROR: . ;

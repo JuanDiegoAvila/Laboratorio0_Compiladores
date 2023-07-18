@@ -6,82 +6,47 @@ from dist.yalpVisitor import yalpVisitor
 
 TAMAÑO_MAXIMO_STRING = 100
 
-def scanner(input_file):
-    # Leer el archivo de entrada
-    with open(input_file, 'r') as file:
-        input_text = file.read()
+class CustomLexerErrorListener(DiagnosticErrorListener):
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        print(f"Error léxico en la posición {line}:{column} token {msg[-3:]} no reconocido.")
 
-    input_stream = InputStream(input_text)
-    lexer = yalpLexer(input_stream)
+class CustomParserErrorListener(DiagnosticErrorListener):
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        expected_tokens = e.getExpectedTokens().toString(recognizer.literalNames, recognizer.symbolicNames)
+        offending_token = offendingSymbol.text if offendingSymbol is not None else "no reconocido"
+        print(f"Error sintáctico en {line}:{column}, token '{offending_token}' no reconocido. Se esperaba uno de los siguientes tokens: {expected_tokens}.")
 
-    stream = CommonTokenStream(lexer)
-    stream.fill()
+class Scanner (object):
+    def __init__(self, input_file):
+        with open(input_file, 'r') as file:
+            self.input_text = file.read()
+        
+        self.input_stream = InputStream(self.input_text)
+        self.lexer = yalpLexer(self.input_stream)
+        
+        self.lexer.removeErrorListeners()
+        self.lexer.addErrorListener(CustomLexerErrorListener())
 
-    # Obtener los tokens
-    token = lexer.nextToken()
-    reconocidos = []
+        self.stream = CommonTokenStream(self.lexer)
+        self.stream.fill()
 
-    # Imprimir los tokens
-    while token.type != Token.EOF:
-        if token.type == lexer.ERROR:
-            reconocidos.append(('ERROR', [f"Error léxico en la línea {token.line}:{token.column} - {token.text}", token.text]))
-        elif token.type == lexer.STRING:
-            text = token.text[1:-1]
-            # si el tamaño del string es mayor que el establecido reportar como error
-            if len(token.text) > TAMAÑO_MAXIMO_STRING:
-                reconocidos.append(('ERROR', [f"El string: [ {token.text} ] supera el tamaño máximo de {TAMAÑO_MAXIMO_STRING}", token.text]))
-            # PENDIENTE
-            if '\n' in text and not text.endswith('\\n'):
-                reconocidos.append(('ERROR', [f"El string: [ {token.text} ] contiene un carácter de nueva línea no escapado.", token.text]))
-            else:
-                reconocidos.append((lexer.symbolicNames[token.type], token.text))
-        else:
-            reconocidos.append((lexer.symbolicNames[token.type], token.text)) 
+class Parser (object):
+    def __init__(self):
+        self.scanner = Scanner("error.txt")
+        self.parseTokens()
 
-        token = lexer.nextToken()
+    def parseTokens(self):
+        stream = self.scanner.stream
+        token_stream = stream
 
-    return reconocidos, stream
+        parser = yalpParser(token_stream)
 
+        parser.removeErrorListeners()
+        parser.addErrorListener(CustomParserErrorListener())
 
-def parse(tokens_reconocidos, stream):
-
-    token_stream = stream
-
-    error = False
-
-    for token in tokens_reconocidos:
-        if token[0] == 'ERROR':
-            print(token[1][0])
-            error = True
-
-    if error:
-        print("Se encontraron errores léxicos, no se procederá con el análisis sintáctico.")
-        return
-    
-    # token_stream = CommonTokenStream(yalpLexer(None))
-    # token_stream.tokens = tokens_reconocidos
-    # token_stream = token_stream.fill()
-
-    # a partir de los tokens recibidos en el lexer, crear lista common_tokens para asignar el token stream
-    parser = yalpParser(token_stream)
-    
-    tree = parser.program()
-
-    print(tree.toStringTree(recog=parser))
-
-    
-
-    # 
-    # token_stream.tokens = common_tokens
-
-    
-
-
-# Archivo de entrada a analizar
-archivo_entrada = "entrada.txt"
+        tree = parser.program()
+        tree_string = tree.toStringTree(recog=parser)
+        print(tree_string)
 
 # Llamar a la función para el scanner
-tokens_reconocidos, stream = scanner(archivo_entrada)
-
-# Llamar a la función para el parser
-parse(tokens_reconocidos, stream)
+parser = Parser()
