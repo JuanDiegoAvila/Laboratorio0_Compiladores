@@ -160,9 +160,13 @@ class Parser (object):
         print(stringTreeToList(tree_string))
         arbol = self.createTree(tree_string)
         arbol.Traverse2()
-        arbol.showGraph()
         
         #Por si no funciona el arbol: os.system('antlr4-parse ./gramatica/yalp.g4 program -gui ./entrada.txt')
+        
+    def createTree2(self, tree_string):
+        if not isinstance(tree_string, list):
+            tree_string = stringTreeToList(tree_string)
+
         
     def createTree(self, tree_string):
         if not isinstance(tree_string, list):
