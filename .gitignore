@@ -10,6 +10,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+prueba.py
 build/
 develop-eggs/
 dist/
