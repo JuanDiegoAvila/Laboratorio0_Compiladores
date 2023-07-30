@@ -7,101 +7,18 @@ from dist.yalpVisitor import yalpVisitor
 import pydot
 from graphviz import Digraph, Graph
 import os
+from tree import *
+from tablaSimbolos import *
 
 TAMAÑO_MAXIMO_STRING = 100
 
 ERRORS = False
 
-def stringTreeToList(tree_string):
-    new_word = ''
-    words = []
-    string_flag = False
-
-    for i in tree_string:
-        if string_flag==False:
-            if i =='(':
-                words.append(i)
-                new_word = ''
-            elif i == ' ':
-                if new_word != '' and new_word!=' ':
-                    words.append(new_word)
-                new_word=''
-            elif i == ')':
-                if new_word != '' and new_word!=' ':
-                    words.append(new_word)
-                new_word=''
-                words.append(i)
-            elif i == '"':
-                string_flag=True
-                new_word=i
-            else:
-                new_word+=i
-        else:
-            if i == '"':
-                string_flag=False
-                new_word+=i
-                words.append(new_word)
-                new_word=''
-            else: 
-                new_word+=i
-    return words
-
-
-class Node:
-    def __init__(self, name, children=None):
-        self.name = name
-        self.children = children or []
-        self.number = 0
-    
-    def addChild(self, child_node):
-        self.children.append(child_node)
-        
-    def Traverse(self):
-        stack = [self]
-        while stack:
-            lookat = stack.pop()
-            print(lookat.name)
-            if lookat.children:
-                for i in lookat.children:
-                    stack.append(i)
-                    
-    def Traverse2(self):
-        print(" ")
-        stack = [self]
-        while stack:
-            lookat = stack.pop()
-
-            if lookat.children:
-                names = [i.name for i in lookat.children]
-                print(lookat.name, names)
-
-                for i in lookat.children:
-                    if i.children:
-                        
-                        stack.append(i)
-    
-    def showGraph(self):
-        stack = [self]
-        count = 0
-        dot = Graph()
-        
-        dot.node(name=str(self.number)+' '+self.name, label=self.name)
-        while stack:
-            lookat = stack.pop()
-            if lookat.children:
-                for i in lookat.children:
-                    count+=1
-                    i.number = count
-                    nombre_i = str(i.number)+' '+i.name
-                    dot.node(name=nombre_i, label=i.name)
-                    dot.edge((str(lookat.number)+' '+lookat.name), nombre_i)
-                    stack.append(i)
-        dot.render('tree', format='png')
-
 class CustomLexer(yalpLexer):
     def __init__(self, input):
         super().__init__(input)
         self.errors = False
+        self.tablaSimbolos = TablaSimbolos()
 
     def nextToken(self):
 
@@ -123,8 +40,10 @@ class CustomLexer(yalpLexer):
         elif token.type == yalpLexer.ERROR:
                 self.errors = True
                 print(f"Error léxico en la posición {token.line}:{token.column} token {token.text} no reconocido.")
-       
-            
+
+        tipo = yalpLexer.symbolicNames[token.type]
+        self.tablaSimbolos.add_simbolo(token.text, token.line, token.column, tipo)
+        
         return token
         
 class CustomParserErrorListener(ErrorListener):
@@ -144,7 +63,6 @@ class Scanner (object):
         
         self.input_stream = InputStream(self.input_text)
         self.lexer = CustomLexer(self.input_stream)
-
         self.stream = CommonTokenStream(self.lexer)
         self.stream.fill()
 
@@ -152,6 +70,8 @@ class Parser (object):
     def __init__(self):
         self.scanner = Scanner("entrada.txt")
         self.parseTokens()
+
+        print(self.scanner.lexer.tablaSimbolos.print_tabla())
 
     def Tree(self):
         os.system('antlr4-parse ./gramatica/yalp.g4 program -gui ./entrada.txt')
