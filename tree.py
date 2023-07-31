@@ -1,3 +1,6 @@
+from graphviz import Digraph, Graph
+
+
 def stringTreeToList(tree_string):
     new_word = ''
     words = []
@@ -42,16 +45,8 @@ class Node:
     def addChild(self, child_node):
         self.children.append(child_node)
         
-    def Traverse(self):
-        stack = [self]
-        while stack:
-            lookat = stack.pop()
-            print(lookat.name)
-            if lookat.children:
-                for i in lookat.children:
-                    stack.append(i)
                     
-    def Traverse2(self):
+    def Traverse(self):
         print(" ")
         stack = [self]
         while stack:

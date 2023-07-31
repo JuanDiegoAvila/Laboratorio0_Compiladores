@@ -102,7 +102,33 @@ class Parser (object):
         #Por si no funciona el arbol: 
         if self.scanner.lexer.errors == False and errorListener.errors == False:
             self.Tree()
-
+        
+    def createTree2(self, tree_string):
+        if not isinstance(tree_string, list):
+            tree_string = stringTreeToList(tree_string)
+            
+        name_rules = [ "program", "class", "feature", "formal", "expr" ]
+        root = None
+        par_stack = []
+        
+        while tree_string:
+            lookat = tree_string.pop(0)
+            if lookat == '(':
+                if tree_string[0] in name_rules:
+                    #De primero, meter tree_string a la lista
+                    #Si si existe algo en la root 
+                    if tree_string[0]=='program':
+                        root = Node(name=tree_string[0])
+                        tree_string.pop(0)
+                        continue
+                    else:
+                        par_stack.append(lookat)
+                        child = tree_string.pop(0)
+                        new_string = lookat+child+tree_string
+                        root.addChild(self.createTree2(tree_string))
+                else:
+                    par_stack.append(lookat)
+            
 
     
         
