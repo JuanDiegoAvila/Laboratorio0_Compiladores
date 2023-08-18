@@ -35,6 +35,9 @@ def stringTreeToList(tree_string):
                 new_word+=i
     return words
 
+def crear_arbol(tree_list):
+    reservadas = ['program', 'class', 'feature', 'formal', 'expr']
+    return stack[0]
 
 class Node:
     def __init__(self, name, children=None):

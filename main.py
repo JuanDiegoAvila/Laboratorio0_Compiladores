@@ -9,6 +9,7 @@ from graphviz import Digraph, Graph
 import os
 from tree import *
 from tablaSimbolos import *
+from treeVisitor import TreeVisitor
 
 TAMAÑO_MAXIMO_STRING = 100
 
@@ -89,15 +90,11 @@ class Parser (object):
         
 
         tree = parser.program()
-        
-        tree_string = tree.toStringTree(recog=parser)
-        #print(tree_string)
-        #print(stringTreeToList(tree_string))
-        #arbol = self.createTree2(tree_string)
-#
-        #arbol = self.createTree(tree_string)
-        #arbol.Traverse2()
-        
+
+        visitor = TreeVisitor()
+        grafo = visitor.visit(tree)
+
+        grafo.render('grafo', view=True, format='png')
         
         #Por si no funciona el arbol: 
         if self.scanner.lexer.errors == False and errorListener.errors == False:
