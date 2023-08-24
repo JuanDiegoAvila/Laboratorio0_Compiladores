@@ -2,6 +2,8 @@ from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
 from dist.yalpLexer import yalpLexer
 from dist.yalpParser import yalpParser
+from antlr4 import ParseTreeWalker
+from treeListener import *
 from dist.yalpListener import yalpListener
 from dist.yalpVisitor import yalpVisitor
 import pydot
@@ -20,10 +22,21 @@ class CustomLexer(yalpLexer):
         super().__init__(input)
         self.errors = False
         self.tablaSimbolos = TablaSimbolos()
+        self.scopes = 0
 
+    
+    def enterScope(self):
+        self.scopes += 1
+        self.tablaSimbolos.scope += 1
+
+    def exitScope(self):
+        self.scopes -= 1
+        self.tablaSimbolos.scope -= 1
+        
     def nextToken(self):
 
         token = super().nextToken()
+        
         if token.type == yalpLexer.STRING:
             # verificar le tamaño del string
             if len(token.text) > TAMAÑO_MAXIMO_STRING:
@@ -42,8 +55,9 @@ class CustomLexer(yalpLexer):
                 self.errors = True
                 print(f"Error léxico en la posición {token.line}:{token.column} token {token.text} no reconocido.")
 
-        tipo = yalpLexer.symbolicNames[token.type]
-        self.tablaSimbolos.add_simbolo(token.text, token.line, token.column, tipo)
+        _token_t = yalpLexer.symbolicNames[token.type]
+        # simbolo = Simbolo(token.text, token.line, token.column, _token_t, self.tablaSimbolos.scope)
+        # self.tablaSimbolos.add_simbolo(simbolo)
         
         return token
         
@@ -72,10 +86,8 @@ class Parser (object):
         self.scanner = Scanner("entrada.txt")
         self.parseTokens()
 
-        print(self.scanner.lexer.tablaSimbolos.print_tabla())
-
-    def Tree(self):
-        os.system('antlr4-parse ./gramatica/yalp.g4 program -gui ./entrada.txt')
+    # def Tree(self):
+    #     os.system('antlr4-parse ./gramatica/yalp.g4 program -gui ./entrada.txt')
     
     def parseTokens(self):
         stream = self.scanner.stream
@@ -90,78 +102,20 @@ class Parser (object):
         
 
         tree = parser.program()
-
-        visitor = TreeVisitor()
-        grafo = visitor.visit(tree)
-
-        grafo.render('grafo', view=True, format='png')
-        
+                
         #Por si no funciona el arbol: 
         if self.scanner.lexer.errors == False and errorListener.errors == False:
-            self.Tree()
+            visitor = TreeVisitor(self.scanner.lexer)
+            grafo = visitor.visitar(tree)
+            visitor.visit(tree)
+            # symbol_table_visitor = SymbolTableVisitor()
+            # walker = ParseTreeWalker()
+            # walker.walk(symbol_table_visitor, tree)
 
+            # grafo.render('grafo', view=True, format='png')
 
-    
-        
-    def createTree(self, tree_string):
-        if not isinstance(tree_string, list):
-            tree_string = stringTreeToList(tree_string)
-        
-        par_stack = [tree_string.pop(0)]
-        root = Node(tree_string.pop(0))
-        name_rules = [ "program", "class", "feature", "formal", "expr" ]
-        
-        continue_flag = True
+            print(self.scanner.lexer.tablaSimbolos.print_tabla())
 
-        #Revisar donde se cierran los parentesis
-        while par_stack:
-            
-            for i in range(len(tree_string)):
-                #Si el parentesis esta asociado con un rule_name
-                if tree_string[i]=='(' and tree_string[i+1] in name_rules:
-                    if continue_flag:
-                        temp_pstack = []
-                        index = 0
-                        for j in range(len(tree_string[i:])):
-                            if tree_string[j]=='(':
-                                temp_pstack.append(tree_string[j])
-                            elif tree_string[j]==')':
-                                temp_pstack.pop()
-                            if len(temp_pstack)==0:
-                                index = j
-                                break
-                            
-                        root.addChild(Node(tree_string[i]))
-                        root.addChild(self.createTree(tree_string[i:index+1]))
-                        par_stack.append(tree_string[i])
-                        continue_flag = False
-                        
-                elif tree_string[i]==')':
-
-                    par_stack.pop()
-                    if len(par_stack)==0:
-                        continue_flag=True
-                        break
-                    else:
-                        if continue_flag==False or tree_string[i-1]=='(':
-                            root.addChild(Node(tree_string[i]))
-                            if '}' in tree_string[i:] and '{' in tree_string[:i] and root.name!='program':
-                                root.addChild(Node('}'))
-                                
-
-                else:
-                    if continue_flag:
-                        if tree_string[i]=='(':
-                            root.addChild(Node(tree_string[i]))
-                            par_stack.append(tree_string[i])
-                        else:
-                            root.addChild(Node(tree_string[i]))
-            
-        return root
-
-            
-            
-                
                 
 
 # Llamar a la función para el scanner
