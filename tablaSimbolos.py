@@ -36,7 +36,7 @@ class TablaSimbolos(object):
     #             return
 
     def print_tabla(self):
-        print("Tabla de simbolos:")
+        print("\nTabla de simbolos:")
         # print(self.tabla)
         # print(self.simbolos)
         # print(self.scope_stack)

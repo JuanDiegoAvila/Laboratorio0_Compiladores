@@ -15,7 +15,6 @@ class TreeVisitor(yalpVisitor):
 
     def visitar(self, tree):
         label = self.getNodeLabel(tree)
-
         self.graph.node(str(self.id), label)
         padre = self.id
         self.id += 1
@@ -29,9 +28,11 @@ class TreeVisitor(yalpVisitor):
 
     def getNodeLabel(self, node):
         if isinstance(node, TerminalNode):
+            #print("Nodo terminal", node.getText())
             return node.getText()
         else:
             class_name = type(node).__name__
+            #print("node_no terminal: ", node.getText())
             rule_name = class_name.split('.')[1] if '.' in class_name else class_name
             rule_name = rule_name[:-7] if rule_name.endswith('Context') else rule_name
             return rule_name
@@ -116,6 +117,10 @@ class TreeVisitor(yalpVisitor):
     def handle_context(self, ctx):
         for child_ctx in ctx.getChildren():
             if isinstance(child_ctx, TerminalNode):
+                token = child_ctx.getSymbol()
+                print("\nToken: ", ctx.getToken(token.type, 0))
+                print("- start", ctx.getPayload().start)
+                print("- end", ctx.getPayload())
                 self.visitTerminal(child_ctx)
             else:
                 self.handle_context(child_ctx)
@@ -123,6 +128,10 @@ class TreeVisitor(yalpVisitor):
     def visitTerminal(self, node: TerminalNode):
         token = node.getSymbol()
         token_type = self.lexer.symbolicNames[token.type]
+        print("token_type:", token_type)
+        #print("token_text:", token.text)
+        #print("token_line", token.line)
+        #print("token_column", token.column)
         self.tablaSimbolos.add_simbolo(Simbolo(token.text, token.line, token.column, token_type, self.tablaSimbolos.scope))
 
 
