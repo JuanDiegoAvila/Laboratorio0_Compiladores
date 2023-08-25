@@ -35,9 +35,10 @@ class TreeVisitor(yalpVisitor):
             rule_name = class_name.split('.')[1] if '.' in class_name else class_name
             rule_name = rule_name[:-7] if rule_name.endswith('Context') else rule_name
             return rule_name
-        
-    def enterClass(self, ctx):
-        self.lexer.enterScope()
+
+
+    def visit(self, ctx):
+        return super().visit(ctx)
 
     def visitProgram(self, ctx: yalpParser.ProgramContext):
         for class_ctx in ctx.class_():
@@ -46,66 +47,32 @@ class TreeVisitor(yalpVisitor):
     def visitClass(self, ctx: yalpParser.ClassContext):
         class_name = ctx.TYPE()[0].getText()
 
-        self.lexer.enterScope()
-        self.tablaSimbolos.add_simbolo(Simbolo(class_name, ctx.start.line, ctx.start.column, "CLASS", self.tablaSimbolos.scope))
+        self.tablaSimbolos.add_simbolo(Simbolo(class_name, ctx.start.line, ctx.start.column, "CLASS", self.tablaSimbolos.current_scope()))
+        self.tablaSimbolos.enter_class()
 
-        # Visitar otras partes de la declaración de la clase
         for feature_ctx in ctx.feature():
             self.visit(feature_ctx)
 
-        
-        self.lexer.exitScope()
-
-    # Implementar más métodos visit para otras reglas gramaticales
-
     def visitFeature(self, ctx: yalpParser.FeatureContext):
         feature_name = ctx.ID().getText()
-        self.lexer.enterScope()
-        
-        # Determine si es una función o atributo
         token_type = "FUNCTION" if ctx.LPAR() else "ATTRIBUTE"
-        self.tablaSimbolos.add_simbolo(Simbolo(feature_name, ctx.start.line, ctx.start.column, token_type, self.tablaSimbolos.scope))
+        
+        self.tablaSimbolos.add_simbolo(Simbolo(feature_name, ctx.start.line, ctx.start.column, token_type, self.tablaSimbolos.current_scope()))
 
-        # Visitar otras partes de la declaración de la función o atributo
+        if token_type == "FUNCTION":
+            self.tablaSimbolos.in_function(True)
+            self.tablaSimbolos.enterScope()
+            
         if ctx.expr():
             self.visitExpr(ctx.expr())
         
         for formal_ctx in ctx.formal():
             self.visit(formal_ctx)
 
-        self.lexer.exitScope()
+        if token_type == "FUNCTION":
+            self.tablaSimbolos.in_function(False)
 
-  
-    # def visitFormal(self, ctx: yalpParser.FormalContext):
-    #     if ctx.ID():
-    #         formal_name = ctx.ID().getText()
-
-    #         self.tablaSimbolos.add_simbolo(Simbolo(formal_name, ctx.start.line, ctx.start.column, "FORMAL", self.tablaSimbolos.scope))
-
-    #     if ctx.TYPE():
-    #         formal_type = ctx.TYPE().getText()
-
-    #         self.tablaSimbolos.add_simbolo(Simbolo(formal_type, ctx.start.line, ctx.start.column, "TYPE", self.tablaSimbolos.scope))
-
-    # def visitExpr(self, ctx: yalpParser.ExprContext):
-    #     if ctx.ID():
-    #         for id in ctx.ID():
-    #             self.tablaSimbolos.add_simbolo(Simbolo(id.getText(), ctx.start.line, ctx.start.column, "VAR", self.tablaSimbolos.scope))
-        
-    #     if ctx.TYPE():
-    #         for type in ctx.TYPE():
-    #             self.tablaSimbolos.add_simbolo(Simbolo(type.getText(), ctx.start.line, ctx.start.column, "TYPE", self.tablaSimbolos.scope))
-
-    #     if ctx.STRING():
-    #         self.tablaSimbolos.add_simbolo(Simbolo(ctx.STRING().getText(), ctx.start.line, ctx.start.column, "STRING", self.tablaSimbolos.scope))
-    
-    #     if ctx.ASSIGN():
-    #         for assign in ctx.ASSIGN():
-    #             self.tablaSimbolos.add_simbolo(Simbolo(assign.getText(), ctx.start.line, ctx.start.column, "ASSIGN", self.tablaSimbolos.scope))
-        
-    #     # Continúa visitando las subexpresiones
-    #     for subexpr_ctx in ctx.expr():
-    #         self.visit(subexpr_ctx)
+        self.tablaSimbolos.exitScope()
 
     def visitExpr(self, ctx: yalpParser.ExprContext):
         self.handle_context(ctx)
@@ -122,8 +89,25 @@ class TreeVisitor(yalpVisitor):
 
     def visitTerminal(self, node: TerminalNode):
         token = node.getSymbol()
+
         token_type = self.lexer.symbolicNames[token.type]
-        self.tablaSimbolos.add_simbolo(Simbolo(token.text, token.line, token.column, token_type, self.tablaSimbolos.scope))
+
+        if token_type == "LBRACE":
+            self.tablaSimbolos.enterScope()
+        elif token_type == "RBRACE":
+            self.tablaSimbolos.exitScope()
+
+        if token_type == "LPAR" or token_type == "RPAR" or token_type == "LBRACE" or token_type == "RBRACE" or token_type == "SEMICOLON":
+            return
+
+        # # SISTEMA DE TIPOS
+        # if token_type == "TRUE" or token_type == "FALSE":
+        #     token_type = "BOOLEAN"
+        # elif token_type == "DIGIT":
+        #     token_type = "INT"
+
+
+        self.tablaSimbolos.add_simbolo(Simbolo(token.text, token.line, token.column, token_type, self.tablaSimbolos.current_scope()))
 
 
 

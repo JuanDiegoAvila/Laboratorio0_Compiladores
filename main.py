@@ -3,7 +3,6 @@ from antlr4.error.ErrorListener import ErrorListener
 from dist.yalpLexer import yalpLexer
 from dist.yalpParser import yalpParser
 from antlr4 import ParseTreeWalker
-from treeListener import *
 from dist.yalpListener import yalpListener
 from dist.yalpVisitor import yalpVisitor
 import pydot
@@ -25,13 +24,11 @@ class CustomLexer(yalpLexer):
         self.scopes = 0
 
     
-    def enterScope(self):
-        self.scopes += 1
-        self.tablaSimbolos.scope += 1
+    # def enterScope(self):
+    #     self.tablaSimbolos.enter_scope(None)
 
-    def exitScope(self):
-        self.scopes -= 1
-        self.tablaSimbolos.scope -= 1
+    # def exitScope(self):
+    #     self.tablaSimbolos.exit_scope()
         
     def nextToken(self):
 
@@ -83,7 +80,7 @@ class Scanner (object):
 
 class Parser (object):
     def __init__(self):
-        self.scanner = Scanner("entrada.txt")
+        self.scanner = Scanner("entrada3.txt")
         self.parseTokens()
 
     # def Tree(self):
@@ -108,11 +105,8 @@ class Parser (object):
             visitor = TreeVisitor(self.scanner.lexer)
             grafo = visitor.visitar(tree)
             visitor.visit(tree)
-            # symbol_table_visitor = SymbolTableVisitor()
-            # walker = ParseTreeWalker()
-            # walker.walk(symbol_table_visitor, tree)
 
-            # grafo.render('grafo', view=True, format='png')
+            grafo.render('grafo', view=True, format='png')
 
             print(self.scanner.lexer.tablaSimbolos.print_tabla())
 

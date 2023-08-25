@@ -1,0 +1,22 @@
+(* COMENTARIO *)
+class Main {
+    main() : Object {
+        let x : Int <- 5 in
+        {
+            if x < 10 then
+                x <- x + 1
+            else
+                x <- x - 1
+            fi ;
+            while x > 0 loop
+                out_string("Countdown: " + x + "\n")
+            pool ;
+        }
+    };
+};
+
+class Counter {
+    count() : Int {
+        0
+    };
+};

@@ -1,25 +1,35 @@
+from prettytable import PrettyTable
+
 class TablaSimbolos(object):
     def __init__(self):
         self.tabla = []
         self.simbolos = []
-        self.scope_stack = []
-        self.scope = 0
+        self.stack = [0]
+        self.c_scope = 0
+        self.global_scope = 0
 
-        # cada simbolo debe tener:
-        # lexema
-        # linea
-        # columna
-        # token
-        # alcance
+        self.function = False
 
-    def enter_scope(self, scope_name):
-        self.scope_stack.append(scope_name)
-        self.scope += 1
-        return self.scope   
+    def in_function(self, function):
+        self.function = function
 
-    def exit_scope(self):
-        self.scope_stack.pop()
-        self.scope -= 1
+    def enter_class(self):
+        self.global_scope += 1
+        self.stack[-1] += 1
+
+    def enterScope(self, tipo_token=None):
+        self.stack[-1] += 1
+
+    def exitScope(self):
+        if len(self.stack) > 1:
+            self.stack.pop()
+
+    def current_scope(self):
+        if self.function:
+            return self.stack[-1]
+        else:
+            return self.global_scope
+    
 
     def get_simbolo(self, lexema):
         for simbolo in self.tabla:
@@ -28,22 +38,20 @@ class TablaSimbolos(object):
         return None
 
     def add_simbolo(self, simbolo):
-        
         self.tabla.append(simbolo)
+        texto_global = "Global" if simbolo.scope == self.global_scope else "Local"
+        texto_global = "Clase" if simbolo.tipo_token == "CLASS" else texto_global
+        simbolo.setGlobal(texto_global)
         
-
-    # def actualizar_simbolo(self):
-    #             return
 
     def print_tabla(self):
         print("Tabla de simbolos:")
-        # print(self.tabla)
-        # print(self.simbolos)
-        # print(self.scope_stack)
-        # print(self.scope)
+        x = PrettyTable()
+        x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Scope", "Global"]
         for simbolo in self.tabla:
-            print(simbolo)
-        print("")
+            x.add_row([simbolo.lexema, simbolo.linea, simbolo.columna, simbolo.tipo_token, simbolo.scope, simbolo.global_])
+        print(x)
+
 
 class Simbolo:
     def __init__(self, lexema, linea, columna, tipo_token, scope):
@@ -52,6 +60,10 @@ class Simbolo:
         self.columna = columna
         self.tipo_token = tipo_token
         self.scope = scope
+        self.global_ = False
 
     def __str__(self):
         return f"Lexema: {self.lexema}, Linea: {self.linea}, Columna: {self.columna}, Tipo de Token: {self.tipo_token}, Scope: {self.scope}"
+
+    def setGlobal(self, global_):
+        self.global_ = global_
