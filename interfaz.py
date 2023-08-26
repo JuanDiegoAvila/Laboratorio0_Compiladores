@@ -3,14 +3,26 @@ from tkinter import filedialog, Text, Menu, PanedWindow, Button, Scrollbar, font
 
 global_terminal = None
 
-def custom_print(terminal, *args, **kwargs):
+def custom_print(terminal, *args, is_error=False, **kwargs):
     if terminal is None:
-        raise ValueError("La terminal no ha sido inicializada.")
+        print(*args, **kwargs)
+        return
+    
     terminal.config(state="normal")
-    content = ' '.join(map(str, args)) + '\n'
+    content = '>'+' '.join(map(str, args)) + '\n'
+
+    start_position = terminal.index(tk.END)  # posición inicial antes de la inserción
     terminal.insert(tk.END, content)
+    end_position = terminal.index(tk.END)  # posición final después de la inserción
+
+    if is_error:
+        print("Error")
+        terminal.tag_add("error", start_position, end_position)
+    
     terminal.config(state="disabled")
     terminal.see("end")
+    terminal.update_idletasks()
+
 
 def get_global_terminal():
     return global_terminal
@@ -23,7 +35,7 @@ class Interfaz(tk.Tk):
     def __init__(self, Parser):
         super().__init__()
         self.Parser = Parser
-        self.title("Editor con Terminal")
+        self.title("IDE de Yapl/COOL")
 
         self.current_file_path = None
 
@@ -54,17 +66,34 @@ class Interfaz(tk.Tk):
         self.frame_texto = tk.Frame(self.frame_editor)
         self.frame_texto.pack(expand=1, fill=tk.BOTH)
 
+        self.line_number_canvas = tk.Canvas(self.frame_texto, width=30, bg=self.color_fondo)
+        self.line_number_canvas.pack(side=tk.LEFT, fill=tk.Y)
+
+        self.line_numbers = tk.Label(self.line_number_canvas, text='1', bg=self.color_fondo, fg=self.color_texto, anchor='e', font=self.fuente)
+        self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
+
         self.scroll_y = Scrollbar(self.frame_texto, orient=tk.VERTICAL)
         self.scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
+        self.scroll_y.config(command=self.on_text_and_canvas_scroll)
 
         self.area_texto = Text(self.frame_texto, wrap=tk.WORD, bg=self.color_fondo, fg=self.color_texto, insertbackground='white', font=self.fuente, yscrollcommand=self.scroll_y.set)
         self.area_texto.pack(expand=1, fill=tk.BOTH)
+        self.area_texto.bind("<<Change>>", lambda event: self.update_line_numbers())
+        self.area_texto.bind("<KeyPress>", self._on_key_press)
+        self.key_release_id = self.area_texto.bind("<KeyRelease>", self._on_key_release)
+        
+        # self.area_texto.config(yscrollcommand=self.sync_scrolling)
 
-        self.scroll_y.config(command=self.area_texto.yview)
+        # self.scroll_y.config(command=self.area_texto.yview)
+
+        # self.area_texto.bind("<Configure>", self.sync_line_numbers)
 
         # Terminal
         self.terminal = Text(self.paned_window, bg="black", fg="white")
         self.terminal.config(state=tk.DISABLED)
+        self.terminal.tag_configure("error", foreground="red")
+        self.terminal.tag_configure("success", foreground="green")
+
 
         set_global_terminal(self.terminal)
 
@@ -79,22 +108,44 @@ class Interfaz(tk.Tk):
 
         self.is_terminal_visible = False
 
+    def update_line_numbers(self):
+        line_count = self.area_texto.index(tk.END).split('.')[0]
+        line_numbers = "\n".join(str(i) for i in range(1, int(line_count)))
+        self.line_numbers.config(text=line_numbers)
+
     def clean_terminal(self):
         self.terminal.config(state=tk.NORMAL)
         self.terminal.delete(1.0, tk.END)
         self.terminal.config(state=tk.DISABLED)  
     
     def ejecutar_parser(self):
-        self.guardar_archivo()
+        with open(self.current_file_path, 'w') as file:
+            file.write(self.area_texto.get(1.0, tk.END))
+        
         if self.current_file_path:
             parser = self.Parser(self.current_file_path)
         else:
-            # Puedes mostrar un mensaje de error o alguna indicación si no hay archivo actual.
-            pass
+            self.guardar_archivo()
 
+    def on_text_and_canvas_scroll(self, *args):
+        self.area_texto.yview(*args)
+        self.line_number_canvas.yview(*args)
+
+    def sync_line_numbers(self, event):
+        self.line_number_canvas.config(scrollregion=self.line_number_canvas.bbox("all"))
+        self.line_number_canvas.yview_moveto(self.area_texto.yview()[0])
+
+    def _on_key_press(self, event):
+        self.area_texto.edit_separator()
+        self.area_texto.bind("<KeyRelease>", self._on_key_release)
+
+    def _on_key_release(self, event):
+        self.area_texto.edit_separator()
+        self.area_texto.event_generate("<<Change>>")
+        self.area_texto.unbind("<KeyRelease>")
 
     def abrir_archivo(self):
-        archivo = filedialog.askopenfilename(title="Abrir", filetypes=(("Archivos de texto", "*.txt"), ("Todos los archivos", "*.*")))
+        archivo = filedialog.askopenfilename(initialdir="./archivos/", title="Abrir", filetypes=(("Archivos de texto", "*.txt"), ("Todos los archivos", "*.*")))
         if archivo:
             self.current_file_path = archivo
             self.area_texto.delete(1.0, tk.END)
@@ -121,3 +172,6 @@ class Interfaz(tk.Tk):
             self.paned_window.add(self.terminal, width=300)
             self.show_terminal_button.config(text="Esconder Terminal")
         self.is_terminal_visible = not self.is_terminal_visible
+
+    # def sync_scrolling(self, *args):
+    #     self.line_numbers.yview_moveto(args[0])

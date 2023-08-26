@@ -50,6 +50,7 @@ class SemanticVisitor(TreeVisitor):
         else:
             self.tablaSimbolos.add_simbolo(Simbolo(formal_name, ctx.start.line, ctx.start.column, "PARAMETER", self.tablaSimbolos.scope))
 
+    # def visitExpr(self, ctx: yalpParser.ExprContext):
     # TODO: Implement the type checking rules here
     # For instance, you could add methods like visitIntType, visitStringType, visitBoolType, etc. to handle the different types
     # and their default values, casting rules, etc.
@@ -57,6 +58,7 @@ class SemanticVisitor(TreeVisitor):
     # TODO: Implement the assignment rules here
     # You can add methods like visitAssignment to check the type compatibility between the left-hand and right-hand side of assignments
     
+
     # TODO: Implement method call and return value rules
     # You can add methods like visitMethodCall to check the argument types, return types, etc.
     

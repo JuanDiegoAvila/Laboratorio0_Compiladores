@@ -18,15 +18,9 @@ class CustomLexer(yalpLexer):
     def __init__(self, input):
         super().__init__(input)
         self.errors = False
+        self.global_terminal = get_global_terminal()
         self.tablaSimbolos = TablaSimbolos()
         self.scopes = 0
-
-    
-    # def enterScope(self):
-    #     self.tablaSimbolos.enter_scope(None)
-
-    # def exitScope(self):
-    #     self.tablaSimbolos.exit_scope()
         
     def nextToken(self):
 
@@ -38,18 +32,19 @@ class CustomLexer(yalpLexer):
                 # EMULAR error sintactico para que no se detenga el programa
                 token.type = yalpLexer.ERROR
                 self.errors = True
-                print(f"Error léxico en la posición {token.line}:{token.column} string {token.text} de tamaño mayor al permitido ({TAMAÑO_MAXIMO_STRING}).")
+                mensaje = f"Error léxico en la posición {token.line}:{token.column} string {token.text} de tamaño mayor al permitido ({TAMAÑO_MAXIMO_STRING})."
+                custom_print(self.global_terminal, mensaje, is_error=True)
 
             # verificar si tiene un salto de linea escapado
             if token.text.count("\n") > 0:
                 token.type = yalpLexer.ERROR
                 self.errors = True
-                print(f"Error léxico en la posición {token.line}:{token.column} string {token.text} con salto de linea no permitido.")
-        
+                mensaje = f"Error léxico en la posición {token.line}:{token.column} string {token.text} con salto de linea no permitido."
+                custom_print(self.global_terminal, mensaje, is_error=True)
         elif token.type == yalpLexer.ERROR:
                 self.errors = True
-                print(f"Error léxico en la posición {token.line}:{token.column} token {token.text} no reconocido.")
-
+                mensaje = f"Error léxico en la posición {token.line}:{token.column} token {token.text} no reconocido."
+                custom_print(self.global_terminal, mensaje, is_error=True)
         _token_t = yalpLexer.symbolicNames[token.type]
         # simbolo = Simbolo(token.text, token.line, token.column, _token_t, self.tablaSimbolos.scope)
         # self.tablaSimbolos.add_simbolo(simbolo)
@@ -59,12 +54,14 @@ class CustomLexer(yalpLexer):
 class CustomParserErrorListener(ErrorListener):
     def __init__(self):
         self.errors = False
+        self.global_terminal = get_global_terminal()
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
         expected_tokens = recognizer.getExpectedTokens().toString(recognizer.literalNames, recognizer.symbolicNames)
         offending_token = offendingSymbol.text if offendingSymbol is not None else "no reconocido"
         self.errors = True
-        print(f"Error sintáctico en {line}:{column}, token '{offending_token}' no reconocido. Se esperaba uno de los siguientes tokens: {expected_tokens}.")
+        mensaje = f"Error sintáctico en {line}:{column}, token '{offending_token}' no reconocido. Se esperaba uno de los siguientes tokens: {expected_tokens}."
+        custom_print(self.global_terminal, mensaje, is_error=True)
 
 class Scanner (object):
     def __init__(self, input_file):
@@ -106,10 +103,12 @@ class Parser (object):
 
             grafo.render('grafo', view=True, format='png')
             self.scanner.lexer.tablaSimbolos.print_tabla()
+
+            ScopeVisualizer(self.scanner.lexer.tablaSimbolos).visualize()
                 
 
 # Llamar a la función para el scanner
-# parser = Parser()
+parser = Parser('./archivos/entrada4.txt')
 
-app = interfaz.Interfaz(Parser)
-app.mainloop()
+# app = interfaz.Interfaz(Parser)
+# app.mainloop()

@@ -1,5 +1,7 @@
 (* COMENTARIO *)
 class Main inherits IO {
+    
+    globalVar : Int;
 
     main() : Object {
         let x : Int <- 5 in
@@ -23,10 +25,15 @@ class Main inherits IO {
     count() : Int {
         0
     };
-    
-    globalVar : Int;
-
-    exit(): Int {
-        0
-    };
 };
+
+
+
+
+
+
+
+
+
+
+

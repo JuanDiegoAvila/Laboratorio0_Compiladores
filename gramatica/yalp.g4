@@ -33,7 +33,7 @@ expr: ID ASSIGN expr
     | NOT expr
     | LPAR expr RPAR
     | ID
-    | DIGIT+
+    | DIGIT
     | STRING
     | TRUE
     | FALSE;
@@ -41,7 +41,7 @@ expr: ID ASSIGN expr
 /* REGLAS */
 
 // ENTEROS
-DIGIT: [0-9];
+DIGIT: [0-9]+;
 // LETTER: ;
 // UPPERCASE: ;
 // LOWERCASE: ;
@@ -69,10 +69,6 @@ RBRACE: '}';
 COMMA: ',';
 LSQUARE: '[';
 RSQUARE: ']';
-
-// Identificadores especiales
-SELF: 'self';
-SELF_TYPE: 'SELF_TYPE';
 
 // Palabras reservadas
 FALSE: 'false';
