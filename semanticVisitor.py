@@ -1,8 +1,6 @@
 from antlr4.tree.Tree import TerminalNode
-from graphviz import Digraph
 from dist.yalpParser import yalpParser
 from dist.yalpLexer import yalpLexer
-from dist.yalpVisitor import yalpVisitor
 from tablaSimbolos import *
 from treeVisitor import TreeVisitor
 
@@ -43,6 +41,14 @@ class SemanticVisitor(TreeVisitor):
             self.errors.append(f"Error: El atributo/funcion '{attr_name}' ya ha sido declarado en este ámbito.")
         else:
             self.tablaSimbolos.add_simbolo(Simbolo(attr_name, ctx.start.line, ctx.start.column, token_type, self.tablaSimbolos.scope))
+
+    def visitFormal(self, ctx: yalpParser.FormalContext):
+        formal_name = ctx.ID().getText()
+
+        if self.tablaSimbolos.get_simbolo(formal_name):
+            self.errors.append(f"Error: El parametro '{formal_name}' ya ha sido declarado en este ámbito.")
+        else:
+            self.tablaSimbolos.add_simbolo(Simbolo(formal_name, ctx.start.line, ctx.start.column, "PARAMETER", self.tablaSimbolos.scope))
 
     # TODO: Implement the type checking rules here
     # For instance, you could add methods like visitIntType, visitStringType, visitBoolType, etc. to handle the different types

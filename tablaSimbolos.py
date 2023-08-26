@@ -1,7 +1,17 @@
 from prettytable import PrettyTable
+from interfaz import custom_print, get_global_terminal
+
+
+# from tkinter import messagebox
+
+# def print(*args, sep=' ', end='\n', file=None):
+#     mensaje = sep.join(map(str, args)) + end
+#     messagebox.showinfo("Mensaje", mensaje)
+
 
 class TablaSimbolos(object):
     def __init__(self):
+        self.global_terminal = get_global_terminal()
         self.tabla = []
         self.simbolos = []
         self.stack = [0]
@@ -9,6 +19,7 @@ class TablaSimbolos(object):
         self.global_scope = 0
 
         self.function = False
+
 
     def in_function(self, function):
         self.function = function
@@ -45,12 +56,13 @@ class TablaSimbolos(object):
         
 
     def print_tabla(self):
-        print("Tabla de simbolos:")
+        custom_print(self.global_terminal, "Tabla de simbolos:")
+        # print()
         x = PrettyTable()
         x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Scope", "Global"]
         for simbolo in self.tabla:
             x.add_row([simbolo.lexema, simbolo.linea, simbolo.columna, simbolo.tipo_token, simbolo.scope, simbolo.global_])
-        print(x)
+        custom_print(self.global_terminal, x)
 
 
 class Simbolo:

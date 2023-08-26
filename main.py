@@ -2,15 +2,13 @@ from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
 from dist.yalpLexer import yalpLexer
 from dist.yalpParser import yalpParser
-from antlr4 import ParseTreeWalker
-from dist.yalpListener import yalpListener
-from dist.yalpVisitor import yalpVisitor
-import pydot
-from graphviz import Digraph, Graph
-import os
 from tree import *
 from tablaSimbolos import *
+
 from treeVisitor import TreeVisitor
+import interfaz as interfaz
+# import tkinter as tk
+# from tkinter import filedialog, Text, Menu, Scrollbar, font
 
 TAMAÑO_MAXIMO_STRING = 100
 
@@ -79,8 +77,8 @@ class Scanner (object):
         self.stream.fill()
 
 class Parser (object):
-    def __init__(self):
-        self.scanner = Scanner("entrada3.txt")
+    def __init__(self, input_file):
+        self.scanner = Scanner(input_file)
         self.parseTokens()
 
     # def Tree(self):
@@ -103,13 +101,15 @@ class Parser (object):
         #Por si funciona el arbol: 
         if self.scanner.lexer.errors == False and errorListener.errors == False:
             visitor = TreeVisitor(self.scanner.lexer)
-            print(visitor.id)
             grafo = visitor.visitar(tree)
             visitor.visit(tree)
 
             grafo.render('grafo', view=True, format='png')
-            print(self.scanner.lexer.tablaSimbolos.print_tabla())
+            self.scanner.lexer.tablaSimbolos.print_tabla()
                 
 
 # Llamar a la función para el scanner
-parser = Parser()
+# parser = Parser()
+
+app = interfaz.Interfaz(Parser)
+app.mainloop()

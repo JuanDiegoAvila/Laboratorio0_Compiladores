@@ -5,6 +5,7 @@ from dist.yalpLexer import yalpLexer
 from dist.yalpVisitor import yalpVisitor
 from tablaSimbolos import *
 
+
 class TreeVisitor(yalpVisitor):
     def __init__(self, lexer):
         super().__init__()
