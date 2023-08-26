@@ -100,16 +100,15 @@ class Parser (object):
 
         tree = parser.program()
                 
-        #Por si no funciona el arbol: 
+        #Por si funciona el arbol: 
         if self.scanner.lexer.errors == False and errorListener.errors == False:
             visitor = TreeVisitor(self.scanner.lexer)
+            print(visitor.id)
             grafo = visitor.visitar(tree)
             visitor.visit(tree)
 
             grafo.render('grafo', view=True, format='png')
-
             print(self.scanner.lexer.tablaSimbolos.print_tabla())
-
                 
 
 # Llamar a la función para el scanner
