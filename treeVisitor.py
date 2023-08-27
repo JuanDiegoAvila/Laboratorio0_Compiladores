@@ -13,6 +13,7 @@ class TreeVisitor(yalpVisitor):
         self.graph = Digraph()
         self.id = 0
         self.scope_counter = 0
+        self.errors = []
 
     def visitar(self, tree):
         label = self.getNodeLabel(tree)
@@ -47,7 +48,11 @@ class TreeVisitor(yalpVisitor):
 
     def visitClass(self, ctx: yalpParser.ClassContext):
         class_name = ctx.TYPE()[0].getText()
-        self.tablaSimbolos.add_simbolo(class_name, Simbolo(class_name, ctx.start.line, ctx.start.column, "CLASS", self.tablaSimbolos.current_scope))
+
+        if self.tablaSimbolos.get_simbolo(class_name):
+            self.errors.append(f"Error: La clase '{class_name}' ha sido declarada mas de una vez.")
+        else:
+            self.tablaSimbolos.add_simbolo(class_name, Simbolo(class_name, ctx.start.line, ctx.start.column, "CLASS", self.tablaSimbolos.current_scope))
         
         self.tablaSimbolos.enterScope()
 
@@ -60,8 +65,12 @@ class TreeVisitor(yalpVisitor):
         token_type = "FUNCTION" if ctx.LPAR() else "ATTRIBUTE"
 
         feature_name = ctx.ID().getText()
+    
+        if self.tablaSimbolos.get_simbolo(feature_name):
+            self.errors.append(f"Error: El atributo/funcion '{feature_name}' ya ha sido declarado en este ámbito.")
+        else:
+            self.tablaSimbolos.add_simbolo(feature_name, Simbolo(feature_name, ctx.start.line, ctx.start.column, token_type, self.tablaSimbolos.current_scope))
         
-        self.tablaSimbolos.add_simbolo(feature_name, Simbolo(feature_name, ctx.start.line, ctx.start.column, token_type, self.tablaSimbolos.current_scope))
         if token_type == "FUNCTION":
             self.tablaSimbolos.enterScope()
         
@@ -105,9 +114,14 @@ class TreeVisitor(yalpVisitor):
                 variable_name = id_node.getText()
                 variable_type = tipo_node.getText()
 
-                # Crear un nuevo símbolo para esta variable y agregarlo a la tabla de símbolos
-                simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope)
-                self.tablaSimbolos.add_simbolo(variable_name, simbolo)
+                # verificar si la variable ya ha sido declarada en este alcance
+                if self.tablaSimbolos.get_simbolo(variable_name):
+                    self.errors.append(f"Error: La variable '{variable_name}' ya ha sido declarada en este alcance.")
+                
+                else:
+                    # Crear un nuevo símbolo para esta variable y agregarlo a la tabla de símbolos
+                    simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope)
+                    self.tablaSimbolos.add_simbolo(variable_name, simbolo)
 
         else:
             if ctx.ID():
@@ -127,14 +141,23 @@ class TreeVisitor(yalpVisitor):
 
                     variable_name = id_node.getText()
                     variable_type = tipo_node.getText()
-                    simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
-                    self.tablaSimbolos.add_simbolo(variable_name, simbolo)
+
+                    # verificar si la variable ya ha sido declarada en este alcance
+                    if self.tablaSimbolos.get_simbolo(variable_name):
+                        self.errors.append(f"Error: El parametro '{variable_name}' ya ha sido declarado en este ámbito.")
+                    else:
+                        simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
+                        self.tablaSimbolos.add_simbolo(variable_name, simbolo)
                 
             else:
                 variable_name = ctx.ID().getText()
                 variable_type = ctx.TYPE().getText()
-                simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
-                self.tablaSimbolos.add_simbolo(variable_name, simbolo)
+                #verificar si la variable ya ha sido declarada en este alcance
+                if self.tablaSimbolos.get_simbolo(variable_name):
+                    self.errors.append(f"Error: El parametro '{variable_name}' ya ha sido declarado en este ámbito.")
+                else:
+                    simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
+                    self.tablaSimbolos.add_simbolo(variable_name, simbolo)
     
     def handle_context(self, ctx, formal=False):
         for child_ctx in ctx.getChildren():

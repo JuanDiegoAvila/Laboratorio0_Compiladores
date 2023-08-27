@@ -123,7 +123,7 @@ class Scope:
     
     def print_scope(self, level=0):
         indent = '  ' * level
-        print(f"{indent}Scope {self.name}:")
+        custom_print(self.global_terminal, f"\n{indent}Scope {self.name}:")
         
         x = PrettyTable()
         x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Global", "Parametro"]
@@ -137,12 +137,24 @@ class Scope:
 class TablaSimbolos:
     def __init__(self):
         self.conteo_scopes = 0
+        self.index_scopes = 0
         self.global_scope = Scope(self.conteo_scopes)
         self.current_scope = self.global_scope
+        self.all_scopes = [self.global_scope]
+    
+    def get_enterScope(self):
+        for scope in self.all_scopes:
+            if scope.name == self.index_scopes:
+                self.index_scopes += 1
+                return scope
+        
+    def get_exitScope(self):
+        self.index_scopes -= 1
 
     def enterScope(self):
         self.conteo_scopes += 1
         self.current_scope = self.current_scope.enter(self.conteo_scopes)
+        self.all_scopes.append(self.current_scope)
 
     def exitScope(self):
         self.current_scope = self.current_scope.exit()
@@ -150,7 +162,7 @@ class TablaSimbolos:
     def add_simbolo(self, name, simbolo):
         self.current_scope.add_symbol(name, simbolo)
 
-    def getSymbol(self, name):
+    def get_simbolo(self, name):
         temp_scope = self.current_scope
         while temp_scope:
             symbol = temp_scope.get_symbol(name)
@@ -172,10 +184,10 @@ class ScopeVisualizer:
 
     def visualize(self):
         self._add_nodes_and_edges(self.tablaSimbolos.global_scope, None)
-        self.graph.render('scope', view=True, format='png')
+        self.graph.render('./grafos/scope', view=True, format='png')
 
     def _add_nodes_and_edges(self, current_scope, parent_scope):
-        scope_label = f"Scope {current_scope.name}\nSymbols: {', '.join(current_scope.symbols.keys())}"
+        scope_label = f"Scope {current_scope.name}\nSimbolos: {', '.join(current_scope.symbols.keys())}"
         self.graph.node(str(current_scope.name), label=scope_label)
         
         if parent_scope:

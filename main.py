@@ -4,6 +4,7 @@ from dist.yalpLexer import yalpLexer
 from dist.yalpParser import yalpParser
 from tree import *
 from tablaSimbolos import *
+from semanticVisitor import SemanticVisitor
 
 from treeVisitor import TreeVisitor
 import interfaz as interfaz
@@ -97,15 +98,34 @@ class Parser (object):
                 
         #Por si funciona el arbol: 
         if self.scanner.lexer.errors == False and errorListener.errors == False:
-            visitor = TreeVisitor(self.scanner.lexer)
-            grafo = visitor.visitar(tree)
-            visitor.visit(tree)
+            
+            analisis_semantico(tree, self.scanner.lexer.tablaSimbolos, self.scanner.lexer)
+       
+def analisis_semantico(tree, tablaSimbolos, lexer):
+    visitor = TreeVisitor(lexer)
+    grafo = visitor.visitar(tree)
+    visitor.visit(tree)
 
-            grafo.render('grafo', view=True, format='png')
-            self.scanner.lexer.tablaSimbolos.print_tabla()
+    if visitor.errors != []:
+        for error in visitor.errors:
+            terminal = get_global_terminal()
+            custom_print(terminal, error, is_error=True)
+        return
 
-            ScopeVisualizer(self.scanner.lexer.tablaSimbolos).visualize()
-                
+    # grafo.render('./grafos/grafo', view=True, format='png')
+    # tablaSimbolos.print_tabla()
+    semanticVisitor = SemanticVisitor(lexer, tablaSimbolos)
+    semanticVisitor.visit(tree) 
+
+    if semanticVisitor.errors != []:
+        for error in semanticVisitor.errors:
+            terminal = get_global_terminal()
+            custom_print(terminal, error, is_error=True)
+        return
+
+
+
+    # ScopeVisualizer(tablaSimbolos).visualize()
 
 # Llamar a la función para el scanner
 parser = Parser('./archivos/entrada4.txt')
