@@ -20,11 +20,11 @@ expr: ID ASSIGN expr
     | LET ID COLON TYPE (ASSIGN expr)? (COMMA ID COLON TYPE (ASSIGN expr)?)* IN expr
     | NEW TYPE
     | ISVOID expr
-    | expr PLUS expr
-    | expr MINUS expr
     | expr TIMES expr
     | expr DIVIDE expr
     | DIAC expr
+    | expr PLUS expr
+    | expr MINUS expr
     | expr LT expr
     | expr LE expr
     | expr RT expr
