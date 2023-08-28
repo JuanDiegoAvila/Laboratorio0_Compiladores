@@ -48,11 +48,15 @@ class TreeVisitor(yalpVisitor):
 
     def visitClass(self, ctx: yalpParser.ClassContext):
         class_name = ctx.TYPE()[0].getText()
+        parent_class_name = None
+
+        if ctx.INHERITS():
+            parent_class_name = ctx.TYPE()[1].getText()
 
         if self.tablaSimbolos.get_simbolo(class_name):
             self.errors.append(f"Error: La clase '{class_name}' ha sido declarada mas de una vez.")
         else:
-            self.tablaSimbolos.add_simbolo(class_name, Simbolo(class_name, ctx.start.line, ctx.start.column, "CLASS", self.tablaSimbolos.current_scope))
+            self.tablaSimbolos.add_simbolo(class_name, Simbolo(class_name, ctx.start.line, ctx.start.column, "CLASS", self.tablaSimbolos.current_scope, hereda=parent_class_name))
         
         self.tablaSimbolos.enterScope()
 

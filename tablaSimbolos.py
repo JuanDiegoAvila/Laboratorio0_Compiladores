@@ -82,7 +82,7 @@ from interfaz import custom_print, get_global_terminal
 #             conteo_alcances += 1
     
 class Simbolo:
-    def __init__(self, lexema, linea, columna, tipo_token, scope, parametro=False):
+    def __init__(self, lexema, linea, columna, tipo_token, scope, parametro=False, hereda=None):
         self.lexema = lexema
         self.linea = linea
         self.columna = columna
@@ -90,9 +90,10 @@ class Simbolo:
         self.scope = scope
         self.global_ = False
         self.parametro = parametro
+        self.hereda = hereda
 
     def __str__(self):
-        return f"Lexema: {self.lexema}, Linea: {self.linea}, Columna: {self.columna}, Tipo de Token: {self.tipo_token}, Scope: {self.scope}, Parametro: {self.parametro}"
+        return f"Lexema: {self.lexema}, Linea: {self.linea}, Columna: {self.columna}, Tipo de Token: {self.tipo_token}, Scope: {self.scope}, Parametro: {self.parametro}, Hereda: {self.hereda}"
 
     def setGlobal(self, global_):
         self.global_ = global_
@@ -126,9 +127,9 @@ class Scope:
         custom_print(self.global_terminal, f"\n{indent}Scope {self.name}:")
         
         x = PrettyTable()
-        x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Global", "Parametro"]
+        x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Global", "Parametro", "Hereda"]
         for name, simbolo in self.symbols.items():
-            x.add_row([simbolo.lexema, simbolo.linea, simbolo.columna, simbolo.tipo_token, simbolo.global_, simbolo.parametro])
+            x.add_row([simbolo.lexema, simbolo.linea, simbolo.columna, simbolo.tipo_token, simbolo.global_, simbolo.parametro, simbolo.hereda])
         custom_print(self.global_terminal, x)
         for child in self.children:
             child.print_scope(level+1)

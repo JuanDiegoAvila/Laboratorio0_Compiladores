@@ -112,8 +112,8 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
             custom_print(terminal, error, is_error=True)
         return
 
-    # grafo.render('./grafos/grafo', view=True, format='png')
-    # tablaSimbolos.print_tabla()
+    grafo.render('./grafos/grafo', view=True, format='png')
+    tablaSimbolos.print_tabla()
     semanticVisitor = SemanticVisitor(lexer, tablaSimbolos)
     semanticVisitor.visit(tree) 
 
