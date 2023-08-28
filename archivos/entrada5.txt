@@ -1,12 +1,9 @@
 
 class Main inherits IO {
+
     main() : Object {
         if (true) then {
-            true + 1 * false - 3=3;
-            1 + 2 * 3 - 4=4;
-            "Hola"+1;
-            z <- 3;
-            x <- y;
+            1 + 1 * 6 - 3=3;
         } else {
             x <- y;
             if (x = y) then {

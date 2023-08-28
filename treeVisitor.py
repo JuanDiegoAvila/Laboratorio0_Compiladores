@@ -68,13 +68,23 @@ class TreeVisitor(yalpVisitor):
     def visitFeature(self, ctx: yalpParser.FeatureContext):
         token_type = "FUNCTION" if ctx.LPAR() else "ATTRIBUTE"
 
-        feature_name = ctx.ID().getText()
+        if token_type == "ATTRIBUTE" and ctx.ID() is not None and ctx.TYPE() is not None:
+            variable_name = ctx.ID().getText()
+            variable_type = ctx.TYPE().getText()
+
+            if self.tablaSimbolos.get_simbolo(variable_name):
+                self.errors.append(f"Error: El atributo '{variable_name}' ya ha sido declarado en este ámbito.")
+            else:
+                self.tablaSimbolos.add_simbolo(variable_name, Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope))
     
-        if self.tablaSimbolos.get_simbolo(feature_name):
-            self.errors.append(f"Error: El atributo/funcion '{feature_name}' ya ha sido declarado en este ámbito.")
         else:
-            self.tablaSimbolos.add_simbolo(feature_name, Simbolo(feature_name, ctx.start.line, ctx.start.column, token_type, self.tablaSimbolos.current_scope))
+            feature_name = ctx.ID().getText()
         
+            if self.tablaSimbolos.get_simbolo(feature_name):
+                self.errors.append(f"Error: El atributo/funcion '{feature_name}' ya ha sido declarado en este ámbito.")
+            else:
+                self.tablaSimbolos.add_simbolo(feature_name, Simbolo(feature_name, ctx.start.line, ctx.start.column, token_type, self.tablaSimbolos.current_scope))
+            
         if token_type == "FUNCTION":
             self.tablaSimbolos.enterScope()
         
@@ -87,7 +97,6 @@ class TreeVisitor(yalpVisitor):
             
         if token_type == "FUNCTION":
             self.tablaSimbolos.exitScope()
-
                 
     def visitExpr(self, ctx: yalpParser.ExprContext):
             

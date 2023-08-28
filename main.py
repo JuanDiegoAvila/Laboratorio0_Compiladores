@@ -4,7 +4,8 @@ from dist.yalpLexer import yalpLexer
 from dist.yalpParser import yalpParser
 from tree import *
 from tablaSimbolos import *
-from semanticVisitor import SemanticVisitor
+#from semanticVisitor import SemanticVisitor
+from PruebasCodigo.pruebaSemanticVisitor import SemanticVisitor
 
 from treeVisitor import TreeVisitor
 import interfaz as interfaz
@@ -113,7 +114,9 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
         return
 
     grafo.render('./grafos/grafo', view=True, format='png')
-    tablaSimbolos.print_tabla()
+    # tablaSimbolos.print_tabla()
+    
+    # ScopeVisualizer(tablaSimbolos).visualize()
     semanticVisitor = SemanticVisitor(lexer, tablaSimbolos)
     semanticVisitor.visit(tree) 
 
@@ -125,7 +128,6 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
 
 
 
-    # ScopeVisualizer(tablaSimbolos).visualize()
 
 # Llamar a la función para el scanner
 parser = Parser('./archivos/entrada4.txt')
