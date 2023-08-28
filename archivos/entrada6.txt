@@ -1,0 +1,14 @@
+class Main inherits IO {
+    main() : Object {
+        let x : Int <- 5 in
+        {
+            while x = 0 loop
+                out_string("Countdown: ")
+            pool ;
+        }
+    };
+
+    count( initial : Int ) : Int {
+        id_1 <- ~ 1
+    };
+};

@@ -70,40 +70,107 @@ class SemanticVisitor(yalpVisitor):
     def visitExpr(self, ctx: yalpParser.ExprContext):
 
         if ctx.LET():
-            scope_let = self.tablaSimbolos.get_exitScope()
+            scope_let = self.tablaSimbolos.get_enterScope()
             
             visited_let = self.handle_context(ctx)
 
             self.tablaSimbolos.get_exitScope()
 
-        if ctx.IF():
-            scope_if = self.tablaSimbolos.get_exitScope()
+        elif ctx.IF():
+            scope_if = self.tablaSimbolos.get_enterScope()
 
-            visited_if = self.handle_context(ctx)
+            
+            visited = self.handle_context(ctx)
 
+
+
+            if ctx.ELSE():
+                scope_else = self.tablaSimbolos.get_enterScope()
+
+
+                self.tablaSimbolos.get_exitScope()
+
+            else:
+                visited = self.handle_context(ctx)
+            
             self.tablaSimbolos.get_exitScope()
 
-        if ctx.ELSE():
-            scope_else = self.tablaSimbolos.get_exitScope()
-
-            visited_else = self.handle_context(ctx)
-
-            self.tablaSimbolos.get_exitScope()
-
-        if ctx.WHILE():
+        elif ctx.WHILE():
             scope_while = self.tablaSimbolos.get_exitScope()
 
             visited_while = self.handle_context(ctx)
 
             self.tablaSimbolos.get_exitScope()
 
-        # if ctx.MINUS() or ctx.PLUS() or ctx.TIMES() or ctx.DIVIDE() or ctx.LT() or ctx.RT() or ctx.LE() or ctx.RE():
-        if ctx.PLUS() or ctx.TIMES() or ctx.MINUS() or ctx.DIVIDE() or ctx.LT() or ctx.RT() or ctx.LE() or ctx.RE():    
+        elif ctx.EQUALS():
+            visited_op = self.handle_context(ctx)
+
+            first = visited_op[0][0]
+            equals = visited_op[1]
+            second = visited_op[2][0]
+
+            if isinstance(first, CommonToken):
+                first_type = self.lexer.symbolicNames[first.type]
+            else:
+                first_type = first
+            
+            if isinstance(second, CommonToken):
+                second_type = self.lexer.symbolicNames[second.type]
+            else:
+                second_type = second
+            
+            if first_type == second_type:
+                pass
+
+        elif ctx.LT() or ctx.RT() or ctx.LE() or ctx.RE():
 
             visited_op = self.handle_context(ctx)
             operadores = []
             operandos = []
             
+            for visit in visited_op:
+                if isinstance(visit, list):
+                    op = visit[0]
+
+                    if isinstance(op, CommonToken):
+                        token_type = self.lexer.symbolicNames[op.type]
+
+                        if token_type == "ID":
+                            simbolo = self.tablaSimbolos.get_scope_simbolo(op.text)
+                            
+                            if simbolo:
+                                operandos.append(simbolo.tipo_token)
+                            else:
+                                linea = op.line
+                                columna = op.column
+                                message = f"Error: La variable '{op.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+
+                                if message not in self.errors:
+                                    self.errors.append(message)
+                        
+                        else:
+                            operandos.append(token_type)
+                    else:
+                        operandos.append(op)
+
+                else:
+                    if isinstance(visit, str):
+                        operadores.append(visit)
+                    else:
+                        token_type = self.lexer.symbolicNames[visit.type]
+                        operadores.append(token_type)
+
+            if len(operandos) < 2:
+                return [None]
+
+            tipo = self.checkCompare(ctx, operandos)
+            return [tipo]
+
+        elif ctx.PLUS() or ctx.TIMES() or ctx.MINUS() or ctx.DIVIDE():    
+
+            visited_op = self.handle_context(ctx)
+            operadores = []
+            operandos = []
             
             for visit in visited_op:
                 if isinstance(visit, list):
@@ -142,18 +209,91 @@ class SemanticVisitor(yalpVisitor):
 
             tipo = self.checkValues(ctx, operandos)
             return [tipo]
-            
+        
+        elif ctx.DIAC():
+            visited = self.handle_context(ctx)
+
+            if isinstance(visited[1], str):
+                if visited[1] == "Int":
+                    return ["Int"]
+                else:
+                    linea = ctx.start.line
+                    columna = ctx.start.column
+                    error = f'Type error: ~ no se puede operar con {visited[1]} en la posicion {linea}:{columna}'
+                    if error not in self.errors:
+                        self.errors.append(error)
+                
+            else:
+                if isinstance(visited[1][0], str):
+                    temp = visited[1][0]
+
+                    if temp == "Int":
+                        return ["Int"]
+                    else: 
+                        linea = ctx.start.line
+                        columna = ctx.start.column
+                        error = f'Type error: ~ no se puede operar con {temp} en la posicion {linea}:{columna}'
+                        if error not in self.errors:
+                            self.errors.append(error)
+                else:
+                    temp = visited[1][0].type
+                    token_type = self.lexer.symbolicNames[temp]
+                    if token_type == "Int" or token_type == "DIGIT":
+                        return ["Int"]
+                    else:
+                        linea = ctx.start.line
+                        columna = ctx.start.column
+                        error = f'Type error: ~ no se puede operar con {token_type} en la posicion {linea}:{columna}'
+                        if error not in self.errors:
+                            self.errors.append(error)
+
         else:
 
             v = self.handle_context(ctx) 
             return v
 
+    def checkCompare(self, ctx: yalpParser.ExprContext, visited:list):
+        types = []
+        print(visited)
+
+        for v in visited:
+            if v == "DIGIT" or v == "Int":
+                types.append("Int")
+            elif v == "STRING" or v == "String":
+                types.append("String")
+            elif v == "TRUE" or v == "FALSE" or v == "Boolean":
+                types.append("Boolean")
+            else:
+                types.append(v)
+            if v == None:
+                return None
         
+        compare = ''
+        se_puede = False
+        for type in types:
+            if compare == '':
+                compare = type
+
+            else:
+                if type == compare:
+                    se_puede = True
+        
+        if se_puede: 
+            return compare
+        
+        else:
+            linea = ctx.start.line
+            columna = ctx.start.column
+            error = f'Type error: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
+            if error not in self.errors:
+                self.errors.append(error)
+
+            return None
+
     def checkValues(self, ctx: yalpParser.ExprContext, visited:list):
         types = []
         
         for v in visited:
-            print(v)
 
             if v == "DIGIT" or v == "Int":
                 if "Int" not in types:
@@ -177,217 +317,7 @@ class SemanticVisitor(yalpVisitor):
 
             return None
 
-        return ''.join(types)
-    
- #   def checkInt(self, ctx: yalpParser.ExprContext, opTypes:tuple):
-        MUL = ctx.TIMES
-        DIV = ctx.DIVIDE
-        PLUS = ctx.PLUS
-        MINUS = ctx.MINUS
-        LT =  ctx.LT
-        GT =  ctx.RT
-        LE =  ctx.LE
-        RE =  ctx.RE
-        
-        
-        
-        exp1 = opTypes[0] #Debido a que es checkInt se espera que este dato sea int
-        exp2 = opTypes[1]
-        
-        if ctx.getToken(PLUS, 0):
-            if exp2 == "string":
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between Int and String'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            elif exp2 == 'Bool':
-                #Todo: Expresar el casteo implicito de bool a int
-                #False = 0
-                #True  = 1
-                pass
-            #Si se está comparando con una tipo de alguna clase
-            else:
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between Int and {exp2}'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            
-        elif ctx.getToken(MUL, 0) or ctx.getToken(DIV, 0) or ctx.getToken(MINUS, 0):
-            if exp2 == "string":
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation {ctx.getText()}: between Int and String'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            elif exp2 == 'Bool':
-                #Todo: Expresar el casteo implicito de bool a int
-                #False = 0
-                #True  = 1
-                
-                pass
-            #Si se está comparando con una tipo de alguna clase
-            else:
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between Int and {exp2}'
-                self.errors.append(err1)
-                self.errors.append(err2)
-        elif ctx.getToken(RE, 0) or ctx.getToken(LE, 0) or ctx.getToken(GT, 0) or ctx.getToken(LT, 0):
-            if exp2 == "string":
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: `{ctx.getText()}` not valid: between Int and String'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            elif exp2 == 'Bool':
-                #Todo: Expresar el casteo implicito de bool a int
-                #False = 0
-                #True  = 1
-                #Ahora el tipo de expresión resultante será un booleano y no un entero. 
-                pass
-            #Si se está comparando con una tipo de alguna clase
-            else:
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: {ctx.getText()} not valid: between Int and {exp2}'
-                self.errors.append(err1)
-                self.errors.append(err2)
-                
-#    def checkString(self, ctx: yalpParser.ExprContext, opTypes:tuple):
-        MUL = ctx.TIMES
-        DIV = ctx.DIVIDE
-        PLUS = ctx.PLUS
-        MINUS = ctx.MINUS
-        LT =  ctx.LT
-        GT =  ctx.RT
-        LE =  ctx.LE
-        RE =  ctx.RE
-        
-        
-        
-        exp1 = opTypes[0] #Debido a que es checkString se espera que este dato sea String
-        exp2 = opTypes[1]
-        
-        if ctx.getToken(PLUS, 0):
-            if exp2 == "Int":
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between String and Int'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            elif exp2 == 'Bool':
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between String and Bool'
-                self.errors.append(err1)
-                self.errors.append(err2)
-                
-            #Si se está comparando con una tipo de alguna clase
-            else:
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between Int and {exp2}'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            
-        elif ctx.getToken(MUL, 0) or ctx.getToken(DIV, 0) or ctx.getToken(MINUS, 0):
-            if exp2 == "string":
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation {ctx.getText()}: between Int and String'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            elif exp2 == 'Bool':
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between String and Bool'
-                self.errors.append(err1)
-                self.errors.append(err2)
-                
-            #Si se está comparando con una tipo de alguna clase
-            else:
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between Int and {exp2}'
-                self.errors.append(err1)
-                self.errors.append(err2)
-        elif ctx.getToken(RE, 0) or ctx.getToken(LE, 0) or ctx.getToken(GT, 0) or ctx.getToken(LT, 0):
-            if exp2 == "string":
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: `{ctx.getText()}` not valid: between Int and String'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            elif exp2 == 'Bool':
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between String and Bool'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            #Si se está comparando con una tipo de alguna clase
-            else:
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: {ctx.getText()} not valid: between Int and {exp2}'
-                self.errors.append(err1)
-                self.errors.append(err2)
-                
-#    def checkBool(self, ctx: yalpParser.ExprContext, opTypes:tuple):
-        MUL = ctx.TIMES
-        DIV = ctx.DIVIDE
-        PLUS = ctx.PLUS
-        MINUS = ctx.MINUS
-        LT =  ctx.LT
-        GT =  ctx.RT
-        LE =  ctx.LE
-        RE =  ctx.RE
-        
-        
-        
-        exp1 = opTypes[0] #Debido a que es checkBool se espera que este dato sea bool
-        exp2 = opTypes[1]
-        
-        if ctx.getToken(ctx.PLUS, 0):
-            if exp2 == "String":
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between Int and String'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            elif exp2 == 'Int':
-                #Todo: Expresar el casteo implicito de bool a int
-                #False = 0
-                #True  = 1
-                pass
-            #Si se está comparando con una tipo de alguna clase
-            else:
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between Int and {exp2}'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            
-        elif ctx.getToken(MUL, 0) or ctx.getToken(DIV, 0) or ctx.getToken(MINUS, 0):
-            if exp2 == "String":
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation {ctx.getText()}: between Int and String'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            elif exp2 == 'Int':
-                #Todo: Expresar el casteo implicito de bool a int
-                #False = 0
-                #True  = 1
-                
-                pass
-            #Si se está comparando con una tipo de alguna clase
-            else:
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: Invalid operation +: between Int and {exp2}'
-                self.errors.append(err1)
-                self.errors.append(err2)
-        elif ctx.getToken(RE, 0) or ctx.getToken(LE, 0) or ctx.getToken(GT, 0) or ctx.getToken(LT, 0):
-            if exp2 == "String":
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: `{ctx.getText()}` not valid: between Int and String'
-                self.errors.append(err1)
-                self.errors.append(err2)
-            elif exp2 == 'Int':
-                #Todo: Expresar el casteo implicito de bool a int
-                #False = 0
-                #True  = 1
-                #Ahora el tipo de expresión resultante será un booleano y no un entero. 
-                pass
-            #Si se está comparando con una tipo de alguna clase
-            else:
-                err1 = f'Semantic Error: on line {ctx.start.line}, column: {ctx.start.column}'
-                err2 = f'Type error: {ctx.getText()} not valid: between Int and {exp2}'
-                self.errors.append(err1)
-                self.errors.append(err2)           
+        return ''.join(types)        
     
     def handle_context(self, ctx, formal=False):
         visited = []

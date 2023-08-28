@@ -1,5 +1,7 @@
 
 class Main inherits IO {
+    x: Int ;
+    y: Int ;
 
     main() : Object {
         if (true) then {

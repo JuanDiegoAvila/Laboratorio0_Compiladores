@@ -79,16 +79,17 @@ class TreeVisitor(yalpVisitor):
     
         else:
             feature_name = ctx.ID().getText()
+            type_feature = ctx.TYPE().getText()
+
         
             if self.tablaSimbolos.get_simbolo(feature_name):
                 self.errors.append(f"Error: El atributo/funcion '{feature_name}' ya ha sido declarado en este ámbito.")
             else:
-                self.tablaSimbolos.add_simbolo(feature_name, Simbolo(feature_name, ctx.start.line, ctx.start.column, token_type, self.tablaSimbolos.current_scope))
+                self.tablaSimbolos.add_simbolo(feature_name, Simbolo(feature_name, ctx.start.line, ctx.start.column, type_feature, self.tablaSimbolos.current_scope))
             
         if token_type == "FUNCTION":
             self.tablaSimbolos.enterScope()
         
-            
         if ctx.expr():
             self.visit(ctx.expr())
         
@@ -106,12 +107,15 @@ class TreeVisitor(yalpVisitor):
 
         if ctx.IF():
             self.tablaSimbolos.enterScope()
+
+            if ctx.ELSE():
+                self.tablaSimbolos.enterScope()
+                # ... procesar ELSE
+                self.tablaSimbolos.exitScope()
+            
+            
             self.tablaSimbolos.exitScope()
 
-        if ctx.ELSE():
-            self.tablaSimbolos.enterScope()
-            # ... procesar ELSE
-            self.tablaSimbolos.exitScope()
 
         if ctx.WHILE():
             self.tablaSimbolos.enterScope()
