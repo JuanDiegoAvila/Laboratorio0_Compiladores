@@ -153,23 +153,24 @@ class SemanticVisitor(yalpVisitor):
                 print(child)
                 
     def visitExpr(self, ctx: yalpParser.ExprContext):
-        if children:=ctx.getChildren():
-            for child_ctx in children:
-                if isinstance(child_ctx, TerminalNodeImpl):
-                    token = child_ctx.symbol
-                    tipo = self.lexer.symbolicNames[token.type]
-                    if tipo=='PLUS':
-                        father = child_ctx.parentCtx
-                        op1 = father.getChild(0)
-                        op2 = father.getChild(2)
-                        print("Operand 1: ", op1.getText())
-                        print("PLUS", token.text)
-                        print("Operand 2: ", op2.getText())
-                    #    self.generateTypeTuple(child_ctx)
-                else:
-                    print('not terminal: ', child_ctx.getText())
-                    self.visitExpr(child_ctx)
-                    
+        print("a")
+        #if children:=ctx.getChildren():
+        #    for child_ctx in children:
+        #        if isinstance(child_ctx, TerminalNodeImpl):
+        #            token = child_ctx.symbol
+        #            tipo = self.lexer.symbolicNames[token.type]
+        #            if tipo=='PLUS':
+        #                father = child_ctx.parentCtx
+        #                op1 = father.getChild(0)
+        #                op2 = father.getChild(2)
+        #                print("Operand 1: ", op1.getText())
+        #                print("PLUS", token.text)
+        #                print("Operand 2: ", op2.getText())
+        #            #    self.generateTypeTuple(child_ctx)
+        #        else:
+        #            print('not terminal: ', child_ctx.getText())
+        #            self.visitExpr(child_ctx)
+        #            
         if ctx.LET():
             scope_let = self.tablaSimbolos.get_exitScope()
             
