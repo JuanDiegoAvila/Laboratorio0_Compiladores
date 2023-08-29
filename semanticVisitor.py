@@ -80,10 +80,60 @@ class SemanticVisitor(yalpVisitor):
             scope_if = self.tablaSimbolos.get_enterScope()
             
             visited = self.handle_context(ctx)
-            for i in visited:
-                print(i)
-           
+            
+            # if isinstance(visited[1], list):
+            visited_if = visited[1][0]
+            # else:
+            #     visited_if = visited[1]
 
+            if isinstance(visited_if, CommonToken):
+                token_type = self.lexer.symbolicNames[visited_if.type]
+
+                if token_type == "ID":
+                    visited_if = self.tablaSimbolos.get_scope_simbolo(visited_if.text)
+
+                    if not visited_if:
+                        linea = visited_if.line
+                        columna = visited_if.column
+                        message = f"Error semantico: La variable '{visited_if.tipo_token}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        if message not in self.errors:
+                            self.errors.append(message)
+                        return None
+
+                    else:
+                        token_type = visited_if.tipo_token
+
+                if token_type == "Boolean" or token_type == "TRUE" or token_type == "FALSE" or token_type == "Int" or token_type == "DIGIT":
+                    argumento = ["Boolean"]
+                
+                else:
+
+                    if isinstance(visited_if, Simbolo):
+                        linea = visited_if.linea
+                        columna = visited_if.columna
+                    else:
+                        linea = visited_if.line
+                        columna = visited_if.column
+
+                    message = f"Error semantico: La variable de tipo '{token_type}' en la posicion '{linea}':'{columna}' debe ser de tipo boolean."
+                    if message not in self.errors:
+                        self.errors.append(message)
+                    return None
+            
+            else:
+                if visited_if == "Boolean" or visited_if == "TRUE" or visited_if == "FALSE" or visited_if == "Int" or visited_if == "DIGIT":
+                    argumento = ["Boolean"]
+                
+                if visited_if == None:
+                    return None
+                
+                else:
+                    linea = ctx.start.line
+                    columna = ctx.start.column
+                    error = f'Error semantico: La variable de tipo {visited_if} no puede ser argumento del if {linea}:{columna}'
+                    if error not in self.errors:
+                        self.errors.append(error)
+                    return None
 
             if ctx.ELSE():
                 scope_else = self.tablaSimbolos.get_enterScope()
@@ -98,34 +148,205 @@ class SemanticVisitor(yalpVisitor):
 
         elif ctx.WHILE():
             scope_while = self.tablaSimbolos.get_exitScope()
-
+            
             visited_while = self.handle_context(ctx)
+            visited_while = visited_while[1][0]
 
+            if isinstance(visited_while, CommonToken):
+                token_type = self.lexer.symbolicNames[visited_while.type]
+
+                if token_type == "ID":
+                    visited_while = self.tablaSimbolos.get_scope_simbolo(visited_while.text)
+
+                    if not visited_while:
+                        linea = visited_while.line
+                        columna = visited_while.column
+                        message = f"Error semantico: La variable '{visited_while.tipo_token}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        if message not in self.errors:
+                            self.errors.append(message)
+                        return None
+
+                    else:
+                        token_type = visited_while.tipo_token
+
+                if token_type == "Boolean" or token_type == "TRUE" or token_type == "FALSE" or token_type == "Int" or token_type == "DIGIT":
+                    return ["Boolean"]
+                
+                else:
+
+                    if isinstance(visited_while, Simbolo):
+                        linea = visited_while.linea
+                        columna = visited_while.columna
+                    else:
+                        linea = visited_while.line
+                        columna = visited_while.column
+
+                    message = f"Error semantico: La variable de tipo '{token_type}' en la posicion '{linea}':'{columna}' debe ser de tipo boolean."
+                    if message not in self.errors:
+                        self.errors.append(message)
+                    return None
+            
+            else:
+                if visited_while == "Boolean" or visited_while == "TRUE" or visited_while == "FALSE" or visited_while == "Int" or visited_while == "DIGIT":
+                    return ["Boolean"]
+                
+                else:
+                    linea = visited_while.line
+                    columna = visited_while.column
+                    message = f"Error semantico: La variable de tipo '{visited_while}' en la posicion '{linea}':'{columna}' debe ser de tipo boolean."
+                    if message not in self.errors:
+                        self.errors.append(message)
+                    return None
+
+        elif ctx.LOOP():
+            visited = self.handle_context(ctx)
+
+            print('loop', visited)
+
+            
             self.tablaSimbolos.get_exitScope()
-            # print(visited)
-
-        elif ctx.EQUALS():
-            visited_op = self.handle_context(ctx)
-
-            first = visited_op[0][0]
-            equals = visited_op[1]
-            second = visited_op[2][0]
-
-            if isinstance(first, CommonToken):
-                first_type = self.lexer.symbolicNames[first.type]
-            else:
-                first_type = first
+        
+        elif ctx.LPAR() and not ctx.ID():
             
-            if isinstance(second, CommonToken):
-                second_type = self.lexer.symbolicNames[second.type]
-            else:
-                second_type = second
+            visited = self.handle_context(ctx)
+            compared = visited[1][0]
+
+            if isinstance(compared, CommonToken):
+                token_type = self.lexer.symbolicNames[compared.type]
+                
+                if token_type == "ID":
+                    compared = self.tablaSimbolos.get_scope_simbolo(compared.text)
+
+                    if not compared:
+                        linea = compared.line
+                        columna = compared.column
+                        message = f"Error semantico: La variable '{compared.tipo_token}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        if message not in self.errors:
+                            self.errors.append(message)
+                        return None
+
+                    else:
+                        token_type = compared.tipo_token
+
+
+                
+                if token_type == "Boolean" or token_type == "TRUE" or token_type == "FALSE":
+                    return ["Boolean"]
+                
+                elif token_type == "Int" or token_type == "DIGIT":
+                    return ["Int"]
+                
+                elif token_type == "String" or token_type == "STRING":
+                    return ["String"]
             
-            if first_type == second_type:
-                pass
+                else:
+                    return [token_type]
+            
+            else:
+                if isinstance(compared, list):
+                    return compared
+                
+                return [compared]
+            
+        elif ctx.DIAC():
 
-        elif ctx.LT() or ctx.RT() or ctx.LE() or ctx.RE():
+            visited = self.handle_context(ctx)
+                    
+            if isinstance(visited[1], str):
+                if visited[1] == "Int" or visited[1] == "Boolean":
+                    return ["Int"]
+                else:
+                    linea = ctx.start.line
+                    columna = ctx.start.column
+                    error = f'Type Error semantico: ~ no se puede operar con {visited[1]} en la posicion {linea}:{columna}'
+                    if error not in self.errors:
+                        self.errors.append(error)
+                
+            else:
+                if isinstance(visited[1][0], str):
+                    temp = visited[1][0]
 
+                    if temp == "Int" or temp == "Boolean":
+                        return ["Int"]
+                    
+                    else: 
+                        
+                        linea = ctx.start.line
+                        columna = ctx.start.column
+                        error = f'Type Error semantico: ~ no se puede operar con {temp} en la posicion {linea}:{columna}'
+                        
+                        if error not in self.errors:
+                            self.errors.append(error)
+                else:
+                    
+                    temp = visited[1][0].type
+                    token_type = self.lexer.symbolicNames[temp]
+                    
+                    if token_type == "Int" or token_type == "DIGIT" or token_type == "Boolean" or token_type == "TRUE" or token_type == "FALSE":
+                        return ["Int"]
+                    
+                    else:
+                        linea = ctx.start.line
+                        columna = ctx.start.column
+                        error = f'Type Error semantico: ~ no se puede operar con {token_type} en la posicion {linea}:{columna}'
+                        
+                        if error not in self.errors:
+                            self.errors.append(error)
+
+        elif ctx.ID() and ctx.ASSIGN():
+            visited = self.handle_context(ctx)
+            id1 = visited[0]
+            type1 = self.tablaSimbolos.get_scope_simbolo(id1.text)
+            # print(self.tablaSimbolos.index_scopes)
+
+            if not type1:
+                linea = id1.line
+                columna = id1.column
+                message = f"Error semantico: La variable '{id1.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                if message not in self.errors:
+                    self.errors.append(message)
+                return None
+            else:
+                type1 = type1.tipo_token
+
+            type2 =  visited[2][0]
+            
+            if isinstance(type2, CommonToken):
+                token_type = self.lexer.symbolicNames[type2.type]
+                
+                
+                if token_type=="ID":
+                    simbolo = self.tablaSimbolos.get_scope_simbolo(type2.text)
+                    if simbolo:
+                        type2 = simbolo.tipo_token
+                    else:
+                        linea = type2.line
+                        columna = type2.column
+                        message = f"Error semantico: La variable '{type2.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        if message not in self.errors:
+                            self.errors.append(message)
+                        type2 = "None"
+                        
+                elif token_type == "DIGIT" or token_type == "Int":
+                    type2 = "Int"
+                elif token_type=="TRUE" or token_type=="FALSE":
+                    type2 = 'Boolean'
+                elif token_type == "STRING" or token_type == "String":
+                    type2 = "String"
+
+            if type1!=type2:
+                linea = id1.line
+                columna = id1.column
+
+                message = f"Type violation: Se está asignando un tipo {type2} a una variable de tipo {type1} en la posición {linea}:{columna}"
+                if message not in self.errors:
+                    self.errors.append(message)
+                return None
+            else:
+                return type2
+        
+        elif ctx.LT() or ctx.RT() or ctx.LE() or ctx.RE() or ctx.EQUALS():
+    
             visited_op = self.handle_context(ctx)
             operadores = []
             operandos = []
@@ -145,7 +366,7 @@ class SemanticVisitor(yalpVisitor):
                             else:
                                 linea = op.line
                                 columna = op.column
-                                message = f"Error: La variable '{op.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                                message = f"Error semantico: La variable '{op.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
 
                                 if message not in self.errors:
                                     self.errors.append(message)
@@ -189,7 +410,7 @@ class SemanticVisitor(yalpVisitor):
                             else:
                                 linea = op.line
                                 columna = op.column
-                                message = f"Error: La variable '{op.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                                message = f"Error semantico: La variable '{op.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
 
                                 if message not in self.errors:
                                     self.errors.append(message)
@@ -208,97 +429,10 @@ class SemanticVisitor(yalpVisitor):
 
             if len(operandos) < 2:
                 return [None]
+            
 
             tipo = self.checkValues(ctx, operandos)
             return [tipo]
-        
-        elif ctx.DIAC():
-            visited = self.handle_context(ctx)
-
-            if isinstance(visited[1], str):
-                if visited[1] == "Int":
-                    return ["Int"]
-                else:
-                    linea = ctx.start.line
-                    columna = ctx.start.column
-                    error = f'Type error: ~ no se puede operar con {visited[1]} en la posicion {linea}:{columna}'
-                    if error not in self.errors:
-                        self.errors.append(error)
-                
-            else:
-                if isinstance(visited[1][0], str):
-                    temp = visited[1][0]
-
-                    if temp == "Int":
-                        return ["Int"]
-                    
-                    else: 
-                        
-                        linea = ctx.start.line
-                        columna = ctx.start.column
-                        error = f'Type error: ~ no se puede operar con {temp} en la posicion {linea}:{columna}'
-                        
-                        if error not in self.errors:
-                            self.errors.append(error)
-                else:
-                    
-                    temp = visited[1][0].type
-                    token_type = self.lexer.symbolicNames[temp]
-                    
-                    if token_type == "Int" or token_type == "DIGIT":
-                        return ["Int"]
-                    
-                    else:
-                        linea = ctx.start.line
-                        columna = ctx.start.column
-                        error = f'Type error: ~ no se puede operar con {token_type} en la posicion {linea}:{columna}'
-                        
-                        if error not in self.errors:
-                            self.errors.append(error)
-
-        elif ctx.LPAR() and not ctx.ID():
-            visited = self.handle_context(ctx)
-            return visited[1]
-
-        elif ctx.ID() and ctx.ASSIGN():
-            visited = self.handle_context(ctx)
-            id1 = visited[0]
-            type1 = self.tablaSimbolos.get_scope_simbolo(id1.text).tipo_token
-            type2 =  visited[2][0]
-            
-            if isinstance(type2, CommonToken):
-                token_type = self.lexer.symbolicNames[type2.type]
-                
-                
-                if token_type=="ID":
-                    simbolo = self.tablaSimbolos.get_scope_simbolo(type2.text)
-                    if simbolo:
-                        type2 = simbolo.tipo_token
-                    else:
-                        linea = type2.line
-                        columna = type2.column
-                        message = f"Error: La variable '{type2.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
-                        if message not in self.errors:
-                            self.errors.append(message)
-                        type2 = "None"
-                        
-                elif v == "DIGIT" or v == "Int":
-                    type2 = "Int"
-                elif token_type=="TRUE" or token_type=="FALSE":
-                    type2 = 'Boolean'
-                elif v == "STRING" or v == "String":
-                    type2 = "String"
-
-            if type1!=type2:
-                linea = id1.line
-                columna = id1.column
-
-                message = f"Type violation: Se está asignando un tipo {type2} a una variable de tipo {type1} en la posición {linea}:{columna}"
-                if message not in self.errors:
-                    self.errors.append(message)
-                return None
-            else:
-                return type2
         
         else:
             v = self.handle_context(ctx) 
@@ -334,15 +468,12 @@ class SemanticVisitor(yalpVisitor):
                     bool = True
         
         if se_puede:
-            if bool:
-                return "Boolean" 
-            
-            return compare
+            return "Boolean" 
         
         else:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Type error: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
+            error = f'Type Error semantico: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 
@@ -350,7 +481,6 @@ class SemanticVisitor(yalpVisitor):
 
     def checkValues(self, ctx: yalpParser.ExprContext, visited:list):
         types = []
-        
         for v in visited:
             if v == "DIGIT" or v == "Int":
                 if "Int" not in types:
@@ -361,23 +491,23 @@ class SemanticVisitor(yalpVisitor):
             elif v == "STRING" or v == "String":
                 if "String" not in types:
                     types.append("String")
+            
             elif v == "TRUE" or v == "FALSE" or v == "Boolean":
                 if "Boolean" not in types and "Int" not in types:
                     types.append("Boolean")
 
             if v == None:
-                return None
+                return None\
         
         #Solo ocurre si hay 2 tipos distintos en la lista
         if len (types) != 1:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Type error: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
+            error = f'Type Error semantico: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 
             return None
-
         return ''.join(types)        
     
     def handle_context(self, ctx, formal=False):

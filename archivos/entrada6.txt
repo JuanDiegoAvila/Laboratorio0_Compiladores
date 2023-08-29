@@ -1,15 +1,16 @@
 class Main {
     id_1 : Int <- 0;
+    str : String <- "Hello World";
     main() : Object {
         let x : Int <- 5 in
         {
-            while x = 0 loop
+            while id_1 loop
                 out_string("Countdown: ")
             pool ;
         }
     };
 
     count( initial : Int ) : Int {
-        initial <- ~ ( 1 + 1 )
+        initial <- ~ ( false + 1 )
     };
 };

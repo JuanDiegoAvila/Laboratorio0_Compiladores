@@ -1,6 +1,5 @@
 class Object {
     abort() : Object { 
-        SELF_TYPE
     };
 
     type_name() : String { 
@@ -8,7 +7,6 @@ class Object {
     };
 
     copy() : Object { 
-        SELF_TYPE
     };
 };
 

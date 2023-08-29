@@ -17,7 +17,7 @@ class Selly inherits Solly {
     copy(x: Int) : SELF_TYPE { self };
 };
 
-class Main inherits IO {
+class Main{
     x: Silly;
     y: Sally;
     z: Selly;
