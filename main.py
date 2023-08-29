@@ -5,7 +5,7 @@ from dist.yalpParser import yalpParser
 from tree import *
 from tablaSimbolos import *
 #from semanticVisitor import SemanticVisitor
-from PruebasCodigo.pruebaSemanticVisitor import SemanticVisitor
+from PruebasCodigo.pruebaSemanticVisitor2 import SemanticVisitor
 
 from treeVisitor import TreeVisitor
 import interfaz as interfaz
@@ -125,7 +125,7 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
         return
 
 # Llamar a la función para el scanner
-parser = Parser('./archivos/entrada6.txt')
+parser = Parser('./archivos/entrada5.txt')
 
 # app = interfaz.Interfaz(Parser)
 # app.mainloop()

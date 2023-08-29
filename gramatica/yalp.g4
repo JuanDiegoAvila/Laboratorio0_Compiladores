@@ -11,8 +11,7 @@ feature: ID LPAR (formal (COMMA formal)*)? RPAR COLON TYPE LBRACE expr RBRACE
 
 formal: ID COLON TYPE;
 
-expr: ID ASSIGN expr
-    | expr (AT TYPE)? DOT ID LPAR (expr (COMMA expr)*)? RPAR
+expr: expr (AT TYPE)? DOT ID LPAR (expr (COMMA expr)*)? RPAR
     | ID LPAR (expr (COMMA expr)*)? RPAR
     | IF expr THEN expr ELSE expr FI
     | WHILE expr LOOP expr POOL
@@ -31,6 +30,7 @@ expr: ID ASSIGN expr
     | expr RE expr
     | expr EQUALS expr
     | NOT expr
+    | ID ASSIGN expr
     | LPAR expr RPAR
     | ID
     | DIGIT
@@ -49,6 +49,7 @@ DIGIT: [0-9]+;
 // Caracteres especiales
 DOT: '.';
 AT: '@';
+DIAC: '~';
 TIMES: '*';
 DIVIDE: '/';
 PLUS: '+';
@@ -61,7 +62,6 @@ EQUALS: '=';
 ASSIGN: '<-';
 LPAR: '(';
 RPAR: ')';
-DIAC: '~';
 COLON: ':';
 SEMICOLON: ';';
 LBRACE: '{';

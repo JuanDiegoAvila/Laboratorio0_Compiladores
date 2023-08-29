@@ -1,5 +1,5 @@
 
-class Main inherits IO {
+class Main{
     x: Int ;
     y: Int ;
 
