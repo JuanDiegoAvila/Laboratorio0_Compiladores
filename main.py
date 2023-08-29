@@ -5,7 +5,7 @@ from dist.yalpParser import yalpParser
 from tree import *
 from tablaSimbolos import *
 #from semanticVisitor import SemanticVisitor
-from PruebasCodigo.pruebaSemanticVisitor2 import SemanticVisitor
+from semanticVisitor import SemanticVisitor
 
 from treeVisitor import TreeVisitor
 import interfaz as interfaz

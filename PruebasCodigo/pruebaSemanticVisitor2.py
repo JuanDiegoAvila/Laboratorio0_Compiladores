@@ -78,9 +78,10 @@ class SemanticVisitor(yalpVisitor):
 
         elif ctx.IF():
             scope_if = self.tablaSimbolos.get_enterScope()
-            print("aaaa")
             
             visited = self.handle_context(ctx)
+            for i in visited:
+                print(i)
            
 
 
@@ -297,7 +298,6 @@ class SemanticVisitor(yalpVisitor):
                     self.errors.append(message)
                 return None
             else:
-                print(type2)
                 return type2
         
         else:
