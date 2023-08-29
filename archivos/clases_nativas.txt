@@ -1,3 +1,45 @@
 class Object {
-    
+    abort() : Object { 
+        SELF_TYPE
+    };
+
+    type_name() : String { 
+        ""
+    };
+
+    copy() : Object { 
+        SELF_TYPE
+    };
+};
+
+class String {
+    length() : Int { 
+        0
+    };
+
+    concat(s : String) : String { 
+        ""
+    };
+
+    class substr(start : Int, length : Int) : String { 
+        ""
+    };
+}
+
+class IO {
+    class out_string(x: String) : IO { 
+        SELF_TYPE
+    };
+
+    class out_int(x: Int) : IO { 
+        SELF_TYPE
+    };
+
+    class in_string() : String {
+        ""
+     };
+
+    class in_int() : Int { 
+        0
+    };
 }

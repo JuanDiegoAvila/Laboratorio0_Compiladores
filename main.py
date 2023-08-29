@@ -80,9 +80,6 @@ class Parser (object):
         self.scanner = Scanner(input_file)
         self.parseTokens()
 
-    # def Tree(self):
-    #     os.system('antlr4-parse ./gramatica/yalp.g4 program -gui ./entrada.txt')
-    
     def parseTokens(self):
         stream = self.scanner.stream
         token_stream = stream
@@ -97,13 +94,14 @@ class Parser (object):
 
         tree = parser.program()
                 
-        #Por si funciona el arbol: 
         if self.scanner.lexer.errors == False and errorListener.errors == False:
             
             analisis_semantico(tree, self.scanner.lexer.tablaSimbolos, self.scanner.lexer)
        
 def analisis_semantico(tree, tablaSimbolos, lexer):
     visitor = TreeVisitor(lexer)
+
+    
     grafo = visitor.visitar(tree)
     visitor.visit(tree)
 
@@ -113,7 +111,7 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
             custom_print(terminal, error, is_error=True)
         return
 
-    # grafo.render('./grafos/grafo', view=True, format='png')
+    grafo.render('./grafos/grafo', view=True, format='png')
     tablaSimbolos.print_tabla()
     
     # ScopeVisualizer(tablaSimbolos).visualize()
@@ -126,11 +124,8 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
             custom_print(terminal, error, is_error=True)
         return
 
-
-
-
 # Llamar a la función para el scanner
-parser = Parser('./archivos/entrada5.txt')
+parser = Parser('./archivos/entrada6.txt')
 
 # app = interfaz.Interfaz(Parser)
 # app.mainloop()

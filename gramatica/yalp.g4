@@ -49,7 +49,6 @@ DIGIT: [0-9]+;
 // Caracteres especiales
 DOT: '.';
 AT: '@';
-DIAC: '~';
 TIMES: '*';
 DIVIDE: '/';
 PLUS: '+';
@@ -62,6 +61,7 @@ EQUALS: '=';
 ASSIGN: '<-';
 LPAR: '(';
 RPAR: ')';
+DIAC: '~';
 COLON: ':';
 SEMICOLON: ';';
 LBRACE: '{';

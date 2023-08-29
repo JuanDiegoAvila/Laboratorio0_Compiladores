@@ -9,7 +9,7 @@ class Main inherits IO {
         } else {
             x <- y;
             if (x = y) then {
-                x<3 + 1;
+                x< false;
             } else {
                 1 + (x < y);
             } FI;

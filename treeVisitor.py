@@ -52,6 +52,14 @@ class TreeVisitor(yalpVisitor):
 
         if ctx.INHERITS():
             parent_class_name = ctx.TYPE()[1].getText()
+            if not self.tablaSimbolos.get_simbolo(parent_class_name):
+                self.errors.append(f"Error: La clase '{parent_class_name}' no ha sido declarada.")
+            
+            if parent_class_name == class_name:
+                self.errors.append(f"Error: La clase '{class_name}' no puede heredar de si misma.")
+
+            if class_name == "Main":
+                self.errors.append(f"Error: La clase '{class_name}' no puede heredar de otra clase.")
 
         if self.tablaSimbolos.get_simbolo(class_name):
             self.errors.append(f"Error: La clase '{class_name}' ha sido declarada mas de una vez.")

@@ -101,6 +101,7 @@ class SemanticVisitor(yalpVisitor):
             visited_while = self.handle_context(ctx)
 
             self.tablaSimbolos.get_exitScope()
+            # print(visited)
 
         elif ctx.EQUALS():
             visited_op = self.handle_context(ctx)
@@ -229,32 +230,45 @@ class SemanticVisitor(yalpVisitor):
 
                     if temp == "Int":
                         return ["Int"]
+                    
                     else: 
+                        
                         linea = ctx.start.line
                         columna = ctx.start.column
                         error = f'Type error: ~ no se puede operar con {temp} en la posicion {linea}:{columna}'
+                        
                         if error not in self.errors:
                             self.errors.append(error)
                 else:
+                    
                     temp = visited[1][0].type
                     token_type = self.lexer.symbolicNames[temp]
+                    
                     if token_type == "Int" or token_type == "DIGIT":
                         return ["Int"]
+                    
                     else:
                         linea = ctx.start.line
                         columna = ctx.start.column
                         error = f'Type error: ~ no se puede operar con {token_type} en la posicion {linea}:{columna}'
+                        
                         if error not in self.errors:
                             self.errors.append(error)
 
-        else:
+        elif ctx.LPAR() and not ctx.ID():
+            visited = self.handle_context(ctx)
+            return visited[1]
 
+        elif ctx.ID() and ctx.ASSIGN():
+            visited = self.handle_context(ctx)
+            return visited[2]
+        
+        else:
             v = self.handle_context(ctx) 
             return v
 
     def checkCompare(self, ctx: yalpParser.ExprContext, visited:list):
         types = []
-        print(visited)
 
         for v in visited:
             if v == "DIGIT" or v == "Int":
@@ -270,6 +284,7 @@ class SemanticVisitor(yalpVisitor):
         
         compare = ''
         se_puede = False
+        bool = False
         for type in types:
             if compare == '':
                 compare = type
@@ -277,8 +292,14 @@ class SemanticVisitor(yalpVisitor):
             else:
                 if type == compare:
                     se_puede = True
+                if (type == "Int" and compare == "Boolean") or (type == "Boolean" and compare == "Int"):
+                    se_puede = True
+                    bool = True
         
-        if se_puede: 
+        if se_puede:
+            if bool:
+                return "Boolean" 
+            
             return compare
         
         else:

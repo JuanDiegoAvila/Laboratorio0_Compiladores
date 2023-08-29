@@ -1,4 +1,5 @@
-class Main inherits IO {
+class Main {
+    id_1 : Int <- 0;
     main() : Object {
         let x : Int <- 5 in
         {
@@ -9,6 +10,6 @@ class Main inherits IO {
     };
 
     count( initial : Int ) : Int {
-        id_1 <- ~ 1
+        initial <- ~ ( 1 + 1 )
     };
 };

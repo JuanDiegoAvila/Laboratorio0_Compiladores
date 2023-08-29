@@ -7,129 +7,155 @@ digraph {
 	1 -> 3
 	3 [label=Main]
 	1 -> 4
-	4 [label=inherits]
+	4 [label="{"]
 	1 -> 5
-	5 [label=IO]
-	1 -> 6
-	6 [label="{"]
-	1 -> 7
-	7 [label=Feature]
-	7 -> 8
-	8 [label=main]
-	7 -> 9
-	9 [label="("]
-	7 -> 10
-	10 [label=")"]
-	7 -> 11
-	11 [label=":"]
-	7 -> 12
-	12 [label=Object]
-	7 -> 13
-	13 [label="{"]
-	7 -> 14
-	14 [label=Expr]
-	14 -> 15
-	15 [label=let]
-	14 -> 16
-	16 [label=x]
-	14 -> 17
+	5 [label=Feature]
+	5 -> 6
+	6 [label=id_1]
+	5 -> 7
+	7 [label=":"]
+	5 -> 8
+	8 [label=Int]
+	5 -> 9
+	9 [label="<-"]
+	5 -> 10
+	10 [label=Expr]
+	10 -> 11
+	11 [label=0]
+	1 -> 12
+	12 [label=";"]
+	1 -> 13
+	13 [label=Feature]
+	13 -> 14
+	14 [label=main]
+	13 -> 15
+	15 [label="("]
+	13 -> 16
+	16 [label=")"]
+	13 -> 17
 	17 [label=":"]
-	14 -> 18
-	18 [label=Int]
-	14 -> 19
-	19 [label="<-"]
-	14 -> 20
+	13 -> 18
+	18 [label=Object]
+	13 -> 19
+	19 [label="{"]
+	13 -> 20
 	20 [label=Expr]
 	20 -> 21
-	21 [label=5]
-	14 -> 22
-	22 [label=in]
-	14 -> 23
-	23 [label=Expr]
-	23 -> 24
-	24 [label="{"]
-	23 -> 25
-	25 [label=Expr]
-	25 -> 26
-	26 [label=while]
-	25 -> 27
-	27 [label=Expr]
-	27 -> 28
-	28 [label=Expr]
-	28 -> 29
-	29 [label=x]
-	27 -> 30
-	30 [label="="]
-	27 -> 31
+	21 [label=let]
+	20 -> 22
+	22 [label=x]
+	20 -> 23
+	23 [label=":"]
+	20 -> 24
+	24 [label=Int]
+	20 -> 25
+	25 [label="<-"]
+	20 -> 26
+	26 [label=Expr]
+	26 -> 27
+	27 [label=5]
+	20 -> 28
+	28 [label=in]
+	20 -> 29
+	29 [label=Expr]
+	29 -> 30
+	30 [label="{"]
+	29 -> 31
 	31 [label=Expr]
 	31 -> 32
-	32 [label=0]
-	25 -> 33
-	33 [label=loop]
-	25 -> 34
+	32 [label=while]
+	31 -> 33
+	33 [label=Expr]
+	33 -> 34
 	34 [label=Expr]
 	34 -> 35
-	35 [label=out_string]
-	34 -> 36
-	36 [label="("]
-	34 -> 37
+	35 [label=x]
+	33 -> 36
+	36 [label="="]
+	33 -> 37
 	37 [label=Expr]
 	37 -> 38
-	38 [label="\"Countdown: \""]
-	34 -> 39
-	39 [label=")"]
-	25 -> 40
-	40 [label=pool]
-	23 -> 41
-	41 [label=";"]
-	23 -> 42
-	42 [label="}"]
-	7 -> 43
-	43 [label="}"]
-	1 -> 44
-	44 [label=";"]
-	1 -> 45
-	45 [label=Feature]
-	45 -> 46
-	46 [label=count]
-	45 -> 47
-	47 [label="("]
-	45 -> 48
-	48 [label=Formal]
-	48 -> 49
-	49 [label=initial]
-	48 -> 50
-	50 [label=":"]
-	48 -> 51
-	51 [label=Int]
-	45 -> 52
-	52 [label=")"]
-	45 -> 53
-	53 [label=":"]
-	45 -> 54
-	54 [label=Int]
-	45 -> 55
-	55 [label="{"]
-	45 -> 56
-	56 [label=Expr]
-	56 -> 57
-	57 [label=id_1]
-	56 -> 58
-	58 [label="<-"]
-	56 -> 59
-	59 [label=Expr]
-	59 -> 60
-	60 [label="~"]
-	59 -> 61
-	61 [label=Expr]
-	61 -> 62
-	62 [label=1]
-	45 -> 63
-	63 [label="}"]
-	1 -> 64
-	64 [label=";"]
-	1 -> 65
-	65 [label="}"]
-	0 -> 66
-	66 [label=";"]
+	38 [label=0]
+	31 -> 39
+	39 [label=loop]
+	31 -> 40
+	40 [label=Expr]
+	40 -> 41
+	41 [label=out_string]
+	40 -> 42
+	42 [label="("]
+	40 -> 43
+	43 [label=Expr]
+	43 -> 44
+	44 [label="\"Countdown: \""]
+	40 -> 45
+	45 [label=")"]
+	31 -> 46
+	46 [label=pool]
+	29 -> 47
+	47 [label=";"]
+	29 -> 48
+	48 [label="}"]
+	13 -> 49
+	49 [label="}"]
+	1 -> 50
+	50 [label=";"]
+	1 -> 51
+	51 [label=Feature]
+	51 -> 52
+	52 [label=count]
+	51 -> 53
+	53 [label="("]
+	51 -> 54
+	54 [label=Formal]
+	54 -> 55
+	55 [label=initial]
+	54 -> 56
+	56 [label=":"]
+	54 -> 57
+	57 [label=Int]
+	51 -> 58
+	58 [label=")"]
+	51 -> 59
+	59 [label=":"]
+	51 -> 60
+	60 [label=Int]
+	51 -> 61
+	61 [label="{"]
+	51 -> 62
+	62 [label=Expr]
+	62 -> 63
+	63 [label=initial]
+	62 -> 64
+	64 [label="<-"]
+	62 -> 65
+	65 [label=Expr]
+	65 -> 66
+	66 [label="~"]
+	65 -> 67
+	67 [label=Expr]
+	67 -> 68
+	68 [label="("]
+	67 -> 69
+	69 [label=Expr]
+	69 -> 70
+	70 [label=Expr]
+	70 -> 71
+	71 [label=1]
+	69 -> 72
+	72 [label="+"]
+	69 -> 73
+	73 [label=Expr]
+	73 -> 74
+	74 [label=1]
+	67 -> 75
+	75 [label=")"]
+	51 -> 76
+	76 [label="}"]
+	1 -> 77
+	77 [label=";"]
+	1 -> 78
+	78 [label="}"]
+	0 -> 79
+	79 [label=";"]
 }
