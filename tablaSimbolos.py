@@ -112,10 +112,13 @@ class Scope:
     #Permite obtener el scope del algun simbolo entre los hijos
     def get_symbol_scope(self, symbol):
         if self.children:
-            print(symbol)
-            for child in self.children:
-                print(child)
-        pass
+            print(symbol.lexema)
+            keys = list(self.symbols.keys())
+            idx = keys.index(symbol.lexema)
+            for child in range(len(self.children)):
+                if child==idx:
+                    return self.children[child]
+        return None 
 
     def get_symbol(self, name):
         return self.symbols.get(name, None)
@@ -180,12 +183,7 @@ class TablaSimbolos:
                 return None
     
     def get_exitScope(self):
-        if self.index_scopes == 16:
-            self.index_scopes = 0
-        else:
-            self.index_scopes -= 1
-
-        self.current_scope = self.get_enterScope()
+        self.current_scope = self.current_scope.exit()
 
     def enterScope(self):
         self.conteo_scopes += 1

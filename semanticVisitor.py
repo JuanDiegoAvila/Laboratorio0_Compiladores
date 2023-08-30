@@ -94,7 +94,8 @@ class SemanticVisitor(yalpVisitor):
                         tipo = simbolo.tipo_token #Me da el tipo del token
                         type_symbol = self.tablaSimbolos.get_scope_simbolo(tipo)
                         scope_tipo = type_symbol.scope
-                        scope_tipo.get_symbol_scope(None)
+                        scope_tipo = scope_tipo.get_symbol_scope(type_symbol)
+                        print(scope_tipo.symbols)
                 else:
                     pass
                     #Si no es de type token entonces buscamos en las clases nativas
