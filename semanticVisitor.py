@@ -27,7 +27,7 @@ class SemanticVisitor(yalpVisitor):
     def visitClass(self, ctx: yalpParser.ClassContext):
         class_name = ctx.TYPE()[0].getText()
 
-        scope = self.tablaSimbolos.get_enterScope()
+        self.tablaSimbolos.get_enterScope()
         hay_main = False
 
         for feature_ctx in ctx.feature():
@@ -54,7 +54,7 @@ class SemanticVisitor(yalpVisitor):
         feature_name = ctx.ID().getText()
 
         if token_type == "FUNCTION":
-            scope = self.tablaSimbolos.get_enterScope()
+            self.tablaSimbolos.get_enterScope()
             
         if ctx.expr():
             self.visit(ctx.expr())
@@ -85,6 +85,7 @@ class SemanticVisitor(yalpVisitor):
                     simbolo = self.tablaSimbolos.get_scope_simbolo(variable.text)
                     #Verificamos si existe una variable con ese nombre en el scope
                     if not simbolo:
+                        print(self.tablaSimbolos.current_scope.name)
                         linea = ctx.start.line
                         columna = ctx.start.column
                         message = f"Error semantico: La variable '{variable.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
@@ -99,14 +100,14 @@ class SemanticVisitor(yalpVisitor):
             print("aaaa\n")
 
         if ctx.LET():
-            scope_let = self.tablaSimbolos.get_enterScope()
+            self.tablaSimbolos.get_enterScope()
             
             visited_let = self.handle_context(ctx)
 
             self.tablaSimbolos.get_exitScope()
 
         elif ctx.IF():
-            scope_if = self.tablaSimbolos.get_enterScope()
+            self.tablaSimbolos.get_enterScope()
             
             visited = self.handle_context(ctx)
             
@@ -165,7 +166,7 @@ class SemanticVisitor(yalpVisitor):
                     return None
 
             if ctx.ELSE():
-                scope_else = self.tablaSimbolos.get_enterScope()
+                self.tablaSimbolos.get_enterScope()
 
 
                 self.tablaSimbolos.get_exitScope()

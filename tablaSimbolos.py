@@ -147,11 +147,17 @@ class TablaSimbolos:
         self.all_scopes = [self.global_scope]
     
     def get_enterScope(self):
+        if self.index_scopes == 0:
+            self.index_scopes = 16
+        else:
+            self.index_scopes += 1
         
         for scope in self.all_scopes:
             if scope.name == self.index_scopes:
                 
-                self.index_scopes += 1
+                
+                self.current_scope = scope
+                # print(self.current_scope.name)
                 return scope
     
     def get_scope_simbolo(self, name):
@@ -166,7 +172,11 @@ class TablaSimbolos:
                 return None
     
     def get_exitScope(self):
-        self.index_scopes -= 1
+        if self.index_scopes == 16:
+            self.index_scopes = 0
+        else:
+            self.index_scopes -= 1
+
         self.current_scope = self.get_enterScope()
 
     def enterScope(self):
