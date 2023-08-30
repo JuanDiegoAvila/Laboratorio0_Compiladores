@@ -1,4 +1,4 @@
-class Silly {
+class Silly inherits Sally{
     copy() : SELF_TYPE {
         self
     };
@@ -7,6 +7,7 @@ class Silly {
 };
 
 class Sally inherits Silly {
+    x:int
 };
 
 class Solly inherits Silly {

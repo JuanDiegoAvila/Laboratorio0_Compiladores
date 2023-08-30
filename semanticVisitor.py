@@ -71,10 +71,31 @@ class SemanticVisitor(yalpVisitor):
         
         if ctx.DOT():
             visited_dot = self.handle_context(ctx)
-                
+            
+            inherit_visited = []
+            
+            def GetFunc(scope, func, inherits):
+                #{copy: symbol}
+                if func in scope.symbols:
+                    tipo_func = scope.symbols[func].tipo_token
+                    return (True, tipo_func)
+                elif inherits:
+                    if inherits not in inherit_visited:
+                        inherit_visited.append(inherits)
+                        type_symbol = self.tablaSimbolos.get_scope_simbolo(inherits)
+                        scope_tipo = type_symbol.scope
+                        scope_tipo = scope_tipo.get_symbol_scope(type_symbol)
+                        return GetFunc(scope_tipo[0], func, scope_tipo[1])
+                    else:
+                        type_symbol = self.tablaSimbolos.get_scope_simbolo(inherits)
+                        message = f'Semantic error: Hay una herencia recursiva en la clase {inherits}, {type_symbol.line}:{type_symbol.column}'
+                        self.errors.append(message)
+                        return(False, None)
+                else:
+                    return (False, None)    
+                                
             variable = visited_dot[0][0]
             function = visited_dot[2]
-            
             #Si variable es un ID
             if isinstance(variable, CommonToken):
                 token_type = self.lexer.symbolicNames[variable.type]
@@ -93,9 +114,17 @@ class SemanticVisitor(yalpVisitor):
                     else:
                         tipo = simbolo.tipo_token #Me da el tipo del token
                         type_symbol = self.tablaSimbolos.get_scope_simbolo(tipo)
+                        inherit_visited.append(type_symbol.lexema)
                         scope_tipo = type_symbol.scope
                         scope_tipo = scope_tipo.get_symbol_scope(type_symbol)
-                        print(scope_tipo.symbols)
+                        found, tipo_func = GetFunc(scope_tipo[0], function.text, scope_tipo[1])
+                        if not found:
+                            linea = type_symbol.line
+                            columna = type_symbol.column
+                            message = f'Semantic Error: Método {function.text} no se encontró para la clase {type_symbol.lexema}, {linea}:{columna}'
+                        else:
+                            return [tipo_func]#                            print("Encontrado")
+                            
                 else:
                     pass
                     #Si no es de type token entonces buscamos en las clases nativas

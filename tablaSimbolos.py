@@ -112,12 +112,12 @@ class Scope:
     #Permite obtener el scope del algun simbolo entre los hijos
     def get_symbol_scope(self, symbol):
         if self.children:
-            print(symbol.lexema)
+            print(symbol)
             keys = list(self.symbols.keys())
             idx = keys.index(symbol.lexema)
             for child in range(len(self.children)):
                 if child==idx:
-                    return self.children[child]
+                    return (self.children[child], symbol.hereda)
         return None 
 
     def get_symbol(self, name):
