@@ -109,6 +109,14 @@ class Scope:
     def add_symbol(self, name, symbol):
         self.symbols[name] = symbol
 
+    #Permite obtener el scope del algun simbolo entre los hijos
+    def get_symbol_scope(self, symbol):
+        if self.children:
+            print(symbol)
+            for child in self.children:
+                print(child)
+        pass
+
     def get_symbol(self, name):
         return self.symbols.get(name, None)
 
