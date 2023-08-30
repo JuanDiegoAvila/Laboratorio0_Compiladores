@@ -71,8 +71,6 @@ class SemanticVisitor(yalpVisitor):
         
         if ctx.DOT():
             visited_dot = self.handle_context(ctx)
-            for i in visited_dot:
-                print(i)
                 
             variable = visited_dot[0][0]
             function = visited_dot[2]
@@ -80,9 +78,9 @@ class SemanticVisitor(yalpVisitor):
             #Si variable es un ID
             if isinstance(variable, CommonToken):
                 token_type = self.lexer.symbolicNames[variable.type]
-                print(token_type)
                 if token_type=='ID':
                     simbolo = self.tablaSimbolos.get_scope_simbolo(variable.text)
+                    
                     #Verificamos si existe una variable con ese nombre en el scope
                     if not simbolo:
                         linea = simbolo.line
@@ -91,11 +89,20 @@ class SemanticVisitor(yalpVisitor):
                         if message not in self.errors:
                             self.errors.append(message)
                         return None
-                    pass
+                    else:
+                        tipo = simbolo.tipo_token #Me da el tipo del token
+                        type_symbol = self.tablaSimbolos.get_scope_simbolo(tipo)
+                        scope_tipo = type_symbol.scope
+                        scope_tipo.get_symbol_scope(None)
                 else:
                     pass
                     #Si no es de type token entonces buscamos en las clases nativas
-                    #
+            
+            if isinstance(function, CommonToken):
+                token_type = self.lexer.symbolicNames[function.type]
+                
+                simbolo = self.tablaSimbolos.get_scope_simbolo(function.text)
+
             print("aaaa\n")
 
         if ctx.LET():
@@ -229,8 +236,6 @@ class SemanticVisitor(yalpVisitor):
 
         elif ctx.LOOP():
             visited = self.handle_context(ctx)
-
-            print('loop', visited)
 
             
             self.tablaSimbolos.get_exitScope()

@@ -26,7 +26,7 @@ class Main{
     main() : Object {
 
         if (true) then {
-            x.copy();
+            y.copy();
 
             true + 1 * false - 3=3;
             1 + 2 * 3 - 4=4;
