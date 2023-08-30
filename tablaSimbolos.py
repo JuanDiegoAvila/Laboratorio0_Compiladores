@@ -82,7 +82,7 @@ from interfaz import custom_print, get_global_terminal
 #             conteo_alcances += 1
     
 class Simbolo:
-    def __init__(self, lexema, linea, columna, tipo_token, scope, parametro=False, hereda=None):
+    def __init__(self, lexema, linea, columna, tipo_token, scope, parametro=[], hereda=None):
         self.lexema = lexema
         self.linea = linea
         self.columna = columna
@@ -134,6 +134,9 @@ class Scope:
         for child in self.children:
             child.print_scope(level+1)
 
+            
+
+
 
 class TablaSimbolos:
     def __init__(self):
@@ -154,8 +157,6 @@ class TablaSimbolos:
     def get_scope_simbolo(self, name):
         for scope in self.all_scopes:
             if scope.name == self.index_scopes:
-                # print(scope.name)
-                # return scope.get_symbol(name)
                 temp_scope = scope
                 while temp_scope:
                     symbol = temp_scope.get_symbol(name)
@@ -178,6 +179,20 @@ class TablaSimbolos:
 
     def add_simbolo(self, name, simbolo):
         self.current_scope.add_symbol(name, simbolo)
+
+    
+    def update_simbol(self, simbol):
+        existe = False
+        for name, simbolo in self.current_scope.symbols.items():
+            if simbolo.lexema == simbol.lexema and simbolo.linea == simbol.linea and simbolo.columna == simbol.columna:
+                simbolo.tipo_token = simbol.tipo_token
+                simbolo.parametro.append(simbol.parametro)
+                simbolo.hereda = simbol.hereda
+                existe = True
+                return
+        
+        if not existe:
+            self.current_scope.add_symbol(simbol.lexema, simbol)
 
     def get_simbolo(self, name):
         temp_scope = self.current_scope
