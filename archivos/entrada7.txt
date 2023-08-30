@@ -1,0 +1,28 @@
+class Animal {
+    speak() : String {
+        "Animal speaks"
+    };
+};
+
+class Cat inherits Animal {
+    speak() : String {
+        "Meow!"
+    };
+};
+
+class Dog inherits Animal {
+    speak() : String {
+        "Woof!"
+    };
+};
+
+class Main {
+    myCat: Cat;
+    myDog: Dog;
+
+    main() : Object {
+        out_string(myCat.speak()) 
+        out_string(myDog.speak())
+
+    };
+};

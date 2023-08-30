@@ -68,6 +68,35 @@ class SemanticVisitor(yalpVisitor):
         return feature_name
 
     def visitExpr(self, ctx: yalpParser.ExprContext):
+        
+        if ctx.DOT():
+            visited_dot = self.handle_context(ctx)
+            for i in visited_dot:
+                print(i)
+                
+            variable = visited_dot[0][0]
+            function = visited_dot[2]
+            
+            #Si variable es un ID
+            if isinstance(variable, CommonToken):
+                token_type = self.lexer.symbolicNames[variable.type]
+                print(token_type)
+                if token_type=='ID':
+                    simbolo = self.tablaSimbolos.get_scope_simbolo(variable.text)
+                    #Verificamos si existe una variable con ese nombre en el scope
+                    if not simbolo:
+                        linea = simbolo.line
+                        columna = simbolo.column
+                        message = f"Error semantico: La variable '{simbolo.tipo_token}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        if message not in self.errors:
+                            self.errors.append(message)
+                        return None
+                    pass
+                else:
+                    pass
+                    #Si no es de type token entonces buscamos en las clases nativas
+                    #
+            print("aaaa\n")
 
         if ctx.LET():
             scope_let = self.tablaSimbolos.get_enterScope()
@@ -123,7 +152,7 @@ class SemanticVisitor(yalpVisitor):
             else:
                 if visited_if == "Boolean" or visited_if == "TRUE" or visited_if == "FALSE" or visited_if == "Int" or visited_if == "DIGIT":
                     argumento = ["Boolean"]
-                
+                    return argumento
                 if visited_if == None:
                     return None
                 
