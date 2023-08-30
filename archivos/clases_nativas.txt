@@ -1,43 +1,57 @@
 class Object {
-    abort() : Object { 
+    abort() : Object {
+        pass
     };
 
-    type_name() : String { 
-        ""
+    type_name() : String {
+        pass
     };
 
-    copy() : Object { 
+    copy() : Object {
+        pass
     };
+
 };
 
-class String {
-    length() : Int { 
-        0
+class String inherits Object {
+
+    length() : Int {
+        pass
     };
 
-    concat(s : String) : String { 
-        ""
+    concat(str : String) : String {
+        pass
     };
 
-    class substr(start : Int, length : Int) : String { 
-        ""
+    substr(i : Int, one : Int) : Int {
+        pass
     };
-}
+    
+};
 
-class IO {
-    class out_string(x: String) : IO { 
-        SELF_TYPE
+class Int inherits Object {
+
+};
+
+class Bool inherits Object {
+
+};
+
+class IO inherits Object {
+    out_string(str : String) : String {
+        pass
+    };
+    
+    out_int(i : Int) : Int {
+        pass
     };
 
-    class out_int(x: Int) : IO { 
-        SELF_TYPE
+    in_string() : String {
+        pass
     };
 
-    class in_string() : String {
-        ""
-     };
-
-    class in_int() : Int { 
-        0
+    in_int() : Int {
+        pass
     };
-}
+
+};

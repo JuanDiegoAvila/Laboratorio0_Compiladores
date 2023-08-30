@@ -27,7 +27,7 @@ class SemanticVisitor(yalpVisitor):
     def visitClass(self, ctx: yalpParser.ClassContext):
         class_name = ctx.TYPE()[0].getText()
 
-        scope = self.tablaSimbolos.get_enterScope()
+        self.tablaSimbolos.get_enterScope()
         hay_main = False
 
         for feature_ctx in ctx.feature():
@@ -54,7 +54,7 @@ class SemanticVisitor(yalpVisitor):
         feature_name = ctx.ID().getText()
 
         if token_type == "FUNCTION":
-            scope = self.tablaSimbolos.get_enterScope()
+            self.tablaSimbolos.get_enterScope()
             
         if ctx.expr():
             self.visit(ctx.expr())
@@ -83,9 +83,10 @@ class SemanticVisitor(yalpVisitor):
                     
                     #Verificamos si existe una variable con ese nombre en el scope
                     if not simbolo:
-                        linea = simbolo.line
-                        columna = simbolo.column
-                        message = f"Error semantico: La variable '{simbolo.tipo_token}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        print(self.tablaSimbolos.current_scope.name)
+                        linea = ctx.start.line
+                        columna = ctx.start.column
+                        message = f"Error semantico: La variable '{variable.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
                         if message not in self.errors:
                             self.errors.append(message)
                         return None
@@ -106,14 +107,14 @@ class SemanticVisitor(yalpVisitor):
             print("aaaa\n")
 
         if ctx.LET():
-            scope_let = self.tablaSimbolos.get_enterScope()
+            self.tablaSimbolos.get_enterScope()
             
             visited_let = self.handle_context(ctx)
 
             self.tablaSimbolos.get_exitScope()
 
         elif ctx.IF():
-            scope_if = self.tablaSimbolos.get_enterScope()
+            self.tablaSimbolos.get_enterScope()
             
             visited = self.handle_context(ctx)
             
@@ -172,7 +173,7 @@ class SemanticVisitor(yalpVisitor):
                     return None
 
             if ctx.ELSE():
-                scope_else = self.tablaSimbolos.get_enterScope()
+                self.tablaSimbolos.get_enterScope()
 
 
                 self.tablaSimbolos.get_exitScope()
@@ -292,7 +293,7 @@ class SemanticVisitor(yalpVisitor):
                 else:
                     linea = ctx.start.line
                     columna = ctx.start.column
-                    error = f'Type Error semantico: ~ no se puede operar con {visited[1]} en la posicion {linea}:{columna}'
+                    error = f'Error semantico: ~ no se puede operar con {visited[1]} en la posicion {linea}:{columna}'
                     if error not in self.errors:
                         self.errors.append(error)
                 
@@ -307,7 +308,7 @@ class SemanticVisitor(yalpVisitor):
                         
                         linea = ctx.start.line
                         columna = ctx.start.column
-                        error = f'Type Error semantico: ~ no se puede operar con {temp} en la posicion {linea}:{columna}'
+                        error = f'Error semantico: ~ no se puede operar con {temp} en la posicion {linea}:{columna}'
                         
                         if error not in self.errors:
                             self.errors.append(error)
@@ -322,7 +323,7 @@ class SemanticVisitor(yalpVisitor):
                     else:
                         linea = ctx.start.line
                         columna = ctx.start.column
-                        error = f'Type Error semantico: ~ no se puede operar con {token_type} en la posicion {linea}:{columna}'
+                        error = f'Error semantico: ~ no se puede operar con {token_type} en la posicion {linea}:{columna}'
                         
                         if error not in self.errors:
                             self.errors.append(error)
@@ -372,7 +373,7 @@ class SemanticVisitor(yalpVisitor):
                 linea = id1.line
                 columna = id1.column
 
-                message = f"Type violation: Se está asignando un tipo {type2} a una variable de tipo {type1} en la posición {linea}:{columna}"
+                message = f"Error: Se está asignando un tipo {type2} a una variable de tipo {type1} en la posición {linea}:{columna}"
                 if message not in self.errors:
                     self.errors.append(message)
                 return None
@@ -507,7 +508,7 @@ class SemanticVisitor(yalpVisitor):
         else:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Type Error semantico: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
+            error = f'Error semantico: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 
@@ -537,7 +538,7 @@ class SemanticVisitor(yalpVisitor):
         if len (types) != 1:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Type Error semantico: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
+            error = f'Error semantico: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 

@@ -14,6 +14,7 @@ class TreeVisitor(yalpVisitor):
         self.id = 0
         self.scope_counter = 0
         self.errors = []
+        self.nativas = False
 
     def visitar(self, tree):
         label = self.getNodeLabel(tree)
@@ -39,8 +40,76 @@ class TreeVisitor(yalpVisitor):
             return rule_name
 
     def visit(self, ctx):
-        return super().visit(ctx)
+        if not self.nativas:
+            self.crear_nativas()
+            self.nativas = True
 
+        return super().visit(ctx)
+    
+    def crear_nativas(self):
+        self.tablaSimbolos.add_simbolo("Object", Simbolo("Object", 0, 0, "CLASS", self.tablaSimbolos.current_scope))
+        self.tablaSimbolos.enterScope()
+        
+        self.tablaSimbolos.add_simbolo("abort", Simbolo("abort", 0, 0, "Object", self.tablaSimbolos.current_scope))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+        
+        self.tablaSimbolos.add_simbolo("type_name", Simbolo("type_name", 0, 0, "String", self.tablaSimbolos.current_scope))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.add_simbolo("copy", Simbolo("copy", 0, 0, "Object", self.tablaSimbolos.current_scope))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.add_simbolo("String", Simbolo("String", 0, 0, "CLASS", self.tablaSimbolos.current_scope, hereda = "Object"))
+        self.tablaSimbolos.enterScope()
+
+        self.tablaSimbolos.add_simbolo("length", Simbolo("length", 0, 0, "Int", self.tablaSimbolos.current_scope))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.add_simbolo("concat", Simbolo("concat", 0, 0, "String", self.tablaSimbolos.current_scope, ["String"]))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.add_simbolo("substr", Simbolo("substr", 0, 0, "String", self.tablaSimbolos.current_scope, ["Int", "Int"]))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.exitScope()
+        
+        self.tablaSimbolos.add_simbolo("IO", Simbolo("IO", 0, 0, "CLASS", self.tablaSimbolos.current_scope, hereda = "Object"))
+        self.tablaSimbolos.enterScope()
+
+        self.tablaSimbolos.add_simbolo("out_string", Simbolo("out_string", 0, 0, "SELF_TYPE", self.tablaSimbolos.current_scope, ["String"]))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.add_simbolo("out_int", Simbolo("out_int", 0, 0, "SELF_TYPE", self.tablaSimbolos.current_scope, ["Int"]))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.add_simbolo("in_string", Simbolo("in_string", 0, 0, "String", self.tablaSimbolos.current_scope))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.add_simbolo("in_int", Simbolo("in_int", 0, 0, "Int", self.tablaSimbolos.current_scope))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.exitScope()
+
+        self.tablaSimbolos.add_simbolo("Int", Simbolo("Int", 0, 0, "CLASS", self.tablaSimbolos.current_scope, hereda = "Object"))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+        
+        self.tablaSimbolos.add_simbolo("Bool", Simbolo("Bool", 0, 0, "CLASS", self.tablaSimbolos.current_scope, hereda = "Object"))
+        self.tablaSimbolos.enterScope()
+        self.tablaSimbolos.exitScope()
+        
     def visitProgram(self, ctx: yalpParser.ProgramContext):
         self.scope_counter = 0
         for class_ctx in ctx.class_():
@@ -77,6 +146,7 @@ class TreeVisitor(yalpVisitor):
         token_type = "FUNCTION" if ctx.LPAR() else "ATTRIBUTE"
 
         if token_type == "ATTRIBUTE" and ctx.ID() is not None and ctx.TYPE() is not None:
+
             variable_name = ctx.ID().getText()
             variable_type = ctx.TYPE().getText()
 
@@ -171,19 +241,25 @@ class TreeVisitor(yalpVisitor):
                     if self.tablaSimbolos.get_simbolo(variable_name):
                         self.errors.append(f"Error: El parametro '{variable_name}' ya ha sido declarado en este ámbito.")
                     else:
-                        simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
+                        simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope)
                         self.tablaSimbolos.add_simbolo(variable_name, simbolo)
                 
+                # regresar el arreglo de tipos
+                return [tipo.getText() for tipo in tipos]
             else:
+
                 variable_name = ctx.ID().getText()
                 variable_type = ctx.TYPE().getText()
                 #verificar si la variable ya ha sido declarada en este alcance
                 if self.tablaSimbolos.get_simbolo(variable_name):
                     self.errors.append(f"Error: El parametro '{variable_name}' ya ha sido declarado en este ámbito.")
                 else:
-                    simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
+                    simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope)
                     self.tablaSimbolos.add_simbolo(variable_name, simbolo)
-    
+
+                # regresar el tipo
+                return variable_type
+            
     def handle_context(self, ctx, formal=False):
         for child_ctx in ctx.getChildren():
             if isinstance(child_ctx, TerminalNode):
