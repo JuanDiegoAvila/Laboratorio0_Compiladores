@@ -71,11 +71,11 @@ class TreeVisitor(yalpVisitor):
         self.tablaSimbolos.enterScope()
         self.tablaSimbolos.exitScope()
 
-        self.tablaSimbolos.add_simbolo("concat", Simbolo("concat", 0, 0, "String", self.tablaSimbolos.current_scope, ["String"]))
+        self.tablaSimbolos.add_simbolo("concat", Simbolo("concat", 0, 0, "String", self.tablaSimbolos.current_scope))
         self.tablaSimbolos.enterScope()
         self.tablaSimbolos.exitScope()
 
-        self.tablaSimbolos.add_simbolo("substr", Simbolo("substr", 0, 0, "String", self.tablaSimbolos.current_scope, ["Int", "Int"]))
+        self.tablaSimbolos.add_simbolo("substr", Simbolo("substr", 0, 0, "String", self.tablaSimbolos.current_scope))
         self.tablaSimbolos.enterScope()
         self.tablaSimbolos.exitScope()
 
@@ -84,11 +84,11 @@ class TreeVisitor(yalpVisitor):
         self.tablaSimbolos.add_simbolo("IO", Simbolo("IO", 0, 0, "CLASS", self.tablaSimbolos.current_scope, hereda = "Object"))
         self.tablaSimbolos.enterScope()
 
-        self.tablaSimbolos.add_simbolo("out_string", Simbolo("out_string", 0, 0, "SELF_TYPE", self.tablaSimbolos.current_scope, ["String"]))
+        self.tablaSimbolos.add_simbolo("out_string", Simbolo("out_string", 0, 0, "SELF_TYPE", self.tablaSimbolos.current_scope))
         self.tablaSimbolos.enterScope()
         self.tablaSimbolos.exitScope()
 
-        self.tablaSimbolos.add_simbolo("out_int", Simbolo("out_int", 0, 0, "SELF_TYPE", self.tablaSimbolos.current_scope, ["Int"]))
+        self.tablaSimbolos.add_simbolo("out_int", Simbolo("out_int", 0, 0, "SELF_TYPE", self.tablaSimbolos.current_scope))
         self.tablaSimbolos.enterScope()
         self.tablaSimbolos.exitScope()
 
@@ -241,7 +241,7 @@ class TreeVisitor(yalpVisitor):
                     if self.tablaSimbolos.get_simbolo(variable_name):
                         self.errors.append(f"Error: El parametro '{variable_name}' ya ha sido declarado en este ámbito.")
                     else:
-                        simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope)
+                        simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
                         self.tablaSimbolos.add_simbolo(variable_name, simbolo)
                 
                 # regresar el arreglo de tipos
@@ -254,7 +254,7 @@ class TreeVisitor(yalpVisitor):
                 if self.tablaSimbolos.get_simbolo(variable_name):
                     self.errors.append(f"Error: El parametro '{variable_name}' ya ha sido declarado en este ámbito.")
                 else:
-                    simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope)
+                    simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
                     self.tablaSimbolos.add_simbolo(variable_name, simbolo)
 
                 # regresar el tipo
