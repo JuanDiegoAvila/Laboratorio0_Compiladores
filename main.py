@@ -127,5 +127,5 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
 # Llamar a la función para el scanner
 parser = Parser('./archivos/entrada4.txt')
 
-# app = interfaz.Interfaz(Parser)
-# app.mainloop()
+app = interfaz.Interfaz(Parser)
+app.mainloop()

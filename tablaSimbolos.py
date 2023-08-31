@@ -82,7 +82,7 @@ from interfaz import custom_print, get_global_terminal
 #             conteo_alcances += 1
     
 class Simbolo:
-    def __init__(self, lexema, linea, columna, tipo_token, scope, parametro=[], hereda=None):
+    def __init__(self, lexema, linea, columna, tipo_token, scope, parametro=False, hereda=None):
         self.lexema = lexema
         self.linea = linea
         self.columna = columna
