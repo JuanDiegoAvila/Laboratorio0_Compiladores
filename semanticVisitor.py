@@ -122,19 +122,33 @@ class SemanticVisitor(yalpVisitor):
                             linea = type_symbol.line
                             columna = type_symbol.column
                             message = f'Semantic Error: Método {function.text} no se encontró para la clase {type_symbol.lexema}, {linea}:{columna}'
+                            self.errors.append(message)
+                            return [None]
                         else:
-                            return [tipo_func]#                            print("Encontrado")
+                            return [tipo_func]
                             
-                else:
-                    pass
+                #else:
+                #    token_type = self.lexer.symbolicNames[variable.type]
+                #    if token_type == "Boolean" or token_type == "TRUE" or token_type == "FALSE":
+                #        tipo = "Boolean"
+                #        type_symbol = self.tablaSimbolos.get_scope_simbolo(tipo)
+                #        scope_tipo = type_symbol.scope
+#
+                #    elif token_type == "Int" or token_type == "DIGIT":
+                #        pass
+                #    elif token_type == "String":
+                #        pass
+                #    elif token_type == "Object":
+                #        pass
+                #    else:
+                #        pass
+                        #
                     #Si no es de type token entonces buscamos en las clases nativas
+        if ctx.ID() and ctx.LPAR():
+            visited_func = self.handle_context(ctx)
             
-            if isinstance(function, CommonToken):
-                token_type = self.lexer.symbolicNames[function.type]
-                
-                simbolo = self.tablaSimbolos.get_scope_simbolo(function.text)
+            print('visited_func', visited_func)
 
-            print("aaaa\n")
 
         if ctx.LET():
             self.tablaSimbolos.get_enterScope()
