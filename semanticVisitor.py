@@ -98,6 +98,8 @@ class SemanticVisitor(yalpVisitor):
                                 arg_types.append("Int")
                             elif token_type=="String":
                                 arg_types.append("String")
+                            elif token_type=="ERROR":
+                                arg_types.append("Indefinido")
                             else:
                                 arg_types.append(None)
                 return arg_types
@@ -232,6 +234,8 @@ class SemanticVisitor(yalpVisitor):
                                 arg_types.append("Int")
                             elif token_type=="String":
                                 arg_types.append("String")
+                            elif token_type=="ERROR":
+                                arg_types.append("Indefinido")
                             else:
                                 arg_types.append(None)
                 return arg_types
@@ -549,6 +553,8 @@ class SemanticVisitor(yalpVisitor):
                     type2 = 'Boolean'
                 elif token_type == "STRING" or token_type == "String":
                     type2 = "String"
+                elif token_type == "ERROR":
+                    type2 = "Indefinido"
 
             if type1!=type2:
                 linea = id1.line
@@ -712,8 +718,11 @@ class SemanticVisitor(yalpVisitor):
                 if "Boolean" not in types and "Int" not in types:
                     types.append("Boolean")
 
+            elif v == "ERROR":
+                types.append("Indefinido")
+
             if v == None:
-                return None\
+                return None
         
         #Solo ocurre si hay 2 tipos distintos en la lista
         if len (types) != 1:
