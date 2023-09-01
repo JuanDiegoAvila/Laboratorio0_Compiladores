@@ -22,6 +22,8 @@ class Main{
     y: Sally;
     z: Selly;
 
+    
+
     hola(a: Int, b:Boolean) : Object {
         1
     };

@@ -107,7 +107,7 @@ class SemanticVisitor(yalpVisitor):
                         print(self.tablaSimbolos.current_scope.name)
                         linea = ctx.start.line
                         columna = ctx.start.column
-                        message = f"Error semantico: La variable '{variable.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        message = f"Error semántico: La variable '{variable.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
                         if message not in self.errors:
                             self.errors.append(message)
                         return None
@@ -176,7 +176,7 @@ class SemanticVisitor(yalpVisitor):
                     if not visited_if:
                         linea = visited_if.line
                         columna = visited_if.column
-                        message = f"Error semantico: La variable '{visited_if.tipo_token}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        message = f"Error semántico: La variable '{visited_if.tipo_token}' en la posición '{linea}':'{columna}' no ha sido declarada."
                         if message not in self.errors:
                             self.errors.append(message)
                         return None
@@ -196,7 +196,7 @@ class SemanticVisitor(yalpVisitor):
                         linea = visited_if.line
                         columna = visited_if.column
 
-                    message = f"Error semantico: La variable de tipo '{token_type}' en la posicion '{linea}':'{columna}' debe ser de tipo boolean."
+                    message = f"Error semántico: La variable de tipo '{token_type}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
                     if message not in self.errors:
                         self.errors.append(message)
                     return None
@@ -211,7 +211,7 @@ class SemanticVisitor(yalpVisitor):
                 else:
                     linea = ctx.start.line
                     columna = ctx.start.column
-                    error = f'Error semantico: La variable de tipo {visited_if} no puede ser argumento del if {linea}:{columna}'
+                    error = f'Error semántico: La variable de tipo {visited_if} no puede ser argumento del if {linea}:{columna}'
                     if error not in self.errors:
                         self.errors.append(error)
                     return None
@@ -242,7 +242,7 @@ class SemanticVisitor(yalpVisitor):
                     if not visited_while:
                         linea = visited_while.line
                         columna = visited_while.column
-                        message = f"Error semantico: La variable '{visited_while.tipo_token}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        message = f"Error semántico: La variable '{visited_while.tipo_token}' en la posición '{linea}':'{columna}' no ha sido declarada."
                         if message not in self.errors:
                             self.errors.append(message)
                         return None
@@ -262,7 +262,7 @@ class SemanticVisitor(yalpVisitor):
                         linea = visited_while.line
                         columna = visited_while.column
 
-                    message = f"Error semantico: La variable de tipo '{token_type}' en la posicion '{linea}':'{columna}' debe ser de tipo boolean."
+                    message = f"Error semántico: La variable de tipo '{token_type}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
                     if message not in self.errors:
                         self.errors.append(message)
                     return None
@@ -274,7 +274,7 @@ class SemanticVisitor(yalpVisitor):
                 else:
                     linea = visited_while.line
                     columna = visited_while.column
-                    message = f"Error semantico: La variable de tipo '{visited_while}' en la posicion '{linea}':'{columna}' debe ser de tipo boolean."
+                    message = f"Error semántico: La variable de tipo '{visited_while}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
                     if message not in self.errors:
                         self.errors.append(message)
                     return None
@@ -299,7 +299,7 @@ class SemanticVisitor(yalpVisitor):
                     if not compared:
                         linea = compared.line
                         columna = compared.column
-                        message = f"Error semantico: La variable '{compared.tipo_token}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        message = f"Error semántico: La variable '{compared.tipo_token}' en la posición '{linea}':'{columna}' no ha sido declarada."
                         if message not in self.errors:
                             self.errors.append(message)
                         return None
@@ -337,7 +337,7 @@ class SemanticVisitor(yalpVisitor):
                 else:
                     linea = ctx.start.line
                     columna = ctx.start.column
-                    error = f'Error semantico: ~ no se puede operar con {visited[1]} en la posicion {linea}:{columna}'
+                    error = f'Error semántico: ~ no se puede operar con {visited[1]} en la posición {linea}:{columna}'
                     if error not in self.errors:
                         self.errors.append(error)
                 
@@ -352,7 +352,7 @@ class SemanticVisitor(yalpVisitor):
                         
                         linea = ctx.start.line
                         columna = ctx.start.column
-                        error = f'Error semantico: ~ no se puede operar con {temp} en la posicion {linea}:{columna}'
+                        error = f'Error semántico: ~ no se puede operar con {temp} en la posición {linea}:{columna}'
                         
                         if error not in self.errors:
                             self.errors.append(error)
@@ -367,7 +367,7 @@ class SemanticVisitor(yalpVisitor):
                     else:
                         linea = ctx.start.line
                         columna = ctx.start.column
-                        error = f'Error semantico: ~ no se puede operar con {token_type} en la posicion {linea}:{columna}'
+                        error = f'Error semántico: ~ no se puede operar con {token_type} en la posición {linea}:{columna}'
                         
                         if error not in self.errors:
                             self.errors.append(error)
@@ -381,7 +381,7 @@ class SemanticVisitor(yalpVisitor):
             if not type1:
                 linea = id1.line
                 columna = id1.column
-                message = f"Error semantico: La variable '{id1.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                message = f"Error semántico: La variable '{id1.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
                 if message not in self.errors:
                     self.errors.append(message)
                 return None
@@ -401,7 +401,7 @@ class SemanticVisitor(yalpVisitor):
                     else:
                         linea = type2.line
                         columna = type2.column
-                        message = f"Error semantico: La variable '{type2.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                        message = f"Error semántico: La variable '{type2.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
                         if message not in self.errors:
                             self.errors.append(message)
                         type2 = "None"
@@ -445,7 +445,7 @@ class SemanticVisitor(yalpVisitor):
                             else:
                                 linea = op.line
                                 columna = op.column
-                                message = f"Error semantico: La variable '{op.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                                message = f"Error semántico: La variable '{op.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
 
                                 if message not in self.errors:
                                     self.errors.append(message)
@@ -489,7 +489,7 @@ class SemanticVisitor(yalpVisitor):
                             else:
                                 linea = op.line
                                 columna = op.column
-                                message = f"Error semantico: La variable '{op.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                                message = f"Error semántico: La variable '{op.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
 
                                 if message not in self.errors:
                                     self.errors.append(message)
@@ -552,7 +552,7 @@ class SemanticVisitor(yalpVisitor):
         else:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Error semantico: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
+            error = f'Error semántico: Operacion invalida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 
@@ -582,7 +582,7 @@ class SemanticVisitor(yalpVisitor):
         if len (types) != 1:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Error semantico: Operacion invalida entre {types[0]} y {types[1]} en la posicion {linea}:{columna}'
+            error = f'Error semántico: Operacion invalida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 

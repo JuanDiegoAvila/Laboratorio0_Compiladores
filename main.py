@@ -23,7 +23,7 @@ class CustomLexer(yalpLexer):
         self.global_terminal = get_global_terminal()
         self.tablaSimbolos = TablaSimbolos()
         self.scopes = 0
-        
+
     def nextToken(self):
 
         token = super().nextToken()
@@ -43,6 +43,7 @@ class CustomLexer(yalpLexer):
                 self.errors = True
                 mensaje = f"Error léxico en la posición {token.line}:{token.column} string {token.text} con salto de linea no permitido."
                 custom_print(self.global_terminal, mensaje, is_error=True)
+
         elif token.type == yalpLexer.ERROR:
                 self.errors = True
                 mensaje = f"Error léxico en la posición {token.line}:{token.column} token {token.text} no reconocido."
@@ -50,11 +51,11 @@ class CustomLexer(yalpLexer):
         _token_t = yalpLexer.symbolicNames[token.type]
         # simbolo = Simbolo(token.text, token.line, token.column, _token_t, self.tablaSimbolos.scope)
         # self.tablaSimbolos.add_simbolo(simbolo)
-        
         return token
-        
+
 class CustomParserErrorListener(ErrorListener):
     def __init__(self):
+        super().__init__()
         self.errors = False
         self.global_terminal = get_global_terminal()
 
@@ -65,11 +66,14 @@ class CustomParserErrorListener(ErrorListener):
         mensaje = f"Error sintáctico en {line}:{column}, token '{offending_token}' no reconocido. Se esperaba uno de los siguientes tokens: {expected_tokens}."
         custom_print(self.global_terminal, mensaje, is_error=True)
 
+
+
+
 class Scanner (object):
     def __init__(self, input_file):
         with open(input_file, 'r') as file:
             self.input_text = file.read()
-        
+
         self.input_stream = InputStream(self.input_text)
         self.lexer = CustomLexer(self.input_stream)
         self.stream = CommonTokenStream(self.lexer)
@@ -87,21 +91,19 @@ class Parser (object):
         parser = yalpParser(token_stream)
 
         parser.removeErrorListeners()
-
         errorListener = CustomParserErrorListener()
         parser.addErrorListener(errorListener)
-        
 
         tree = parser.program()
-                
-        if self.scanner.lexer.errors == False and errorListener.errors == False:
-            
-            analisis_semantico(tree, self.scanner.lexer.tablaSimbolos, self.scanner.lexer)
-       
+
+        # if self.scanner.lexer.errors == False and errorListener.errors == False:
+
+        analisis_semantico(tree, self.scanner.lexer.tablaSimbolos, self.scanner.lexer)
+
 def analisis_semantico(tree, tablaSimbolos, lexer):
     visitor = TreeVisitor(lexer)
 
-    
+
     grafo = visitor.visitar(tree)
     visitor.visit(tree)
 
@@ -111,12 +113,12 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
             custom_print(terminal, error, is_error=True)
         return
 
-    #grafo.render('./grafos/grafo', view=True, format='png')
+    grafo.render('./grafos/grafo', view=True, format='png')
     tablaSimbolos.print_tabla()
-    
+
     #ScopeVisualizer(tablaSimbolos).visualize()
     semanticVisitor = SemanticVisitor(lexer, tablaSimbolos)
-    semanticVisitor.visit(tree) 
+    semanticVisitor.visit(tree)
 
     if semanticVisitor.errors != []:
         for error in semanticVisitor.errors:
@@ -127,5 +129,5 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
 # Llamar a la función para el scanner
 parser = Parser('./archivos/entrada4.txt')
 
-app = interfaz.Interfaz(Parser)
-app.mainloop()
+# app = interfaz.Interfaz(Parser)
+# app.mainloop()
