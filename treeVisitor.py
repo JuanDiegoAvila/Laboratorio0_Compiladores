@@ -150,6 +150,7 @@ class TreeVisitor(yalpVisitor):
             variable_name = ctx.ID().getText()
             variable_type = ctx.TYPE().getText()
 
+
             if self.tablaSimbolos.get_simbolo(variable_name):
                 self.errors.append(f"Error semántico: El atributo '{variable_name}' ya ha sido declarado en este ámbito.")
             else:
@@ -163,7 +164,7 @@ class TreeVisitor(yalpVisitor):
             if self.tablaSimbolos.get_simbolo(feature_name):
                 self.errors.append(f"Error semántico: El atributo/funcion '{feature_name}' ya ha sido declarado en este ámbito.")
             else:
-                self.tablaSimbolos.add_simbolo(feature_name, Simbolo(feature_name, ctx.start.line, ctx.start.column, type_feature, self.tablaSimbolos.current_scope))
+                self.tablaSimbolos.add_simbolo(feature_name, Simbolo(feature_name, ctx.start.line, ctx.start.column, type_feature, self.tablaSimbolos.current_scope, funcion=True))
             
         if token_type == "FUNCTION":
             self.tablaSimbolos.enterScope()

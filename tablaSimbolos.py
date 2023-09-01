@@ -82,7 +82,7 @@ from interfaz import custom_print, get_global_terminal
 #             conteo_alcances += 1
     
 class Simbolo:
-    def __init__(self, lexema, linea, columna, tipo_token, scope, parametro=False, hereda=None):
+    def __init__(self, lexema, linea, columna, tipo_token, scope, parametro=False, hereda=None, funcion=False):
         self.lexema = lexema
         self.linea = linea
         self.columna = columna
@@ -91,9 +91,10 @@ class Simbolo:
         self.global_ = False
         self.parametro = parametro
         self.hereda = hereda
+        self.funcion = funcion
 
     def __str__(self):
-        return f"Lexema: {self.lexema}, Linea: {self.linea}, Columna: {self.columna}, Tipo de Token: {self.tipo_token}, Scope: {self.scope}, Parametro: {self.parametro}, Hereda: {self.hereda}"
+        return f"Lexema: {self.lexema}, Linea: {self.linea}, Columna: {self.columna}, Tipo de Token: {self.tipo_token}, Scope: {self.scope}, Parametro: {self.parametro}, Hereda: {self.hereda}, Funcion: {self.funcion}"
 
     def setGlobal(self, global_):
         self.global_ = global_
@@ -112,9 +113,11 @@ class Scope:
     #Permite obtener el scope del algun simbolo entre los hijos
     def get_symbol_scope(self, symbol):
         if self.children:
-            print(symbol)
             keys = list(self.symbols.keys())
+            functions= [key for key,value in self.symbols.items() if value.funcion==True]
             idx = keys.index(symbol.lexema)
+            if symbol.lexema in functions:
+                idx = functions.index(symbol.lexema)
             for child in range(len(self.children)):
                 if child==idx:
                     return (self.children[child], symbol.hereda)
@@ -138,9 +141,9 @@ class Scope:
         custom_print(self.global_terminal, f"\n{indent}Scope {self.name}:")
         
         x = PrettyTable()
-        x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Global", "Parametro", "Hereda"]
+        x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Global", "Parametro", "Hereda", "Funcion"]
         for name, simbolo in self.symbols.items():
-            x.add_row([simbolo.lexema, simbolo.linea, simbolo.columna, simbolo.tipo_token, simbolo.global_, simbolo.parametro, simbolo.hereda])
+            x.add_row([simbolo.lexema, simbolo.linea, simbolo.columna, simbolo.tipo_token, simbolo.global_, simbolo.parametro, simbolo.hereda, simbolo.funcion])
         custom_print(self.global_terminal, x)
         for child in self.children:
             child.print_scope(level+1)

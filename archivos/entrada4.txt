@@ -1,5 +1,5 @@
 class Silly {
-    copy() : SELF_TYPE {
+    copy(a:Int) : SELF_TYPE {
         self
     };
 
@@ -21,23 +21,18 @@ class Main{
     x: Silly;
     y: Sally;
     z: Selly;
+    c: Int;
 
     
 
-    hola(a: Int, b:Boolean) : Object {
+    hola(a: Int, b:Boolean) : Int {
         1
     };
 
 
     main() : Object {
-
-
-
-
         if (true) then {
-            y.copy();
-            hola();
-
+            x.copy(1, y);
             true + 1 * false - 3=3;
             1 + 2 * 3 - 4=4;
             "Hola"+1;
@@ -53,6 +48,7 @@ class Main{
         } FI
     };
 };
+
 
 
 
