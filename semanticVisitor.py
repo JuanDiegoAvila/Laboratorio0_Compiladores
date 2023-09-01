@@ -107,7 +107,7 @@ class SemanticVisitor(yalpVisitor):
                                 arg_types.append("Boolean")
                             elif token_type=="DIGIT" or token_type=="Int":
                                 arg_types.append("Int")
-                            elif token_type=="String":
+                            elif token_type=="String" or token_type =="STRING":
                                 arg_types.append("String")
                             elif token_type=="ERROR":
                                 arg_types.append("Indefinido")
