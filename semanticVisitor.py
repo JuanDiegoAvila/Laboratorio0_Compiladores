@@ -392,8 +392,8 @@ class SemanticVisitor(yalpVisitor):
                     visited_while = self.tablaSimbolos.get_scope_simbolo(visited_while.text)
 
                     if not visited_while:
-                        linea = visited_while.line
-                        columna = visited_while.column
+                        linea = ctx.start.line
+                        columna = ctx.start.column
                         message = f"Error semántico: La variable '{visited_while.tipo_token}' en la posición '{linea}':'{columna}' no ha sido declarada."
                         if message not in self.errors:
                             self.errors.append(message)
@@ -411,8 +411,8 @@ class SemanticVisitor(yalpVisitor):
                         linea = visited_while.linea
                         columna = visited_while.columna
                     else:
-                        linea = visited_while.line
-                        columna = visited_while.column
+                        linea = ctx.start.line
+                        columna = ctx.start.column
 
                     message = f"Error semántico: La variable de tipo '{token_type}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
                     if message not in self.errors:
@@ -424,8 +424,8 @@ class SemanticVisitor(yalpVisitor):
                     return ["Boolean"]
                 
                 else:
-                    linea = visited_while.line
-                    columna = visited_while.column
+                    linea = ctx.start.line
+                    columna = ctx.start.column
                     message = f"Error semántico: La variable de tipo '{visited_while}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
                     if message not in self.errors:
                         self.errors.append(message)

@@ -1,5 +1,5 @@
 (* COMENTARIO *)
-class Main inherits IO {
+class Main{
     
     globalVar : Int;
 
@@ -26,6 +26,9 @@ class Main inherits IO {
         0
     };
 };
+
+
+
 
 
 

@@ -96,20 +96,24 @@ class Parser (object):
 
         tree = parser.program()
 
-        # if self.scanner.lexer.errors == False and errorListener.errors == False:
+        errors = False
+        if self.scanner.lexer.errors or errorListener.errors:
+            errors = True
 
-        analisis_semantico(tree, self.scanner.lexer.tablaSimbolos, self.scanner.lexer)
 
-def analisis_semantico(tree, tablaSimbolos, lexer):
+        analisis_semantico(tree, self.scanner.lexer.tablaSimbolos, self.scanner.lexer, errors)
+
+def analisis_semantico(tree, tablaSimbolos, lexer, errors):
     visitor = TreeVisitor(lexer)
 
 
     grafo = visitor.visitar(tree)
     visitor.visit(tree)
+    terminal = get_global_terminal()
 
     if visitor.errors != []:
+        errors = True
         for error in visitor.errors:
-            terminal = get_global_terminal()
             custom_print(terminal, error, is_error=True)
 
     # grafo.render('./grafos/grafo', view=True, format='png')
@@ -120,12 +124,15 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
     semanticVisitor.visit(tree)
 
     if semanticVisitor.errors != []:
+        errors = True
         for error in semanticVisitor.errors:
-            terminal = get_global_terminal()
             custom_print(terminal, error, is_error=True)
+    
+    if not errors:
+        custom_print(terminal, "No hay errores en el codigo.", is_success=True)
 
 # Llamar a la función para el scanner
-parser = Parser('./archivos/entrada.txt')
+parser = Parser('./archivos/entrada3.txt')
 
 # app = interfaz.Interfaz(Parser)
 # app.mainloop()
