@@ -114,7 +114,7 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
     #grafo.render('./grafos/grafo', view=True, format='png')
     tablaSimbolos.print_tabla()
     
-    ScopeVisualizer(tablaSimbolos).visualize()
+    #ScopeVisualizer(tablaSimbolos).visualize()
     semanticVisitor = SemanticVisitor(lexer, tablaSimbolos)
     semanticVisitor.visit(tree) 
 
