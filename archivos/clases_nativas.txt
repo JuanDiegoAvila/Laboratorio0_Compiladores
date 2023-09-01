@@ -23,7 +23,7 @@ class String inherits Object {
         pass
     };
 
-    substr(i : Int, one : Int) : Int {
+    substr(i : Int, l : Int) : Int {
         pass
     };
     

@@ -9,14 +9,13 @@ def custom_print(terminal, *args, is_error=False, **kwargs):
         return
     
     terminal.config(state="normal")
-    content = '>'+' '.join(map(str, args)) + '\n'
+    content = '\n '+' '.join(map(str, args)) + '\n'
 
     start_position = terminal.index(tk.END)  # posición inicial antes de la inserción
     terminal.insert(tk.END, content)
     end_position = terminal.index(tk.END)  # posición final después de la inserción
 
     if is_error:
-        print("Error")
         terminal.tag_add("error", start_position, end_position)
     
     terminal.config(state="disabled")
@@ -69,7 +68,8 @@ class Interfaz(tk.Tk):
         self.line_number_canvas = tk.Canvas(self.frame_texto, width=30, bg=self.color_fondo)
         self.line_number_canvas.pack(side=tk.LEFT, fill=tk.Y)
 
-        self.line_numbers = tk.Label(self.line_number_canvas, text='1', bg=self.color_fondo, fg=self.color_texto, anchor='e', font=self.fuente)
+        self.line_numbers = Text(self.line_number_canvas, bg=self.color_fondo, fg=self.color_texto, width=3, height=1, padx=5, font=self.fuente, bd=0, highlightthickness=0, state=tk.DISABLED)
+        # self.line_numbers = Text(self.line_number_canvas, bg=self.color_fondo, fg=self.color_texto, width=4, height=1, padx=5, font=self.fuente, bd=0, highlightthickness=0, state=tk.DISABLED, anchor='center', spacing1=0, spacing2=0, spacing3=0)
         self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
 
         self.scroll_y = Scrollbar(self.frame_texto, orient=tk.VERTICAL)
@@ -79,15 +79,12 @@ class Interfaz(tk.Tk):
         self.area_texto = Text(self.frame_texto, wrap=tk.WORD, bg=self.color_fondo, fg=self.color_texto, insertbackground='white', font=self.fuente, yscrollcommand=self.scroll_y.set)
         self.area_texto.pack(expand=1, fill=tk.BOTH)
         self.area_texto.bind("<<Change>>", lambda event: self.update_line_numbers())
-        self.area_texto.bind("<KeyPress>", self._on_key_press)
-        self.key_release_id = self.area_texto.bind("<KeyRelease>", self._on_key_release)
+        self.area_texto.bind("<Return>", lambda event: self.update_line_numbers())
+        self.area_texto.bind("<MouseWheel>", lambda event: self.update_line_numbers())
+        self.area_texto.bind("<BackSpace>", lambda event: self.update_line_numbers())
+        self.area_texto.bind("<KeyRelease>", lambda event: self.update_line_numbers())
+        self.area_texto.bind("<Configure>", lambda event: self.update_view_lines())
         
-        # self.area_texto.config(yscrollcommand=self.sync_scrolling)
-
-        # self.scroll_y.config(command=self.area_texto.yview)
-
-        # self.area_texto.bind("<Configure>", self.sync_line_numbers)
-
         # Terminal
         self.terminal = Text(self.paned_window, bg="black", fg="white")
         self.terminal.config(state=tk.DISABLED)
@@ -110,8 +107,27 @@ class Interfaz(tk.Tk):
 
     def update_line_numbers(self):
         line_count = self.area_texto.index(tk.END).split('.')[0]
-        line_numbers = "\n".join(str(i) for i in range(1, int(line_count)))
-        self.line_numbers.config(text=line_numbers)
+        lines = [str(i) for i in range(1, int(line_count))]
+
+        max_width = 3 
+        centered_lines = []
+
+        for line in lines:
+            padding = (max_width - len(line)) // 2  # Calcula cuántos espacios añadir
+            centered_line =  line + ' ' * padding 
+            centered_lines.append(centered_line)
+
+        content = "\n".join(centered_lines)
+
+        self.line_numbers.config(state=tk.NORMAL)
+        self.line_numbers.delete(1.0, tk.END)
+        self.line_numbers.insert(1.0, content)
+        self.line_numbers.config(state=tk.DISABLED)
+        self.update_view_lines()
+    
+    def update_view_lines(self):
+        text_yview = self.area_texto.yview()
+        self.line_numbers.yview_moveto(text_yview[0])
 
     def clean_terminal(self):
         self.terminal.config(state=tk.NORMAL)
@@ -130,19 +146,6 @@ class Interfaz(tk.Tk):
     def on_text_and_canvas_scroll(self, *args):
         self.area_texto.yview(*args)
         self.line_number_canvas.yview(*args)
-
-    def sync_line_numbers(self, event):
-        self.line_number_canvas.config(scrollregion=self.line_number_canvas.bbox("all"))
-        self.line_number_canvas.yview_moveto(self.area_texto.yview()[0])
-
-    def _on_key_press(self, event):
-        self.area_texto.edit_separator()
-        self.area_texto.bind("<KeyRelease>", self._on_key_release)
-
-    def _on_key_release(self, event):
-        self.area_texto.edit_separator()
-        self.area_texto.event_generate("<<Change>>")
-        self.area_texto.unbind("<KeyRelease>")
 
     def abrir_archivo(self):
         archivo = filedialog.askopenfilename(initialdir="./archivos/", title="Abrir", filetypes=(("Archivos de texto", "*.txt"), ("Todos los archivos", "*.*")))

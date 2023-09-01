@@ -79,10 +79,16 @@ class TreeVisitor(yalpVisitor):
 
         self.tablaSimbolos.add_simbolo("concat", Simbolo("concat", 0, 0, "String", self.tablaSimbolos.current_scope))
         self.tablaSimbolos.enterScope()
+        # agregar parametro str de tipo String
+        self.tablaSimbolos.add_simbolo("str", Simbolo("str", 0, 0, "String", self.tablaSimbolos.current_scope, True))
         self.tablaSimbolos.exitScope()
 
         self.tablaSimbolos.add_simbolo("substr", Simbolo("substr", 0, 0, "String", self.tablaSimbolos.current_scope))
         self.tablaSimbolos.enterScope()
+        # agregar parametro i de tipo Int
+        self.tablaSimbolos.add_simbolo("i", Simbolo("i", 0, 0, "Int", self.tablaSimbolos.current_scope, True))
+        # agregar parametro l de tipo Int
+        self.tablaSimbolos.add_simbolo("l", Simbolo("l", 0, 0, "Int", self.tablaSimbolos.current_scope, True))
         self.tablaSimbolos.exitScope()
 
         self.tablaSimbolos.exitScope()
@@ -92,10 +98,14 @@ class TreeVisitor(yalpVisitor):
 
         self.tablaSimbolos.add_simbolo("out_string", Simbolo("out_string", 0, 0, "SELF_TYPE", self.tablaSimbolos.current_scope))
         self.tablaSimbolos.enterScope()
+        # agregar parametro str de tipo String
+        self.tablaSimbolos.add_simbolo("str", Simbolo("str", 0, 0, "String", self.tablaSimbolos.current_scope, True))
         self.tablaSimbolos.exitScope()
 
         self.tablaSimbolos.add_simbolo("out_int", Simbolo("out_int", 0, 0, "SELF_TYPE", self.tablaSimbolos.current_scope))
         self.tablaSimbolos.enterScope()
+        # agregar parametro i de tipo Int
+        self.tablaSimbolos.add_simbolo("i", Simbolo("i", 0, 0, "Int", self.tablaSimbolos.current_scope, True))
         self.tablaSimbolos.exitScope()
 
         self.tablaSimbolos.add_simbolo("in_string", Simbolo("in_string", 0, 0, "String", self.tablaSimbolos.current_scope))
