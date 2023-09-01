@@ -19,6 +19,12 @@ class TreeVisitor(yalpVisitor):
     def visitar(self, tree):
         label = self.getNodeLabel(tree)
 
+        # obtener el tipo de la label
+        if isinstance(tree, TerminalNode):
+            token_type = self.lexer.symbolicNames[tree.getSymbol().type]
+            if token_type == "ERROR":
+                label = f"Error: {tree.getText()}"
+
         self.graph.node(str(self.id), label)
         padre = self.id
         self.id += 1
@@ -126,6 +132,9 @@ class TreeVisitor(yalpVisitor):
             
             if parent_class_name == class_name:
                 self.errors.append(f"Error semántico: La clase '{class_name}' no puede heredar de si misma.")
+            
+            if parent_class_name == "Int" or parent_class_name == "String" or parent_class_name == "Bool":
+                self.errors.append(f"Error semántico: La clase '{class_name}' no puede heredar de la clase '{parent_class_name}'.")
 
             if class_name == "Main":
                 self.errors.append(f"Error semántico: La clase '{class_name}' no puede heredar de otra clase.")
@@ -157,6 +166,7 @@ class TreeVisitor(yalpVisitor):
                 self.tablaSimbolos.add_simbolo(variable_name, Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope))
     
         else:
+            
             feature_name = ctx.ID().getText()
             type_feature = ctx.TYPE().getText()
 
@@ -168,7 +178,7 @@ class TreeVisitor(yalpVisitor):
             
         if token_type == "FUNCTION":
             self.tablaSimbolos.enterScope()
-        
+
         if ctx.expr():
             self.visit(ctx.expr())
         
@@ -194,7 +204,6 @@ class TreeVisitor(yalpVisitor):
             
             
             self.tablaSimbolos.exitScope()
-
 
         if ctx.WHILE():
             self.tablaSimbolos.enterScope()
@@ -239,7 +248,7 @@ class TreeVisitor(yalpVisitor):
                     variable_type = tipo_node.getText()
 
                     # verificar si la variable ya ha sido declarada en este alcance
-                    if self.tablaSimbolos.get_simbolo(variable_name):
+                    if self.tablaSimbolos.get_current_scope_simbolo(variable_name):
                         self.errors.append(f"Error semántico: El parametro '{variable_name}' ya ha sido declarado en este ámbito.")
                     else:
                         simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
@@ -251,15 +260,16 @@ class TreeVisitor(yalpVisitor):
 
                 variable_name = ctx.ID().getText()
                 variable_type = ctx.TYPE().getText()
+
                 #verificar si la variable ya ha sido declarada en este alcance
-                if self.tablaSimbolos.get_simbolo(variable_name):
+                if self.tablaSimbolos.get_current_scope_simbolo(variable_name):
                     self.errors.append(f"Error semántico: El parametro '{variable_name}' ya ha sido declarado en este ámbito.")
                 else:
                     simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, True)
                     self.tablaSimbolos.add_simbolo(variable_name, simbolo)
-
+                
                 # regresar el tipo
-                return variable_type
+                return [variable_type]
             
     def handle_context(self, ctx, formal=False):
         for child_ctx in ctx.getChildren():

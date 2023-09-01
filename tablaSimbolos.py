@@ -215,11 +215,20 @@ class TablaSimbolos:
 
     def get_simbolo(self, name):
         temp_scope = self.current_scope
+
         while temp_scope:
             symbol = temp_scope.get_symbol(name)
             if symbol:
                 return symbol
             temp_scope = temp_scope.parent
+        return None
+    
+    def get_current_scope_simbolo(self, name):
+        temp_scope = self.current_scope
+        symbol = temp_scope.get_symbol(name)
+        if symbol:
+            return temp_scope
+        
         return None
     
     def print_tabla(self):

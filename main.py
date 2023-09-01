@@ -111,10 +111,9 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
         for error in visitor.errors:
             terminal = get_global_terminal()
             custom_print(terminal, error, is_error=True)
-        return
 
-    grafo.render('./grafos/grafo', view=True, format='png')
-    tablaSimbolos.print_tabla()
+    # grafo.render('./grafos/grafo', view=True, format='png')
+    # tablaSimbolos.print_tabla()
 
     #ScopeVisualizer(tablaSimbolos).visualize()
     semanticVisitor = SemanticVisitor(lexer, tablaSimbolos)
@@ -124,7 +123,6 @@ def analisis_semantico(tree, tablaSimbolos, lexer):
         for error in semanticVisitor.errors:
             terminal = get_global_terminal()
             custom_print(terminal, error, is_error=True)
-        return
 
 # Llamar a la función para el scanner
 parser = Parser('./archivos/entrada4.txt')

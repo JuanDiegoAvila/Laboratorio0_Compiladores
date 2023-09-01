@@ -50,14 +50,25 @@ class SemanticVisitor(yalpVisitor):
 
     def visitFeature(self, ctx: yalpParser.FeatureContext):
         token_type = "FUNCTION" if ctx.LPAR() else "ATTRIBUTE"
-
         feature_name = ctx.ID().getText()
 
         if token_type == "FUNCTION":
             self.tablaSimbolos.get_enterScope()
             
         if ctx.expr():
-            self.visit(ctx.expr())
+            visited = self.visit(ctx.expr())
+
+        if ctx.ASSIGN():
+            original_type = ctx.TYPE().getText()
+
+            assign = self.visit(ctx.expr())[0]
+            
+            if assign != original_type:
+                linea = ctx.start.line
+                columna = ctx.start.column
+                message = f"Error semántico: Se está asignando un tipo {assign} a una variable de tipo {original_type} en la posición {linea}:{columna}"
+                if message not in self.errors:
+                    self.errors.append(message)
         
         for formal_ctx in ctx.formal():
             self.visit(formal_ctx)
@@ -122,7 +133,7 @@ class SemanticVisitor(yalpVisitor):
                         return GetFunc(scope_tipo[0], func, scope_tipo[1])
                     else:
                         type_symbol = self.tablaSimbolos.get_scope_simbolo(inherits)
-                        message = f'Semantic error: Hay una herencia recursiva en la clase {inherits}, {type_symbol.line}:{type_symbol.column}'
+                        message = f'Semantic Error semántico: Hay una herencia recursiva en la clase {inherits}, {type_symbol.line}:{type_symbol.column}'
                         self.errors.append(message)
                         return(False, None, None)
                 else:
@@ -154,7 +165,7 @@ class SemanticVisitor(yalpVisitor):
                         if not found:
                             linea = type_symbol.line
                             columna = type_symbol.column
-                            message = f'Semantic Error: Método {function.text} no se encontró para la clase {type_symbol.lexema}, {linea}:{columna}'
+                            message = f'Semantic Error semántico: Método {function.text} no se encontró para la clase {type_symbol.lexema}, {linea}:{columna}'
                             self.errors.append(message)
                             return [None]
                         else:
@@ -560,7 +571,7 @@ class SemanticVisitor(yalpVisitor):
                 linea = id1.line
                 columna = id1.column
 
-                message = f"Error: Se está asignando un tipo {type2} a una variable de tipo {type1} en la posición {linea}:{columna}"
+                message = f"Error semántico: Se está asignando un tipo {type2} a una variable de tipo {type1} en la posición {linea}:{columna}"
                 if message not in self.errors:
                     self.errors.append(message)
                 return None
@@ -656,6 +667,62 @@ class SemanticVisitor(yalpVisitor):
             tipo = self.checkValues(ctx, operandos)
             return [tipo]
         
+        elif ctx.ISVOID():
+            
+            visited = self.handle_context(ctx)
+            expresion = visited[1][0]
+
+            if isinstance(expresion, CommonToken):
+                token_type = self.lexer.symbolicNames[expresion.type]
+
+                if token_type == "ID":
+                    simbolo = self.tablaSimbolos.get_scope_simbolo(expresion.text)
+                    
+                    if simbolo:
+                        tipo = simbolo.tipo_token
+                    else:
+                        linea = expresion.line
+                        columna = expresion.column
+                        message = f"Error semántico: La variable '{expresion.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
+
+                        if message not in self.errors:
+                            self.errors.append(message)
+                        tipo = None
+
+                else:
+                    tipo = token_type
+            else:
+                tipo = expresion
+
+            if tipo in ["DIGIT", "Int", "String", "STRING"]:
+
+                return ["Boolean"]
+            else:
+                linea = ctx.start.line
+                columna = ctx.start.column
+                error = f'Error semántico: isvoid no se puede operar con {tipo} en la posición {linea}:{columna}'
+                if error not in self.errors:
+                    self.errors.append(error)
+
+                return [None]
+            # expr_type = self.tablaSimbolos.get_scope_simbolo(expresion.text)
+            
+        elif ctx.NEW():
+            
+            visited = self.handle_context(ctx)
+            type = visited[1].text
+            type_symbol = self.tablaSimbolos.get_scope_simbolo(type)
+
+            if not type_symbol:
+                linea = ctx.start.line
+                columna = ctx.start.column
+                message = f"Error semántico: La clase '{type}' en la posición '{linea}':'{columna}' no ha sido declarada."
+                if message not in self.errors:
+                    self.errors.append(message)
+                return [None]
+            
+            return [type]
+        
         else:
             v = self.handle_context(ctx) 
             return v
@@ -695,7 +762,7 @@ class SemanticVisitor(yalpVisitor):
         else:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Error semántico: Operacion invalida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
+            error = f'Error semántico: Operación invalida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 
@@ -728,7 +795,7 @@ class SemanticVisitor(yalpVisitor):
         if len (types) != 1:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Error semántico: Operacion invalida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
+            error = f'Error semántico: Operación invalida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 

@@ -21,9 +21,8 @@ class Main{
     x: Silly;
     y: Sally;
     z: Selly;
-    c: Int;
-
-    
+    p: Solly;
+    a: Int;
 
     hola(a: Int, b:Boolean) : Int {
         1
@@ -32,6 +31,7 @@ class Main{
 
     main() : Object {
         if (true) then {
+            isvoid 1;
             x.copy(1, y);
             true + 1 * false - 3=3;
             1 + 2 * 3 - 4=4;
