@@ -21,21 +21,15 @@ class Main{
     x: Silly;
     y: Sally;
     z: Selly;
+    c: Int;
 
-    hola(a: Int, b:Boolean) : Object {
+    hola(a: Int, b:Boolean) : Int {
         1
     };
 
 
     main() : Object {
-
-
-
-
         if (true) then {
-            y.copy();
-            hola();
-
             true + 1 * false - 3=3;
             1 + 2 * 3 - 4=4;
             "Hola"+1;
@@ -51,6 +45,7 @@ class Main{
         } FI
     };
 };
+
 
 
 
