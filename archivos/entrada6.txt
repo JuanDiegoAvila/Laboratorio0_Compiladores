@@ -1,11 +1,12 @@
 class Main {
     id_1 : Int <- 0;
+    print: IO;
     str : String <- "Hello World";
     main() : Object {
         let x : Int <- 5 in
         {
             while id_1 loop
-                out_string("Countdown: ")
+                print.out_string("Countdown: ")
             pool ;
         }
     };

@@ -54,14 +54,34 @@ class SemanticVisitor(yalpVisitor):
 
         if token_type == "FUNCTION":
             self.tablaSimbolos.get_enterScope()
-            
+
+        visited = []
         if ctx.expr():
-            self.visit(ctx.expr())
+            visited = self.visit(ctx.expr())
+
+            if isinstance(visited, list):
+                for v in visited:
+                    if isinstance(v, CommonToken):
+                        token_type = self.lexer.symbolicNames[v.type]
+
 
         if ctx.ASSIGN():
             original_type = ctx.TYPE().getText()
-
             assign = self.visit(ctx.expr())[0]
+
+            if isinstance(assign, CommonToken):
+                assign = self.lexer.symbolicNames[assign.type]
+
+                if assign == "BOOLEAN":
+                    assign = "Boolean"
+                elif assign == "INT" or assign == "DIGIT":
+                    assign = "Int"
+                elif assign == "STRING":
+                    assign = "String"
+                elif assign == "ID":
+                    assign = self.tablaSimbolos.get_scope_simbolo(assign.text)
+                    assign = assign.tipo_token
+                
             
             if assign != original_type:
                 linea = ctx.start.line

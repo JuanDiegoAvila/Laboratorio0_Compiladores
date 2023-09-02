@@ -48,7 +48,7 @@ Simbolos: "]
 Simbolos: "]
 	0 -> 15
 	16 [label="Scope 16
-Simbolos: globalVar, print, main, count"]
+Simbolos: id_1, print, str, main, count"]
 	0 -> 16
 	17 [label="Scope 17
 Simbolos: "]
@@ -60,15 +60,6 @@ Simbolos: x"]
 Simbolos: "]
 	18 -> 19
 	20 [label="Scope 20
-Simbolos: "]
-	19 -> 20
-	21 [label="Scope 21
-Simbolos: "]
-	18 -> 21
-	22 [label="Scope 22
-Simbolos: y"]
-	18 -> 22
-	23 [label="Scope 23
-Simbolos: "]
-	16 -> 23
+Simbolos: initial"]
+	16 -> 20
 }

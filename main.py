@@ -132,7 +132,7 @@ def analisis_semantico(tree, tablaSimbolos, lexer, errors):
         custom_print(terminal, "No hay errores en el codigo.", is_success=True)
 
 # Llamar a la función para el scanner
-parser = Parser('./archivos/entrada3.txt')
+parser = Parser('./archivos/entrada6.txt')
 
 # app = interfaz.Interfaz(Parser)
 # app.mainloop()
