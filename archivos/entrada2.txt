@@ -1,5 +1,7 @@
 (* COMENTARIO *)
 class Main {
+    print: IO;
+    
     main() : Object {
         let x : Int <- 5 in
         {
@@ -8,8 +10,9 @@ class Main {
             else
                 x <- x - 1
             fi ;
+            
             while x > 0 loop
-                out_string("Countdown: " + x + "\n")
+                print.out_string("Countdown: \n")
             pool ;
         }
     };

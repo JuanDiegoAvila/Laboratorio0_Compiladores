@@ -2,6 +2,8 @@
 class Main{
     
     globalVar : Int;
+    
+    print: IO;
 
     main() : Object {
         let x : Int <- 5 in
@@ -12,12 +14,12 @@ class Main{
                 x <- x - 1
             fi ;
             while x > 0 loop
-                out_string("Countdown: " + x + "\n")
+                print.out_string("Countdown: \n")
             pool ;
 
             let y : Int <- 0 in
             {
-                out_string("Enter a number: ") ;
+                print.out_string("Enter a number: ") ;
             } ;
         } 
     };

@@ -23,6 +23,7 @@ class Main{
     z: Selly;
     p: Solly;
     a: Int;
+    print: IO;
 
     hola(a: Int, b:Boolean) : Int {
         1
@@ -30,6 +31,9 @@ class Main{
 
 
     main() : Object {
+        
+        
+
         if (true) then {
             isvoid 1;
             x.copy(1, y);
@@ -38,6 +42,11 @@ class Main{
             "Hola"+1;
             z <- 3;
             x <- y;
+
+            while 5 > 0 loop
+                print.out_string("Countdown: \n")
+            pool ;
+
         } else {
             x <- y;
             if (x = y) then {
