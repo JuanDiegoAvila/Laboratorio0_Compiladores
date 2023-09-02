@@ -1,86 +1,6 @@
 from prettytable import PrettyTable
 from interfaz import custom_print, get_global_terminal
 
-# class TablaSimbolos(object):
-
-#     def __init__(self):
-#         self.pila_alcances = [{}]
-#         self.indice = 0
-#         self.func_index = 0
-#         self.class_index = 0
-#         self.indice_global = 0
-#         self.in_class = False
-#         self.in_function = False
-#         self.global_terminal = get_global_terminal()
-
-
-#     def add_simbolo(self, simbolo):
-#         if self.in_function:
-#             self.pila_alcances[self.func_index][simbolo.lexema] = simbolo
-#         else:
-#             self.pila_alcances[self.indice][simbolo.lexema] = simbolo
-
-#     def get_simbolo(self, nombre):
-#         for alcance in reversed(self.pila_alcances):
-#             if nombre in alcance:
-#                 return alcance[nombre]
-#         return None
-    
-#     def actualizar_simbolo(self, simbolo, tipo_token):
-#         for alcance in reversed(self.pila_alcances):
-#             if simbolo.lexema in alcance:
-#                 if alcance[simbolo.lexema].linea == simbolo.linea and alcance[simbolo.lexema].columna == simbolo.columna:
-#                     alcance[simbolo.lexema].tipo_token = tipo_token
-#                     return
-    
-#     def enterScope(self, function= False, class_= False):
-#         self.pila_alcances.append({})
-
-#         if class_:
-#             self.indice = 0
-        
-#         if function:
-#             self.func_index = len(self.pila_alcances) -1
-#             self.in_function = True
-
-#         else:
-#             self.func_index += 1
-#             self.indice += 1
-
-
-#     def exitScope(self, function=False, class_=False):
-
-#         if class_: 
-#             self.indice = 0
-#             return
-        
-#         if function:
-#             self.in_function = False
-#             self.func_index = 0
-#         else:
-#             self.func_index -= 1
-#             self.indice -= 1
-
-
-#     def current_scope(self):
-#         if self.in_function:
-#             return self.func_index
-#         return self.indice
-    
-#     def print_tabla(self):
-#         custom_print(self.global_terminal, "Tabla de simbolos:")
-
-#         conteo_alcances = 0
-#         for tabla in self.pila_alcances:
-#             x = PrettyTable()
-#             custom_print(self.global_terminal, "Alcance: " + str(conteo_alcances))
-#             x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Global", "Parametro"]
-#             for simbolo in tabla.values():
-#                 x.add_row([simbolo.lexema, simbolo.linea, simbolo.columna, simbolo.tipo_token, simbolo.global_, simbolo.parametro])
-#             custom_print(self.global_terminal, x)
-            
-#             conteo_alcances += 1
-    
 class Simbolo:
     def __init__(self, lexema, linea, columna, tipo_token, scope, parametro=False, hereda=None, funcion=False):
         self.lexema = lexema
@@ -148,10 +68,6 @@ class Scope:
         for child in self.children:
             child.print_scope(level+1)
 
-            
-
-
-
 class TablaSimbolos:
     def __init__(self):
         self.conteo_scopes = 0
@@ -167,11 +83,8 @@ class TablaSimbolos:
             self.index_scopes += 1
         
         for scope in self.all_scopes:
-            if scope.name == self.index_scopes:
-                
-                
+            if scope.name == self.index_scopes:                
                 self.current_scope = scope
-                # print(self.current_scope.name)
                 return scope
     
     def get_scope_simbolo(self, name):
@@ -187,6 +100,7 @@ class TablaSimbolos:
     
     def get_exitScope(self):
         self.current_scope = self.current_scope.exit()
+        # self.index_scopes = self.current_scope.name
 
     def enterScope(self):
         self.conteo_scopes += 1
@@ -199,7 +113,6 @@ class TablaSimbolos:
     def add_simbolo(self, name, simbolo):
         self.current_scope.add_symbol(name, simbolo)
 
-    
     def update_simbol(self, simbol):
         existe = False
         for name, simbolo in self.current_scope.symbols.items():

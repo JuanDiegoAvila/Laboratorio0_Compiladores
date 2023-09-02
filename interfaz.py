@@ -3,7 +3,7 @@ from tkinter import filedialog, Text, Menu, PanedWindow, Button, Scrollbar, font
 
 global_terminal = None
 
-def custom_print(terminal, *args, is_error=False, **kwargs):
+def custom_print(terminal, *args, is_error=False, is_success=False, **kwargs):
     if terminal is None:
         print(*args, **kwargs)
         return
@@ -17,6 +17,9 @@ def custom_print(terminal, *args, is_error=False, **kwargs):
 
     if is_error:
         terminal.tag_add("error", start_position, end_position)
+    
+    elif is_success:
+        terminal.tag_add("success", start_position, end_position)
     
     terminal.config(state="disabled")
     terminal.see("end")
