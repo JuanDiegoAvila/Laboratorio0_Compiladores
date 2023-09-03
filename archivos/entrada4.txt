@@ -32,9 +32,9 @@ class Main{
 
     main() : Object {
         
-        
-
         if (true) then {
+            a.concat();
+
             isvoid 1;
             x.copy(1, y);
             true + 1 * false - 3=3;

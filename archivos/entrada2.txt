@@ -1,6 +1,7 @@
 (* COMENTARIO *)
 class Main {
     print: IO;
+    y: Boolean;
     
     main() : Object {
         let x : Int <- 5 in
@@ -8,7 +9,7 @@ class Main {
             if x < 10 then
                 x <- x + 1
             else
-                x <- x - 1
+                y <- true
             fi ;
             
             while x > 0 loop
