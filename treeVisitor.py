@@ -178,7 +178,7 @@ class TreeVisitor(yalpVisitor):
         else:
             
             feature_name = ctx.ID().getText()
-            type_feature = ctx.TYPE().getText()
+            type_feature = ctx.TYPE().getText() if ctx.TYPE() is not None else None
 
         
             if self.tablaSimbolos.get_simbolo(feature_name):

@@ -1,7 +1,7 @@
 digraph Scopes {
 	node [fillcolor=lightyellow style=filled]
 	0 [label="Scope 0
-Simbolos: Object, String, IO, Int, Bool, Silly, Sally, Solly, Selly, Main"]
+Simbolos: Object, String, IO, Int, Bool, Main"]
 	1 [label="Scope 1
 Simbolos: abort, type_name, copy"]
 	0 -> 1
@@ -48,36 +48,18 @@ Simbolos: "]
 Simbolos: "]
 	0 -> 15
 	16 [label="Scope 16
-Simbolos: copy, recopy"]
+Simbolos: id_1, print, str, main, count"]
 	0 -> 16
 	17 [label="Scope 17
-Simbolos: a"]
+Simbolos: "]
 	16 -> 17
 	18 [label="Scope 18
-Simbolos: "]
-	16 -> 18
+Simbolos: x"]
+	17 -> 18
 	19 [label="Scope 19
 Simbolos: "]
-	0 -> 19
+	18 -> 19
 	20 [label="Scope 20
-Simbolos: copy"]
-	0 -> 20
-	21 [label="Scope 21
-Simbolos: "]
-	20 -> 21
-	22 [label="Scope 22
-Simbolos: copy"]
-	0 -> 22
-	23 [label="Scope 23
-Simbolos: x"]
-	22 -> 23
-	24 [label="Scope 24
-Simbolos: x, y, z, p, a, print, hola, main"]
-	0 -> 24
-	25 [label="Scope 25
-Simbolos: a, b"]
-	24 -> 25
-	26 [label="Scope 26
-Simbolos: "]
-	24 -> 26
+Simbolos: initial"]
+	16 -> 20
 }

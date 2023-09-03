@@ -3,11 +3,14 @@ class Main {
     print: IO;
     str : String <- "Hello World";
     main() : Object {
-        let x : Int <- 5 in
         {
-            while id_1 loop
-                print.out_string("Countdown: ")
-            pool ;
+            let x : Int <- 5 in
+            {
+                while id_1 loop
+                    print.out_string("Countdown: ")
+                pool ;
+            };
+            x <- 3;
         }
     };
 
