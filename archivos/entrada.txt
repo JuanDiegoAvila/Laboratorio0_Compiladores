@@ -1,10 +1,11 @@
 (* Comentario *)
 class Main { 
     x: IO;
-    main() : Object { 
-        x.out_string("Hello world.\n") 
+    main() : Int { 
+        1 + 1
     } ; 
 }; 
+
 
 
 

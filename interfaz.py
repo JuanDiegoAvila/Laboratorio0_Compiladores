@@ -81,6 +81,7 @@ class Interfaz(tk.Tk):
 
         self.area_texto = Text(self.frame_texto, wrap=tk.WORD, bg=self.color_fondo, fg=self.color_texto, insertbackground='white', font=self.fuente, yscrollcommand=self.scroll_y.set)
         self.area_texto.pack(expand=1, fill=tk.BOTH)
+        self.area_texto.bind("<Tab>", self.on_tab_pressed)
         self.area_texto.bind("<<Change>>", lambda event: self.update_line_numbers())
         self.area_texto.bind("<Return>", lambda event: self.update_line_numbers())
         self.area_texto.bind("<MouseWheel>", lambda event: self.update_line_numbers())
@@ -178,6 +179,11 @@ class Interfaz(tk.Tk):
             self.paned_window.add(self.terminal, width=300)
             self.show_terminal_button.config(text="Esconder Terminal")
         self.is_terminal_visible = not self.is_terminal_visible
+    
+    def on_tab_pressed(event):
+        event.widget.insert(tk.INSERT, "    ")  # Inserta cuatro espacios
+        return "break"  # Esto previene el comportamiento predeterminado de la tecla Tab
+
 
     # def sync_scrolling(self, *args):
     #     self.line_numbers.yview_moveto(args[0])

@@ -8,7 +8,7 @@ class Hola inherits Tambien{
     prueba: String; 
 
     prueba2(): String {
-        ""
+       	""
     };
 };
 
@@ -47,6 +47,9 @@ class Main {
         } FI
     };
 };
+
+
+
 
 
 
