@@ -35,6 +35,7 @@ class SemanticVisitor(yalpVisitor):
 
         for feature_ctx in ctx.feature():
             feature = self.visit(feature_ctx)
+            print(feature)
 
             # verificar si hay un metodo main en la clase Main
             if class_name == "Main" and feature == "main":
@@ -45,7 +46,7 @@ class SemanticVisitor(yalpVisitor):
                     self.errors.append(f"Error semántico: no deben haber parámetros en el método main.")
 
         if not hay_main and "Main" == class_name:
-            self.errors.append(f"Error semántico: no se encontro el método main dentro de la clase Main.")
+            self.errors.append(f"Error semántico: no se encontró el método main dentro de la clase Main.")
 
         self.tablaSimbolos.get_exitScope()
 
@@ -86,7 +87,7 @@ class SemanticVisitor(yalpVisitor):
                             if message not in self.errors:
                                 self.errors.append(message)
                             
-                            return None
+                            return feature_name
                         # print(token_type, ' visited en ', self.actual_class, feature_name, feature_type)
                     else:
                         token_type = v
@@ -98,7 +99,7 @@ class SemanticVisitor(yalpVisitor):
                             if message not in self.errors:
                                 self.errors.append(message)
                             
-                            return None
+                            return feature_name
 
 
         if ctx.ASSIGN() and ctx.expr():

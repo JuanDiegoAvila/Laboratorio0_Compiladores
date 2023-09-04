@@ -1,10 +1,19 @@
-(* Comentario *)
+class Prueba {
+    hola (x:Int) : String {
+        "hola"
+    } ; 
+};
+
 class Main { 
     x: IO;
+    prueba: Prueba;
     main() : Int { 
-        1 + 1
+        prueba.hola(1)
     } ; 
 }; 
+
+
+
 
 
 
