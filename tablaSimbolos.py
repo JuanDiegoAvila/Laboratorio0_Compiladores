@@ -83,24 +83,40 @@ class TablaSimbolos:
         else:
             self.index_scopes += 1
 
-        # self.actual_scope = self.index_scopes
         
         for scope in self.all_scopes:
             if scope.name == self.index_scopes:                
                 self.current_scope = scope
+                
                 return scope
     
-    def get_scope_simbolo(self, name):
+    def get_scope_simbolo(self, name, class_name):
+
         if self.current_scope:
             for scope in self.all_scopes:
                 if scope.name == self.current_scope.name:
                     temp_scope = scope
                     while temp_scope:
                         symbol = temp_scope.get_symbol(name)
+                        
                         if symbol:
-                            return symbol
-                        temp_scope = temp_scope.parent
-                    return None
+                            return symbol, False
+                        
+                        if temp_scope.parent:
+                            temp_scope = temp_scope.parent
+                        else:
+                            break
+
+        hereda = temp_scope.symbols[class_name].hereda
+        if hereda:
+            for children in temp_scope.children:
+                for simbols in children.symbols:
+                    if children.symbols[simbols].lexema == name:
+
+                        # agregar el atributo heredado al scope con el que se encontro el simbolo
+                        return children.symbols[simbols], True
+        
+        return None, False
     
     def get_exitScope(self):
         self.current_scope = self.current_scope.exit()
@@ -151,6 +167,13 @@ class TablaSimbolos:
     def print_tabla(self):
         self.global_scope.print_scope()
     
+    def get_classes(self, tipo):
+        classes = []
+        for scope in self.all_scopes:
+            for name, simbolo in scope.symbols.items():
+                if simbolo.tipo_token == "CLASS":
+                    classes.append(simbolo.lexema)
+        return tipo in classes
 
 from graphviz import Digraph
 

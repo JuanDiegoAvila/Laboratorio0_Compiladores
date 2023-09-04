@@ -1,6 +1,6 @@
 class Main {
     id_1 : Int <- 0;
-    print: IO;
+
     str : String <- "Hello World";
     main() : Object {
         {
@@ -14,7 +14,10 @@ class Main {
         }
     };
 
-    count( initial : Int ) : Int {
-        initial <- ~ ( false + 1 )
+    count(x : HOLA) : Int {
+        0
     };
+
+    
 };
+

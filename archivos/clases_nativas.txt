@@ -33,7 +33,7 @@ class Int inherits Object {
 
 };
 
-class Bool inherits Object {
+class Boolean inherits Object {
 
 };
 

@@ -1,4 +1,7 @@
 class Silly {
+
+    atributo : Int;
+
     copy(a:Int) : SELF_TYPE {
         self
     };
@@ -26,17 +29,17 @@ class Main{
     print: IO;
 
     hola(a: Int, b:Boolean) : Int {
-        1
+        0
     };
 
 
     main() : Object {
         
         if (true) then {
-            a.concat();
+            "".concat();
 
             isvoid 1;
-            x.copy(1, y);
+            x.copy(1);
             true + 1 * false - 3=3;
             1 + 2 * 3 - 4=4;
             "Hola"+1;
@@ -57,6 +60,7 @@ class Main{
         } FI
     };
 };
+
 
 
 

@@ -1,21 +1,54 @@
+class Tambien {
+    metodo1(): String {
+        ""
+    };
+};
 
-class Main{
+class Hola inherits Tambien{
+    prueba: String; 
+
+    prueba2(): String {
+        ""
+    };
+};
+
+class Adios inherits Hola{
+    x : String;
+    
+    metodo1(): Int {
+        1
+    };
+
+    prueba2(): String {
+        ""
+    };
+};
+
+
+
+
+class Main {
     x: String ;
+    valor : Int;
     y: Boolean ;
+    z: Hola;
+
+    prueba: Adios <- new Adios;
 
     main() : Object {
-        if ( x ) then {
-            1 + 1 * 6 - 3=3;
+        if ( x = "" ) then {
+            prueba @ Hola.metodo1();
         } else {
-            x <- y;
-            if (x = y) then {
-                x< false;
+            if (true) then {
+                false;
             } else {
-                1 + (x < y);
+                1;
             } FI;
         } FI
     };
 };
+
+
 
 
 

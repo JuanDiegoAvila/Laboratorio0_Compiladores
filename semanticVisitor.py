@@ -15,6 +15,7 @@ class SemanticVisitor(yalpVisitor):
         self.tablaSimbolos = tablaSimbolos
         self.scope_counter = 0
         self.errors = []
+        self.actual_class = None
 
     def visit(self, ctx):
         return super().visit(ctx)
@@ -30,6 +31,8 @@ class SemanticVisitor(yalpVisitor):
         self.tablaSimbolos.get_enterScope()
         hay_main = False
 
+        self.actual_class = class_name
+
         for feature_ctx in ctx.feature():
             feature = self.visit(feature_ctx)
 
@@ -39,10 +42,10 @@ class SemanticVisitor(yalpVisitor):
 
                 # verificar que el metodo main no tenga parametros
                 if feature_ctx.formal():
-                    self.errors.append(f"No debe haber parametros en el metodo main")
+                    self.errors.append(f"Error semántico: no deben haber parámetros en el método main.")
 
         if not hay_main and "Main" == class_name:
-            self.errors.append(f"No se encontro el metodo main dentro de la clase Main")
+            self.errors.append(f"Error semántico: no se encontro el método main dentro de la clase Main.")
 
         self.tablaSimbolos.get_exitScope()
 
@@ -51,6 +54,10 @@ class SemanticVisitor(yalpVisitor):
     def visitFeature(self, ctx: yalpParser.FeatureContext):
         token_type = "FUNCTION" if ctx.LPAR() else "ATTRIBUTE"
         feature_name = ctx.ID().getText()
+        feature_type = ctx.TYPE().getText() if ctx.TYPE() else None
+
+        if feature_type == "SELF_TYPE":
+            feature_type = self.actual_class
 
         if token_type == "FUNCTION":
             self.tablaSimbolos.get_enterScope()
@@ -58,11 +65,40 @@ class SemanticVisitor(yalpVisitor):
         visited = []
         if ctx.expr():
             visited = self.visit(ctx.expr())
-
+            
             if isinstance(visited, list):
                 for v in visited:
                     if isinstance(v, CommonToken):
                         token_type = self.lexer.symbolicNames[v.type]
+
+                        if token_type == "STRING":
+                            token_type = "String"
+                        elif token_type == "INT" or token_type == "DIGIT":
+                            token_type = "Int"
+                        elif token_type == "BOOLEAN":
+                            token_type = "Boolean"
+                        
+                        
+                        if token_type != feature_type:
+                            linea = ctx.start.line
+                            columna = ctx.start.column
+                            message = f"Error semántico: se está devolviendo un tipo {token_type} a una función de tipo {feature_type} en la posición {linea}:{columna}."
+                            if message not in self.errors:
+                                self.errors.append(message)
+                            
+                            return None
+                        # print(token_type, ' visited en ', self.actual_class, feature_name, feature_type)
+                    else:
+                        token_type = v
+
+                        if token_type != feature_type:
+                            linea = ctx.start.line
+                            columna = ctx.start.column
+                            message = f"Error semántico: se está devolviendo un tipo {token_type} en una funcion de tipo {feature_type} en la posición {linea}:{columna}."
+                            if message not in self.errors:
+                                self.errors.append(message)
+                            
+                            return None
 
 
         if ctx.ASSIGN() and ctx.expr():
@@ -79,14 +115,14 @@ class SemanticVisitor(yalpVisitor):
                 elif assign == "STRING":
                     assign = "String"
                 elif assign == "ID":
-                    assign = self.tablaSimbolos.get_scope_simbolo(assign.text)
+                    assign, heredado = self.tablaSimbolos.get_scope_simbolo(assign.text, self.actual_class)
                     assign = assign.tipo_token
                 
             
             if assign != original_type:
                 linea = ctx.start.line
                 columna = ctx.start.column
-                message = f"Error semántico: Se está asignando un tipo {assign} a una variable de tipo {original_type} en la posición {linea}:{columna}"
+                message = f"Error semántico: se está asignando un tipo {assign} a una variable de tipo {original_type} en la posición {linea}:{columna}."
                 if message not in self.errors:
                     self.errors.append(message)
         
@@ -104,8 +140,8 @@ class SemanticVisitor(yalpVisitor):
         if ctx.IF():
             
             def getHerencia(type_symbol, herencia = []):
-                if type_symbol=="Boolean": type_symbol="Bool"
-                type_symbol_if = self.tablaSimbolos.get_scope_simbolo(type_symbol)
+                # if type_symbol=="Boolean": type_symbol="Boolean"
+                type_symbol_if , heredado = self.tablaSimbolos.get_scope_simbolo(type_symbol, self.actual_class)
                 scope_tipo = type_symbol_if.scope
                 scope_tipo = scope_tipo.get_symbol_scope(type_symbol_if)
                 hereda = scope_tipo[1]
@@ -137,7 +173,8 @@ class SemanticVisitor(yalpVisitor):
             else_expr = visited[5][0]
             
 
-            if if_expr!=else_expr:
+            if if_expr!=else_expr and if_expr and else_expr:
+                
                 herencia_if = getHerencia(if_expr, [if_expr])
                 herencia_else = getHerencia(else_expr, [else_expr])
                 mcst = checkHerencia(herencia_if, herencia_else) #Minimum common supertype                
@@ -147,18 +184,19 @@ class SemanticVisitor(yalpVisitor):
             # if ctx.ELSE():
             #     self.tablaSimbolos.get_enterScope()
             #     self.tablaSimbolos.get_exitScope()
-        
+
+            
 
             if isinstance(visited_if, CommonToken):
                 token_type = self.lexer.symbolicNames[visited_if.type]
 
                 if token_type == "ID":
-                    visited_if = self.tablaSimbolos.get_scope_simbolo(visited_if.text)
+                    visited_if , heredado = self.tablaSimbolos.get_scope_simbolo(visited_if.text, self.actual_class)
 
                     if not visited_if:
                         linea = visited_if.line
                         columna = visited_if.column
-                        message = f"Error semántico: La variable '{visited_if.tipo_token}' en la posición '{linea}':'{columna}' no ha sido declarada."
+                        message = f"Error semántico: la variable '{visited_if.tipo_token}' en la posición '{linea}':'{columna}' no ha sido declarada."
                         if message not in self.errors:
                             self.errors.append(message)
 
@@ -183,7 +221,7 @@ class SemanticVisitor(yalpVisitor):
                         linea = visited_if.line
                         columna = visited_if.column
 
-                    message = f"Error semántico: La variable de tipo '{token_type}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
+                    message = f"Error semántico: la variable de tipo '{token_type}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
                     if message not in self.errors:
                         self.errors.append(message)
 
@@ -207,7 +245,7 @@ class SemanticVisitor(yalpVisitor):
                 else:
                     linea = ctx.start.line
                     columna = ctx.start.column
-                    error = f'Error semántico: La variable de tipo {visited_if} no puede ser argumento del if {linea}:{columna}'
+                    error = f'Error semántico: la variable de tipo {visited_if} no puede ser argumento del if {linea}:{columna}'
                     if error not in self.errors:
                         self.errors.append(error)
 
@@ -218,7 +256,7 @@ class SemanticVisitor(yalpVisitor):
             
             self.tablaSimbolos.get_exitScope()
             return mcst
-
+        
         elif ctx.ELSE():
             self.tablaSimbolos.get_enterScope()
 
@@ -238,7 +276,7 @@ class SemanticVisitor(yalpVisitor):
                 token_type = self.lexer.symbolicNames[visited_while.type]
 
                 if token_type == "ID":
-                    visited_while = self.tablaSimbolos.get_scope_simbolo(visited_while.text)
+                    visited_while , heredado = self.tablaSimbolos.get_scope_simbolo(visited_while.text, self.actual_class)
 
                     if not visited_while:
                         linea = ctx.start.line
@@ -266,7 +304,7 @@ class SemanticVisitor(yalpVisitor):
                         linea = ctx.start.line
                         columna = ctx.start.column
 
-                    message = f"Error semántico: La variable de tipo '{token_type}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
+                    message = f"Error semántico: la variable de tipo '{token_type}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
                     if message not in self.errors:
                         self.errors.append(message)
                     self.tablaSimbolos.get_exitScope()
@@ -280,7 +318,7 @@ class SemanticVisitor(yalpVisitor):
                 else:
                     linea = ctx.start.line
                     columna = ctx.start.column
-                    message = f"Error semántico: La variable de tipo '{visited_while}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
+                    message = f"Error semántico: la variable de tipo '{visited_while}' en la posición '{linea}':'{columna}' debe ser de tipo boolean."
                     if message not in self.errors:
                         self.errors.append(message)
                     self.tablaSimbolos.get_exitScope()
@@ -296,7 +334,7 @@ class SemanticVisitor(yalpVisitor):
             if isinstance(tipo, CommonToken):
                 token_type = self.lexer.symbolicNames[tipo.type]
                 if token_type == "ID":
-                    simbolo = self.tablaSimbolos.get_scope_simbolo(tipo.text)
+                    simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(tipo.text, self.actual_class)
                     
                     if simbolo:
                         token_type = simbolo.tipo_token
@@ -305,7 +343,7 @@ class SemanticVisitor(yalpVisitor):
                     else:
                         linea = tipo.line
                         columna = tipo.column
-                        message = f"Error semántico: La variable '{tipo.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
+                        message = f"Error semántico: la variable '{tipo.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
 
                         if message not in self.errors:
                             self.errors.append(message)
@@ -318,7 +356,7 @@ class SemanticVisitor(yalpVisitor):
                     elif token_type == "STRING" or token_type == "String":
                         self.tablaSimbolos.get_exitScope()
                         return ['String']
-                    elif token_type == "TRUE" or token_type == "FALSE" or token_type == "Boolean" or token_type == 'Bool':
+                    elif token_type == "TRUE" or token_type == "FALSE" or token_type == "Boolean" or token_type == 'Boolean':
                         self.tablaSimbolos.get_exitScope()
                         return ['Boolean']
                     else:
@@ -328,12 +366,11 @@ class SemanticVisitor(yalpVisitor):
                 self.tablaSimbolos.get_exitScope()
                 return [tipo]
 
-            type_variable = self.tablaSimbolos.get_scope_simbolo(variable.text)
+            type_variable , heredado = self.tablaSimbolos.get_scope_simbolo(variable.text, self.actual_class)
             
             self.tablaSimbolos.get_exitScope()
 
         elif ctx.DOT():
-
             visited_dot = self.handle_context(ctx)
             inherit_visited = []
             
@@ -342,16 +379,20 @@ class SemanticVisitor(yalpVisitor):
                 for arg in args:
                     if isinstance(arg, list):#Es un argumento y no una comma
                         argumento = arg[0]
-                        token_type = self.lexer.symbolicNames[argumento.type]
+                        if isinstance(argumento, str):
+                            token_type = argumento
+                        else:
+                            token_type = self.lexer.symbolicNames[argumento.type]
+                        
                         if token_type=="ID":
-                            simbolo = self.tablaSimbolos.get_scope_simbolo(argumento.text)
+                            simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(argumento.text, self.actual_class)
                             if not simbolo:
                                 linea = ctx.start.line
                                 columna = ctx.start.column
-                                message = f"Error semantico: La variable '{argumento.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                                message = f"Error semántico: la variable '{argumento.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
                                 if message not in self.errors:
                                     self.errors.append(message)
-                                return None
+                                return [None]
                             else:
                                 token_type = simbolo.tipo_token
                                 arg_types.append(token_type)
@@ -364,6 +405,9 @@ class SemanticVisitor(yalpVisitor):
                                 arg_types.append("String")
                             elif token_type=="ERROR":
                                 arg_types.append("Indefinido")
+                            elif token_type == "SELF_TYPE":
+                                arg_types.append(self.actual_class)
+                            
                             else:
                                 arg_types.append(None)
                 return arg_types
@@ -380,37 +424,91 @@ class SemanticVisitor(yalpVisitor):
                 elif inherits:
                     if inherits not in inherit_visited:
                         inherit_visited.append(inherits)
-                        type_symbol = self.tablaSimbolos.get_scope_simbolo(inherits)
+                        type_symbol , heredado = self.tablaSimbolos.get_scope_simbolo(inherits, self.actual_class)
                         scope_tipo = type_symbol.scope
                         scope_tipo = scope_tipo.get_symbol_scope(type_symbol)
                         return GetFunc(scope_tipo[0], func, scope_tipo[1])
                     else:
-                        type_symbol = self.tablaSimbolos.get_scope_simbolo(inherits)
-                        message = f'Semantic Error semántico: Hay una herencia recursiva en la clase {inherits}, {type_symbol.line}:{type_symbol.column}'
+                        type_symbol , heredado = self.tablaSimbolos.get_scope_simbolo(inherits, self.actual_class)
+                        message = f'Error semántico: hay una herencia recursiva en la clase {inherits}, {type_symbol.line}:{type_symbol.column}.'
                         self.errors.append(message)
                         return(False, None, None)
                 else:
                     return (False, None, None)    
-                                
+
+            if ctx.AT():
+
+                variable = visited_dot[0][0]
+                clase = visited_dot[2]
+                funcion = visited_dot[4]
+
+                
+                type_symbol, heredado = self.tablaSimbolos.get_scope_simbolo(clase.text, self.actual_class)
+                if not type_symbol:
+                    linea = ctx.start.line
+                    columna = ctx.start.column
+                    message = f"Error semántico: la clase '{clase.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
+                    if message not in self.errors:
+                        self.errors.append(message)
+                    return [None]
+                
+                scope_tipo = type_symbol.scope
+                scope_tipo = scope_tipo.get_symbol_scope(type_symbol)
+                found, tipo_func, arg_tipos = GetFunc(scope_tipo[0], funcion.text, scope_tipo[1])
+
+                if not found:
+                    linea = ctx.start.line
+                    columna = ctx.start.column
+                    message = f'Error semántico: el método {funcion.text} no se encontró para la clase {type_symbol.lexema}, {linea}:{columna}.'
+
+                    self.errors.append(message)
+                    return [None]
+                else:
+                    input_args = visited_dot[6:-1]
+                    input_types = getInputTypes(input_args)
+                    
+                    if len(input_types) != len(arg_tipos):
+                        linea = ctx.start.line
+                        columna = ctx.start.column
+                        message = f"Error semantico: la función '{funcion.text}' esperaba {len(arg_tipos)} argumentos, {len(input_types)} fueron pasados. {linea}:{columna}."
+                        if message not in self.errors:
+                            self.errors.append(message)
+                        return [None]
+                    else:
+                        for i in range(len(arg_tipos)):
+                            if arg_tipos[i]!=input_types[i]:
+                                linea = ctx.start.line
+                                columna = ctx.start.column
+                                message = f"Error semantico: la función '{funcion.text}'  esperaba un argumento de tipo '{arg_tipos[i]}', uno de tipo '{input_types[i]}' fue pasado. {linea}:{columna}"
+                                if message not in self.errors:
+                                    self.errors.append(message)
+                                return [None]
+                            
+                    return [tipo_func]
+                
+
             variable = visited_dot[0][0]
             function = visited_dot[2]
+
+            # print(variable)
+            # print(function)
             #Si variable es un ID
             if isinstance(variable, CommonToken):
                 token_type = self.lexer.symbolicNames[variable.type]
                 if token_type=='ID':
-                    simbolo = self.tablaSimbolos.get_scope_simbolo(variable.text)
+                    simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(variable.text, self.actual_class)
                     
                     #Verificamos si existe una variable con ese nombre en el scope
                     if not simbolo:
                         linea = ctx.start.line
                         columna = ctx.start.column
-                        message = f"Error semántico: La variable '{variable.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
+                        message = f"Error semántico: la clase '{variable.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
                         if message not in self.errors:
                             self.errors.append(message)
-                        return None
+                        return [None]
                     else:
                         tipo = simbolo.tipo_token #Me da el tipo del token
-                        type_symbol = self.tablaSimbolos.get_scope_simbolo(tipo)
+                        type_symbol , heredado = self.tablaSimbolos.get_scope_simbolo(tipo, self.actual_class)
                         inherit_visited.append(type_symbol.lexema)
                         scope_tipo = type_symbol.scope
                         scope_tipo = scope_tipo.get_symbol_scope(type_symbol)
@@ -418,20 +516,17 @@ class SemanticVisitor(yalpVisitor):
                         if not found:
                             linea = ctx.start.line
                             columna = ctx.start.column
-                            message = f'Error semántico: Método {function.text} no se encontró para la clase {type_symbol.lexema}, {linea}:{columna}'
+                            message = f'Error semántico: el método {function.text} no se encontró para la clase {type_symbol.lexema}, {linea}:{columna}.'
                             self.errors.append(message)
                             return [None]
                         else:
                             input_args = visited_dot[4:-1]
                             input_types = getInputTypes(input_args)
-                            if not input_types:
-                                return [None]
-                            
                             
                             if len(input_types) != len(arg_tipos):
                                 linea = ctx.start.line
                                 columna = ctx.start.column
-                                message = f"Error semantico: La función '{function.text}'  esperaba {len(arg_tipos)} argumentos, {len(input_types)} fueron pasados. {linea}:{columna}"
+                                message = f"Error semantico: la función '{function.text}' esperaba {len(arg_tipos)} argumentos, {len(input_types)} fueron pasados. {linea}:{columna}."
                                 if message not in self.errors:
                                     self.errors.append(message)
                                 return [None]
@@ -440,7 +535,7 @@ class SemanticVisitor(yalpVisitor):
                                     if arg_tipos[i]!=input_types[i]:
                                         linea = ctx.start.line
                                         columna = ctx.start.column
-                                        message = f"Error semantico: La función '{function.text}'  esperaba un argumento de tipo '{arg_tipos[i]}', uno de tipo '{input_types[i]}' fue pasado. {linea}:{columna}"
+                                        message = f"Error semantico: la función '{function.text}'  esperaba un argumento de tipo '{arg_tipos[i]}', uno de tipo '{input_types[i]}' fue pasado. {linea}:{columna}"
                                         if message not in self.errors:
                                             self.errors.append(message)
                                         return [None]
@@ -448,13 +543,62 @@ class SemanticVisitor(yalpVisitor):
                 
                 else:
                     return [None]            
-                #else:
-                #    token_type = self.lexer.symbolicNames[variable.type]
-                #    if token_type == "Boolean" or token_type == "TRUE" or token_type == "FALSE":
-                #        tipo = "Boolean"
-                #        type_symbol = self.tablaSimbolos.get_scope_simbolo(tipo)
-                #        scope_tipo = type_symbol.scope
-        
+                
+            else:
+
+                simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(variable, self.actual_class)
+                if not simbolo:
+                    linea = ctx.start.line
+                    columna = ctx.start.column
+                    message = f"Error semántico: la clase '{variable}' en la posición '{linea}':'{columna}' no ha sido declarada."
+                    if message not in self.errors:
+                        self.errors.append(message)
+                    return [None]
+                
+                else:
+
+                    type_symbol , heredado = self.tablaSimbolos.get_scope_simbolo(simbolo.lexema, self.actual_class)
+                    inherit_visited.append(type_symbol.lexema)
+                    scope_tipo = type_symbol.scope
+                    scope_tipo = scope_tipo.get_symbol_scope(type_symbol)
+                    found, tipo_func, arg_tipos = GetFunc(scope_tipo[0], function.text, scope_tipo[1])
+
+                    
+                    if not found:
+                        linea = ctx.start.line
+                        columna = ctx.start.column
+                        message = f'Error semántico: el método {function.text} no se encontró para la clase {type_symbol.lexema}, {linea}:{columna}.'
+                        self.errors.append(message)
+                        return [None]
+                    
+                    else:
+
+                        input_args = visited_dot[4:-1]
+                        input_types = getInputTypes(input_args)
+
+
+                        if len(input_types) != len(arg_tipos):
+                            
+                            linea = ctx.start.line
+                            columna = ctx.start.column
+                            message = f"Error semantico: la función '{function.text}' esperaba {len(arg_tipos)} argumentos, {len(input_types)} fueron pasados. {linea}:{columna}."
+                            if message not in self.errors:
+                                self.errors.append(message)
+                            return [None]
+                        
+                        
+                        else:
+                            for i in range(len(arg_tipos)):
+                                if arg_tipos[i]!=input_types[i]:
+                                    linea = ctx.start.line
+                                    columna = ctx.start.column
+                                    message = f"Error semantico: la función '{function.text}'  esperaba un argumento de tipo '{arg_tipos[i]}', uno de tipo '{input_types[i]}' fue pasado. {linea}:{columna}"
+                                    if message not in self.errors:
+                                        self.errors.append(message)
+                                    return [None]
+                        
+                        return [tipo_func]
+
         elif ctx.ID() and ctx.LPAR():
             visited_func = self.handle_context(ctx)
             
@@ -468,11 +612,11 @@ class SemanticVisitor(yalpVisitor):
                         argumento = arg[0]
                         token_type = self.lexer.symbolicNames[argumento.type]
                         if token_type=="ID":
-                            simbolo = self.tablaSimbolos.get_scope_simbolo(argumento.text)
+                            simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(argumento.text, self.actual_class)
                             if not simbolo:
                                 linea = ctx.start.line
                                 columna = ctx.start.column
-                                message = f"Error semantico: La variable '{argumento.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                                message = f"Error semántico: la variable '{argumento.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
                                 if message not in self.errors:
                                     self.errors.append(message)
                                 return None
@@ -490,6 +634,7 @@ class SemanticVisitor(yalpVisitor):
                                 arg_types.append("Indefinido")
                             else:
                                 arg_types.append(None)
+                                
                 return arg_types
 
             def getArgTypes(scope):
@@ -501,13 +646,14 @@ class SemanticVisitor(yalpVisitor):
             
             token_type = self.lexer.symbolicNames[func_name.type]
             if token_type=='ID':
-                simbolo = self.tablaSimbolos.get_scope_simbolo(func_name.text)
+                
+                simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(func_name.text, self.actual_class)
                 
                 #Verificamos si existe una funcion con ese nombre en el scope
                 if not simbolo:
                     linea = ctx.start.line
                     columna = ctx.start.column
-                    message = f"Error semantico: La función '{func_name.text}' en la posicion '{linea}':'{columna}' no ha sido declarada."
+                    message = f"Error semántico: la función '{func_name.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
                     if message not in self.errors:
                         self.errors.append(message)
                     return None
@@ -517,14 +663,12 @@ class SemanticVisitor(yalpVisitor):
                     func_args = visited_func[2:-1]
                     input_types = getInputTypes(func_args)
                     argTypes = getArgTypes(scope_tipo)
-                    
-                    if not input_types:
-                        return [None]
+                
                     
                     if len(argTypes)!=len(input_types):
                         linea = ctx.start.line
                         columna = ctx.start.column
-                        message = f"Error semantico: La función '{func_name.text}'  esperaba {len(argTypes)} argumentos, {len(input_types)} fueron pasados. {linea}:{columna}"
+                        message = f"Error semántico: La función '{func_name.text}' esperaba {len(argTypes)} argumentos, {len(input_types)} fueron pasados. {linea}:{columna}"
                         if message not in self.errors:
                             self.errors.append(message)
                         return [None]
@@ -533,26 +677,37 @@ class SemanticVisitor(yalpVisitor):
                             if argTypes[i]!=input_types[i]:
                                 linea = ctx.start.line
                                 columna = ctx.start.column
-                                message = f"Error semantico: La función '{func_name.text}'  esperaba un argumento de tipo '{argTypes[i]}', uno de tipo '{input_types[i]}' fue pasado. {linea}:{columna}"
+                                message = f"Error semántico: La función '{func_name.text}'  esperaba un argumento de tipo '{argTypes[i]}', uno de tipo '{input_types[i]}' fue pasado. {linea}:{columna}"
                                 if message not in self.errors:
                                     self.errors.append(message)
                                 return [None]
                     return [simbolo.tipo_token]
             else:
-                return [None]
+
+                if token_type=="TRUE" or token_type=="FALSE" or token_type =="Boolean":
+                    return "Boolean"
+                elif token_type=="DIGIT" or token_type=="Int":
+                    return "Int"
+                elif token_type=="String" or token_type =="STRING":
+                    return "String"
+                elif token_type=="ERROR":
+                    return "Indefinido"
+                else:
+                    return [None]
                     
                     #De primero revisar si los argumentos metidos en la llamada hacen match de tipo y de cantidad a los de la función
 
         elif ctx.LPAR() and not ctx.ID():
-            
+
             visited = self.handle_context(ctx)
+
             compared = visited[1][0]
 
             if isinstance(compared, CommonToken):
                 token_type = self.lexer.symbolicNames[compared.type]
                 
                 if token_type == "ID":
-                    compared = self.tablaSimbolos.get_scope_simbolo(compared.text)
+                    compared , heredado = self.tablaSimbolos.get_scope_simbolo(compared.text, self.actual_class)
 
                     if not compared:
                         linea = compared.line
@@ -634,16 +789,21 @@ class SemanticVisitor(yalpVisitor):
             visited = self.handle_context(ctx)
             
             id1 = visited[0]
-            type1 = self.tablaSimbolos.get_scope_simbolo(id1.text)
+            type1 , heredado = self.tablaSimbolos.get_scope_simbolo(id1.text, self.actual_class)
+            
+            if type1 and heredado:
+                linea = ctx.start.line
+                columna = ctx.start.column
+                message = f"Error semántico: No se puede asignar a una variable heredada en la posición {linea}:{columna}"
+                if message not in self.errors:
+                    self.errors.append(message)
+                    return None
 
-            # if isinstance(id1, CommonToken) and id1.type == yalpLexer.LET:
-            #     id1 = visited[1]
-            #     print(visited)
             if isinstance(type1, CommonToken):
                 token_type = self.lexer.symbolicNames[type1.type]
                 
                 if token_type=="ID":
-                    simbolo = self.tablaSimbolos.get_scope_simbolo(type1.text)
+                    simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(type1.text, self.actual_class)
                     if simbolo:
                         type1 = simbolo.tipo_token
                     else:
@@ -674,13 +834,18 @@ class SemanticVisitor(yalpVisitor):
             else:
                 type1 = type1.tipo_token
 
+            # for visit in visited:
+
+            #     print(visit.text)
+
+            # input()
             type2 =  visited[2][0]
             
             if isinstance(type2, CommonToken):
                 token_type = self.lexer.symbolicNames[type2.type]
                 
                 if token_type=="ID":
-                    simbolo = self.tablaSimbolos.get_scope_simbolo(type2.text)
+                    simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(type2.text, self.actual_class)
                     if simbolo:
                         type2 = simbolo.tipo_token
                     else:
@@ -704,7 +869,7 @@ class SemanticVisitor(yalpVisitor):
                 linea = id1.line
                 columna = id1.column
 
-                message = f"Error semántico: Se está asignando un tipo {type2} a una variable de tipo {type1} en la posición {linea}:{columna}"
+                message = f"Error semántico: Se está asignando un valor de tipo {type2} a una variable de tipo {type1} en la posición {linea}:{columna}"
                 if message not in self.errors:
                     self.errors.append(message)
                 return None
@@ -725,7 +890,7 @@ class SemanticVisitor(yalpVisitor):
                         token_type = self.lexer.symbolicNames[op.type]
 
                         if token_type == "ID":
-                            simbolo = self.tablaSimbolos.get_scope_simbolo(op.text)
+                            simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(op.text, self.actual_class)
                             
                             if simbolo:
                                 operandos.append(simbolo.tipo_token)
@@ -769,7 +934,7 @@ class SemanticVisitor(yalpVisitor):
                         token_type = self.lexer.symbolicNames[op.type]
 
                         if token_type == "ID":
-                            simbolo = self.tablaSimbolos.get_scope_simbolo(op.text)
+                            simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(op.text, self.actual_class)
                             
                             if simbolo:
                                 operandos.append(simbolo.tipo_token)
@@ -812,7 +977,7 @@ class SemanticVisitor(yalpVisitor):
             if isinstance(return_expr, CommonToken):
                 token_type = self.lexer.symbolicNames[return_expr.type]
                 if token_type == "ID":
-                    simbolo = self.tablaSimbolos.get_scope_simbolo(return_expr.text)
+                    simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(return_expr.text, self.actual_class)
                     
                     if simbolo:
                         token_type = simbolo.tipo_token
@@ -830,15 +995,14 @@ class SemanticVisitor(yalpVisitor):
                         return ['Int']
                     elif token_type == "STRING" or token_type == "String":
                         return ['String']
-                    elif token_type == "TRUE" or token_type == "FALSE" or token_type == "Boolean" or token_type == 'Bool':
+                    elif token_type == "TRUE" or token_type == "FALSE" or token_type == "Boolean" or token_type == 'Boolean':
                         return ['Boolean']
                     else:
                         return [None]
 
             else:
                 return [return_expr]
-
-            
+         
         elif ctx.ISVOID():
             
             visited = self.handle_context(ctx)
@@ -848,7 +1012,7 @@ class SemanticVisitor(yalpVisitor):
                 token_type = self.lexer.symbolicNames[expresion.type]
 
                 if token_type == "ID":
-                    simbolo = self.tablaSimbolos.get_scope_simbolo(expresion.text)
+                    simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(expresion.text, self.actual_class)
                     
                     if simbolo:
                         tipo = simbolo.tipo_token
@@ -877,13 +1041,13 @@ class SemanticVisitor(yalpVisitor):
                     self.errors.append(error)
 
                 return [None]
-            # expr_type = self.tablaSimbolos.get_scope_simbolo(expresion.text)
+            # expr_type , heredado = self.tablaSimbolos.get_scope_simbolo(expresion.text)
             
         elif ctx.NEW():
             
             visited = self.handle_context(ctx)
             type = visited[1].text
-            type_symbol = self.tablaSimbolos.get_scope_simbolo(type)
+            type_symbol , heredado = self.tablaSimbolos.get_scope_simbolo(type, self.actual_class)
 
             if not type_symbol:
                 linea = ctx.start.line
@@ -897,6 +1061,31 @@ class SemanticVisitor(yalpVisitor):
        
         else:
             v = self.handle_context(ctx) 
+            
+            if isinstance(v, list):
+                for element in v: 
+                    if isinstance(element, CommonToken):
+
+                        if element.text == "self":
+                            return [self.actual_class]
+                        
+                        token_type = self.lexer.symbolicNames[element.type]
+
+                        if token_type == "ID":
+                            simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(element.text, self.actual_class)
+
+                            
+                            if not simbolo:
+                                linea = element.line
+                                columna = element.column
+                                message = f"Error semántico: La variable '{element.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
+                                if message not in self.errors:
+                                    self.errors.append(message)
+
+                                return [None]
+                            else:
+                                token_type = simbolo.tipo_token
+                                return [token_type]
             return v
 
     def checkCompare(self, ctx: yalpParser.ExprContext, visited:list):
@@ -916,7 +1105,7 @@ class SemanticVisitor(yalpVisitor):
         
         compare = ''
         se_puede = False
-        bool = False
+        Boolean = False
         for type in types:
             if compare == '':
                 compare = type
@@ -926,7 +1115,7 @@ class SemanticVisitor(yalpVisitor):
                     se_puede = True
                 if (type == "Int" and compare == "Boolean") or (type == "Boolean" and compare == "Int"):
                     se_puede = True
-                    bool = True
+                    Boolean = True
         
         if se_puede:
             return "Boolean" 
@@ -934,7 +1123,7 @@ class SemanticVisitor(yalpVisitor):
         else:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Error semántico: Operación invalida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
+            error = f'Error semántico: Operación inválida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 
@@ -967,7 +1156,7 @@ class SemanticVisitor(yalpVisitor):
         if len (types) != 1:
             linea = ctx.start.line
             columna = ctx.start.column
-            error = f'Error semántico: Operación invalida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
+            error = f'Error semántico: Operación inválida entre {types[0]} y {types[1]} en la posición {linea}:{columna}'
             if error not in self.errors:
                 self.errors.append(error)
 
@@ -991,5 +1180,4 @@ class SemanticVisitor(yalpVisitor):
         
     def visitTerminal(self, node: TerminalNode, formal=False):
         token = node.getSymbol()
-        
         return token
