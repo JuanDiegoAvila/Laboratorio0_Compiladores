@@ -180,7 +180,7 @@ class Interfaz(tk.Tk):
             self.show_terminal_button.config(text="Esconder Terminal")
         self.is_terminal_visible = not self.is_terminal_visible
     
-    def on_tab_pressed(event):
+    def on_tab_pressed(self, event):
         event.widget.insert(tk.INSERT, "    ")  # Inserta cuatro espacios
         return "break"  # Esto previene el comportamiento predeterminado de la tecla Tab
 
