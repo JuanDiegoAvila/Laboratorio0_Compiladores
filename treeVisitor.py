@@ -171,6 +171,11 @@ class TreeVisitor(yalpVisitor):
             variable_name = ctx.ID().getText()
             variable_type = ctx.TYPE().getText()
 
+            if not self.tablaSimbolos.get_classes(variable_type):
+                error = f"Error semántico: El tipo {variable_type} no ha sido declarado."
+                if error not in self.errors:
+                    self.errors.append(error)
+
             if variable_name == "self":
                 line = ctx.start.line
                 column = ctx.start.column
@@ -185,6 +190,11 @@ class TreeVisitor(yalpVisitor):
             
             feature_name = ctx.ID().getText()
             type_feature = ctx.TYPE().getText() if ctx.TYPE() is not None else None
+
+            if not self.tablaSimbolos.get_classes(type_feature):
+                error = f"Error semántico: El tipo {type_feature} no ha sido declarado."
+                if error not in self.errors:
+                    self.errors.append(error)
 
             if feature_name == "self":
                 line = ctx.start.line

@@ -35,7 +35,6 @@ class SemanticVisitor(yalpVisitor):
 
         for feature_ctx in ctx.feature():
             feature = self.visit(feature_ctx)
-            print(feature)
 
             # verificar si hay un metodo main en la clase Main
             if class_name == "Main" and feature == "main":
@@ -76,9 +75,16 @@ class SemanticVisitor(yalpVisitor):
                             token_type = "String"
                         elif token_type == "INT" or token_type == "DIGIT":
                             token_type = "Int"
-                        elif token_type == "BOOLEAN":
+                        elif token_type == "BOOLEAN" or token_type == "TRUE" or token_type == "FALSE":
                             token_type = "Boolean"
                         
+                        if token_type == "Boolean" and feature_type == "Int":
+                            # casteo de boolean a int
+                            token_type = "Int"
+                        
+                        if token_type == "Int" and feature_type == "Boolean":
+                            # casteo de int a boolean
+                            token_type = "Boolean"
                         
                         if token_type != feature_type:
                             linea = ctx.start.line
@@ -91,6 +97,20 @@ class SemanticVisitor(yalpVisitor):
                         # print(token_type, ' visited en ', self.actual_class, feature_name, feature_type)
                     else:
                         token_type = v
+                        if token_type == "STRING":
+                            token_type = "String"
+                        elif token_type == "INT" or token_type == "DIGIT":
+                            token_type = "Int"
+                        elif token_type == "BOOLEAN" or token_type == "TRUE" or token_type == "FALSE":
+                            token_type = "Boolean"
+
+                        if token_type == "Boolean" and feature_type == "Int":
+                            # casteo de boolean a int
+                            token_type = "Int"
+                        
+                        if token_type == "Int" and feature_type == "Boolean":
+                            # casteo de int a boolean
+                            token_type = "Boolean"
 
                         if token_type != feature_type:
                             linea = ctx.start.line
@@ -865,6 +885,12 @@ class SemanticVisitor(yalpVisitor):
                     type2 = "String"
                 elif token_type == "ERROR":
                     type2 = "Indefinido"
+
+            if type1 == "Int" and type2 == "Boolean":
+                type2 = "Int"
+            
+            if type1 == "Boolean" and type2 == "Int":
+                type2 = "Boolean"
 
             if type1!=type2:
                 linea = id1.line

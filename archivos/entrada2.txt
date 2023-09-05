@@ -1,27 +1,19 @@
 (* COMENTARIO *)
-class Main {
-    print: IO;
-    y: Boolean;
-    
-    main() : Object {
-        let x : Int <- 5 in
-        {
-            if x < 10 then
-                x <- x + 1
-            else
-                y <- true
-            fi ;
-            
-            while x > 0 loop
-                print.out_string("Countdown: \n")
-            pool ;
-        }
+
+
+class Counter {
+    count() : String {
+        ""
     };
 };
 
-class Counter {
-    count() : Int {
-        0
+
+class Main {
+    counter: Counter;
+    x: Int <- counter.count();
+
+    main() : Int {
+        1 + x
     };
 };
 
