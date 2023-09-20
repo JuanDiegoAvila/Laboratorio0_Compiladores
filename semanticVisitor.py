@@ -32,7 +32,26 @@ class SemanticVisitor(yalpVisitor):
         hay_main = False
 
         self.actual_class = class_name
+        simbolos_clase = self.tablaSimbolos.current_scope.symbols
+        parent_scope = self.tablaSimbolos.current_scope.parent
+        
+        if nombre:=parent_scope.symbols[class_name].hereda:
+            #print('aaaa', parent_scope.symbols[class_name].size)
+            parent_scope.symbols[class_name].size += parent_scope.symbols[nombre].size
+            #print('bbbb', class_name, parent_scope.symbols[class_name].size)
+        
+        for key, value in simbolos_clase.items():
+            if value.funcion==False:
+                if value.tipo_token in value.nativesizes:
+                    parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
+                    value.size = parent_scope.symbols[value.tipo_token].size
+                else:
+                    value.size = parent_scope.symbols[value.tipo_token].size
+                    parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
 
+        
+
+        
         for feature_ctx in ctx.feature():
             feature = self.visit(feature_ctx)
 
