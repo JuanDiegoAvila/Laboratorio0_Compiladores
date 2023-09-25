@@ -6,6 +6,7 @@ from tree import *
 from tablaSimbolos import *
 #from semanticVisitor import SemanticVisitor
 from semanticVisitor import SemanticVisitor
+from codigoIntermedio import codigoVisitor
 
 from treeVisitor import TreeVisitor
 import interfaz as interfaz
@@ -129,10 +130,25 @@ def analisis_semantico(tree, tablaSimbolos, lexer, errors):
             custom_print(terminal, error, is_error=True)
     
     if not errors:
-        custom_print(terminal, semanticVisitor.tablaSimbolos.print_tabla(), is_success=True)
+        # custom_print(terminal, semanticVisitor.tablaSimbolos.print_tabla())
+        codigoTresDirecciones(lexer, tree)
+
+
+def codigoTresDirecciones(lexer, tree):
+    visitor = codigoVisitor(lexer)
+    visitor.visit(tree)
+    terminal = get_global_terminal()
+
+
+    custom_print(terminal, "------------------")
+    custom_print(terminal, "Cuadruplas")
+    custom_print(terminal, "------------------")
+
+    for cuadrupla in visitor.cuadruplas:
+        custom_print(terminal, cuadrupla)
 
 #Llamar a la función para el scanner
-# parser = Parser('./archivos/entrada6.txt')
+parser = Parser('./archivos/entrada7.txt')
 
-app = interfaz.Interfaz(Parser)
-app.mainloop()
+# app = interfaz.Interfaz(Parser)
+# app.mainloop()

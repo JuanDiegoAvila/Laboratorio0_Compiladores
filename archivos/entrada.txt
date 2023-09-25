@@ -1,16 +1,22 @@
 class Prueba {
-    hola (x:Int) : String {
-        "hola"
+    hola (x:Int) : Int {
+        1
     } ; 
 };
 
 class Main { 
-    x: IO;
     prueba: Prueba;
     main() : Int { 
         prueba.hola(1)
     } ; 
 }; 
+
+
+
+
+
+
+
 
 
 

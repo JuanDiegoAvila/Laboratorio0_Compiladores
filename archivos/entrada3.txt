@@ -5,7 +5,7 @@ class Main{
     
     print: IO;
 
-    main() : Object {
+    main() : Int {
         let x : Int <- 5 in
         {
             if x < 10 then
@@ -28,6 +28,7 @@ class Main{
         0
     };
 };
+
 
 
 

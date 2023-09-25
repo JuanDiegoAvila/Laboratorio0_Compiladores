@@ -7,18 +7,18 @@ class Main {
             let x : Int <- 5 in
             {
                 while id_1 loop
-                    print.out_string("Countdown: ")
+                    1 + 1
                 pool ;
             };
-            x <- 3;
         }
     };
 
-    count(x : HOLA) : Int {
+    count(x : Int) : Int {
         0
     };
 
     
 };
+
 
 
