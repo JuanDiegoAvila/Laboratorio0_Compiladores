@@ -32,6 +32,12 @@ def create_if(if_expr, then_expr, else_expr, label):
     label2 = f'L{label}'
 
     Cuadruplas = []
+
+    print(if_expr, type(if_expr))
+
+    if isinstance(if_expr, Cuadrupla):
+        Cuadruplas.append(if_expr)
+        if_expr = if_expr.res
     
     inicio = Cuadrupla("ifFalse", if_expr, None, label1)
     Cuadruplas.append(inicio)
@@ -55,6 +61,7 @@ def create_if(if_expr, then_expr, else_expr, label):
 
 def create_while(while_expr, loop_expr, label): 
     print('WHILE')
+    
     label1 = f'L{label}'
     
     label = label + 1
@@ -62,8 +69,12 @@ def create_while(while_expr, loop_expr, label):
 
     Cuadruplas = []
 
-    label1 = Cuadrupla("label", None, None, label1)
-    Cuadruplas.append(label1)
+    label_1 = Cuadrupla("label", None, None, label1)
+    Cuadruplas.append(label_1)
+
+    if isinstance(while_expr, Cuadrupla):
+        Cuadruplas.append(while_expr)
+        while_expr = while_expr.res
 
     inicio = Cuadrupla("ifFalse", while_expr, None, label2)
     Cuadruplas.append(inicio)
