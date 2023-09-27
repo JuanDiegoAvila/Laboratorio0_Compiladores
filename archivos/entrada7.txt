@@ -30,9 +30,9 @@ class Main{
         } else {
             x <- y;
             if (x = y) then {
-                x<3 + 1;
+                x<-1;
             } else {
-                1 + (x < y);
+                x<-2;
             } FI;
         } FI
     };

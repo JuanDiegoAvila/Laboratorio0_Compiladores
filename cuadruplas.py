@@ -17,6 +17,8 @@ def asignacion(arg1, res):
     return Cuadrupla("=", arg1, None, res)
 
 def operacion(op, arg1, arg2, res):
+    if op== '=':
+        op = '=='
     return Cuadrupla(op, arg1, arg2, res)
 
 def Not(arg1, res):
@@ -90,5 +92,6 @@ def create_while(while_expr, loop_expr, label):
 
     return Cuadruplas, label
 
-
+def create_function():
+    pass
 

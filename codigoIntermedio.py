@@ -5,6 +5,7 @@ from dist.yalpLexer import yalpLexer
 from dist.yalpVisitor import yalpVisitor
 from tablaSimbolos import *
 from cuadruplas import *
+from StackMemory import Stack
 
 class codigoVisitor(yalpVisitor):
     def __init__(self, lexer):
@@ -18,6 +19,7 @@ class codigoVisitor(yalpVisitor):
         self.nativas = False
         self.cuadruplas = []
         self.labels = 0
+        self.stack = Stack()
 
     def getLabel(self):
         self.labels += 1
