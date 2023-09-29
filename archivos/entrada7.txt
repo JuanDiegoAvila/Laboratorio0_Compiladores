@@ -1,5 +1,9 @@
-class Main{
+class Nuevo {
     x: Int;
+};
+
+class Main{
+    x: Int <- 5;
     y: Int;
     z: Int;
     p: Int;

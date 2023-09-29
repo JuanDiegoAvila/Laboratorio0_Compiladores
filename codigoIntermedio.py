@@ -114,29 +114,32 @@ class codigoVisitor(yalpVisitor):
             feature_type = self.actual_class
 
         # if token_type == "FUNCTION":
-        #     #self.tablaSimbolos.get_enterScope()
+        #     self.tablaSimbolos.get_enterScope()
 
         visited = []
         if ctx.expr():
             visited = self.visit(ctx.expr())
-            
-            # if isinstance(visited, list):
-            #     for v in visited:
-            #         print(v)
-
-
+        
         if ctx.ASSIGN() and ctx.expr():
             original_type = ctx.TYPE().getText() if ctx.TYPE() else None
             assign = self.visit(ctx.expr())[0]
         
+        params = []
         for formal_ctx in ctx.formal():
-            self.visit(formal_ctx)
+            parametros = self.visit(formal_ctx)
+            params.append(parametros)
             
-        # if token_type == "FUNCTION":
-            
-        #     #self.tablaSimbolos.get_exitScope()
+        if token_type == "FUNCTION":
+            # self.tablaSimbolos.get_exitScope()
+            self.cuadruplas.extend(create_function(feature_name, params, visited))
 
         return feature_name
+    
+    def upLabel(self):
+        self.labels += 1
+        return self.labels
+    
+    
              
     def visitExpr(self, ctx: yalpParser.ExprContext):
         
@@ -167,6 +170,9 @@ class codigoVisitor(yalpVisitor):
                 elif v == 'else':
                     inThen = False
                     inElse = True
+
+                elif v == 'FI':
+                    inElse = False
                 
                 else:
                     if inIf:
@@ -181,10 +187,11 @@ class codigoVisitor(yalpVisitor):
             # label = self.getLabel()
             # label = f'Label{label}'
 
-            cuadruplas, label = create_if(if_expr[0], then_expr, else_expr, self.labels)
-            self.cuadruplas.extend(cuadruplas)
 
-            self.labels = label
+            cuadruplas = create_if(if_expr[0], then_expr, else_expr, self)
+            # self.cuadruplas.extend(cuadruplas)
+            return cuadruplas
+
 
             # return cuadruplas
 
@@ -211,6 +218,9 @@ class codigoVisitor(yalpVisitor):
                 elif v == 'loop':
                     inWhile = False
                     inLoop = True
+                
+                elif v == 'pool':
+                    inLoop = False
 
                 else:
                     if inWhile:
@@ -219,11 +229,10 @@ class codigoVisitor(yalpVisitor):
                     elif inLoop:
                         loop_expr.append(v)
 
-            cuadruplas, label = create_while(while_expr[0], loop_expr, self.labels)
-            self.cuadruplas.extend(cuadruplas)
+            cuadruplas = create_while(while_expr[0], loop_expr, self)
+            # self.cuadruplas.extend(cuadruplas)
 
-            self.labels = label
-
+            return cuadruplas
 
             # return cuadruplas
             #self.tablaSimbolos.get_exitScope()
@@ -245,9 +254,8 @@ class codigoVisitor(yalpVisitor):
         elif ctx.DOT():
             visited_dot = self.handle_context(ctx)
             inherit_visited = []
-            
-            
-          
+
+
             if ctx.AT():
 
                 variable = visited_dot[0][0]
@@ -256,11 +264,22 @@ class codigoVisitor(yalpVisitor):
 
 
 
-            variable = visited_dot[0][0]
+            variable = visited_dot[0]
             function = visited_dot[2]
-
-            return visited_dot
+            parametros = []
             
+            if len(visited_dot) > 3:
+                # Apartir de la posicion 3 en adelante son los parametros
+                parametros = visited_dot[3:]
+
+            cuadruplas = create_function_call(variable, function, parametros)
+            return cuadruplas
+
+        elif ctx.ISVOID():
+            visited = self.handle_context(ctx)
+            temp = 't1'
+            cuadrupla = create_isVoid(visited[1], temp)
+            return cuadrupla
 
         elif ctx.ID() and ctx.LPAR():
             visited_func = self.handle_context(ctx)
@@ -373,20 +392,23 @@ class codigoVisitor(yalpVisitor):
                 ids = ctx.ID()
                 tipos = ctx.TYPE()
 
+                parametros = []
                 for id_node, tipo_node in zip(ids, tipos):
 
                     variable_name = id_node.getText()
                     variable_type = tipo_node.getText()
-                
+
+                    parametros.append([variable_name, variable_type])
+
                     # regresar el arreglo de tipos
-                    return [tipo.getText() for tipo in tipos]
+                return parametros
                     
             else:
 
                 variable_name = ctx.ID().getText()
                 variable_type = ctx.TYPE().getText()
 
-                return [variable_type]
+                return [variable_name, variable_type]
             
     def handle_context(self, ctx, formal=False):
         visited = []

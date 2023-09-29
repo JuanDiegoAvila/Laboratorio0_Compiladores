@@ -7,6 +7,7 @@ from tablaSimbolos import *
 #from semanticVisitor import SemanticVisitor
 from semanticVisitor import SemanticVisitor
 from codigoIntermedio import codigoVisitor
+from cuadruplas import *
 
 from treeVisitor import TreeVisitor
 import interfaz as interfaz
@@ -144,8 +145,7 @@ def codigoTresDirecciones(lexer, tree):
     custom_print(terminal, "Cuadruplas")
     custom_print(terminal, "------------------")
 
-    for cuadrupla in visitor.cuadruplas:
-        custom_print(terminal, cuadrupla)
+    custom_print(terminal, escribir_cuadruplas(visitor.cuadruplas))
 
 #Llamar a la función para el scanner
 parser = Parser('./archivos/entrada7.txt')
