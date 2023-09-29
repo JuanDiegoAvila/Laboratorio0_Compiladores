@@ -324,10 +324,16 @@ class codigoVisitor(yalpVisitor):
 
         elif ctx.ID() and ctx.ASSIGN() and not ctx.LET():
             visited = self.handle_context(ctx)
+            cuadruplas = []
+            if isinstance(visited[2], Cuadrupla):
+                cuadruplas.append(visited[2])
+                cuadruplas.append(asignacion(visited[2].res, visited[0]))
+            
+            else:
+                cuadruplas.append(asignacion(visited[2], visited[0]))
+            # cuadrupla = asignacion(visited[2], visited[0])
 
-            cuadrupla = asignacion(visited[2], visited[0])
-
-            return cuadrupla
+            return cuadruplas
             
         
         elif ctx.LT() or ctx.RT() or ctx.LE() or ctx.RE() or ctx.EQUALS() or ctx.PLUS() or ctx.TIMES() or ctx.MINUS() or ctx.DIVIDE():
