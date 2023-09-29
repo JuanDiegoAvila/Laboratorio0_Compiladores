@@ -49,7 +49,6 @@ class SemanticVisitor(yalpVisitor):
                     value.size = parent_scope.symbols[value.tipo_token].size
                     parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
 
-        
 
         
         for feature_ctx in ctx.feature():
@@ -80,7 +79,24 @@ class SemanticVisitor(yalpVisitor):
 
         if token_type == "FUNCTION":
             self.tablaSimbolos.get_enterScope()
-
+            parent_scope = self.tablaSimbolos.current_scope.parent
+            simbolos = self.tablaSimbolos.current_scope.symbols
+            for key, value in simbolos.items():
+                if value.parametro == True:
+                    if value.tipo_token in value.nativesizes:
+                        parent_scope.symbols[feature_name].size += value.nativesizes[value.tipo_token]
+                    else:
+                        temp_var = parent_scope
+                        while True:
+                            if temp_var.parent == None:
+                                break
+                            else:
+                                temp_var = temp_var.parent
+                        parent_scope.symbols[feature_name].size += temp_var.symbols[value.tipo_token].size
+            #print(self.tablaSimbolos.current_scope.symbols)
+            #print(parent_scope.symbols)
+            
+            
         visited = []
         if ctx.expr():
             visited = self.visit(ctx.expr())

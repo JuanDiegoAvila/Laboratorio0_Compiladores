@@ -138,7 +138,9 @@ def analisis_semantico(tree, tablaSimbolos, lexer, errors):
 def codigoTresDirecciones(lexer, tree):
     visitor = codigoVisitor(lexer)
     visitor.visit(tree)
+
     terminal = get_global_terminal()
+    #visitor.tablaSimbolos.print_tabla()
 
 
     custom_print(terminal, "------------------")
