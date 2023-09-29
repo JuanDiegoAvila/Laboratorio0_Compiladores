@@ -96,8 +96,6 @@ class codigoVisitor(yalpVisitor):
     def visitClass(self, ctx: yalpParser.ClassContext):
         class_name = ctx.TYPE()[0].getText()
             
-        self.tablaSimbolos.enterScope()
-
         self.cuadruplas.append(create_class_label(class_name))
 
         for feature_ctx in ctx.feature():
@@ -109,13 +107,18 @@ class codigoVisitor(yalpVisitor):
         token_type = "FUNCTION" if ctx.LPAR() else "ATTRIBUTE"
         feature_name = ctx.ID().getText()
         feature_type = ctx.TYPE().getText() if ctx.TYPE() else None
-
         if feature_type == "SELF_TYPE":
             feature_type = self.actual_class
 
-        # if token_type == "FUNCTION":
-        #     #self.tablaSimbolos.get_enterScope()
+        if token_type == "FUNCTION":
+            visited = self.handle_context(ctx)
+            print(visited)
+           #for i in self.tablaSimbolos.current_scope.parent.children:
+            #    print(i.name)
+            pass
 
+        #     #self.tablaSimbolos.get_enterScope()
+        
         visited = []
         if ctx.expr():
             visited = self.visit(ctx.expr())
@@ -146,6 +149,7 @@ class codigoVisitor(yalpVisitor):
             # #self.tablaSimbolos.get_enterScope()
 
             visited = self.handle_context(ctx)
+            print('if', visited)
             
 
             if_expr = []
@@ -186,7 +190,7 @@ class codigoVisitor(yalpVisitor):
 
             self.labels = label
 
-            # return cuadruplas
+            return cuadruplas
 
             #self.tablaSimbolos.get_exitScope()      
 
