@@ -140,9 +140,9 @@ def codigoTresDirecciones(lexer, tree):
     visitor.visit(tree)
 
     terminal = get_global_terminal()
-    #visitor.tablaSimbolos.print_tabla()
+    visitor.tablaSimbolos.print_tabla()
 
-
+    
     custom_print(terminal, "------------------")
     custom_print(terminal, "Cuadruplas")
     custom_print(terminal, "------------------")

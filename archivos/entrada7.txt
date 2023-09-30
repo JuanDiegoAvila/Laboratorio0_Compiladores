@@ -1,5 +1,6 @@
 class Nuevo {
-    x: Int;
+    x: String;
+    y: Int;
 };
 
 class Main{

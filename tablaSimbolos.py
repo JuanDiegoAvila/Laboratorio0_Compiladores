@@ -14,6 +14,7 @@ class Simbolo:
         self.hereda = hereda
         self.funcion = funcion
         self.size = 0
+        self.offset = 0
 
         if self.tipo_token == 'CLASS':
             if self.tipo_token in self.nativesizes:
@@ -25,7 +26,7 @@ class Simbolo:
             
 
     def __str__(self):
-        return f"Lexema: {self.lexema}, Linea: {self.linea}, Columna: {self.columna}, Tipo de Token: {self.tipo_token}, Scope: {self.scope}, Parametro: {self.parametro}, Hereda: {self.hereda}, Funcion: {self.funcion}, Tamaño (bytes): {self.size}"
+        return f"Lexema: {self.lexema}, Linea: {self.linea}, Columna: {self.columna}, Tipo de Token: {self.tipo_token}, Scope: {self.scope}, Parametro: {self.parametro}, Hereda: {self.hereda}, Funcion: {self.funcion}, Tamaño (bytes): {self.size}, Offset: {self.offset}"
 
     def setGlobal(self, global_):
         self.global_ = global_
@@ -75,9 +76,9 @@ class Scope:
         custom_print(self.global_terminal, f"\n{indent}Scope {self.name}:")
         
         x = PrettyTable()
-        x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Global", "Parametro", "Hereda", "Funcion", "Tamaño (bytes)"]
+        x.field_names = ["Lexema", "Linea", "Columna", "Tipo de Token", "Global", "Parametro", "Hereda", "Funcion", "Tamaño (bytes)", "Offset"]
         for name, simbolo in self.symbols.items():
-            x.add_row([simbolo.lexema, simbolo.linea, simbolo.columna, simbolo.tipo_token, simbolo.global_, simbolo.parametro, simbolo.hereda, simbolo.funcion, simbolo.size])
+            x.add_row([simbolo.lexema, simbolo.linea, simbolo.columna, simbolo.tipo_token, simbolo.global_, simbolo.parametro, simbolo.hereda, simbolo.funcion, simbolo.size, simbolo.offset])
         custom_print(self.global_terminal, x)
         for child in self.children:
             child.print_scope(level+1)

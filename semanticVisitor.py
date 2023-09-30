@@ -42,12 +42,19 @@ class SemanticVisitor(yalpVisitor):
         
         for key, value in simbolos_clase.items():
             if value.funcion==False:
+                values = list(simbolos_clase.values())
+                index = values.index(value)
                 if value.tipo_token in value.nativesizes:
                     parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
                     value.size = parent_scope.symbols[value.tipo_token].size
+                    new_offset = values[index-1].offset + values[index-1].size
+                    value.offset = new_offset
+
                 else:
                     value.size = parent_scope.symbols[value.tipo_token].size
                     parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
+                    new_offset = values[index-1].offset + values[index-1].size
+                    value.offset = new_offset
 
 
         
