@@ -89,9 +89,13 @@ class SemanticVisitor(yalpVisitor):
             parent_scope = self.tablaSimbolos.current_scope.parent
             simbolos = self.tablaSimbolos.current_scope.symbols
             for key, value in simbolos.items():
+                values = list(simbolos.values())
+                index = values.index(value)
                 if value.parametro == True:
                     if value.tipo_token in value.nativesizes:
                         parent_scope.symbols[feature_name].size += value.nativesizes[value.tipo_token]
+                        value.size = value.nativesizes[value.tipo_token]
+
                     else:
                         temp_var = parent_scope
                         while True:
@@ -100,6 +104,8 @@ class SemanticVisitor(yalpVisitor):
                             else:
                                 temp_var = temp_var.parent
                         parent_scope.symbols[feature_name].size += temp_var.symbols[value.tipo_token].size
+                        value.size = temp_var.symbols[value.tipo_token].size
+
             #print(self.tablaSimbolos.current_scope.symbols)
             #print(parent_scope.symbols)
             
