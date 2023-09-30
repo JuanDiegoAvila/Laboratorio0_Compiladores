@@ -19,7 +19,9 @@ class codigoVisitor(yalpVisitor):
         self.nativas = False
         self.cuadruplas = []
         self.labels = 0
-        self.stack = Stack()
+        self.stack = False
+        self.heap = False
+        self.in_main = False
 
     def getLabel(self):
         self.labels += 1
@@ -87,21 +89,31 @@ class codigoVisitor(yalpVisitor):
 
         return output
 
-
     def visitProgram(self, ctx: yalpParser.ProgramContext):
+        self.tablaSimbolos.current_scope = self.tablaSimbolos.current_scope.exit()
+        self.tablaSimbolos.index_scopes = 0
+        
         self.scope_counter = 0
         for class_ctx in ctx.class_():
             self.visit(class_ctx)
 
     def visitClass(self, ctx: yalpParser.ClassContext):
+        self.heap = True
+
         class_name = ctx.TYPE()[0].getText()
+
+        if class_name == "Main":
+            self.in_main = True
+
+        self.tablaSimbolos.get_enterScope()
             
         self.cuadruplas.append(create_class_label(class_name))
 
         for feature_ctx in ctx.feature():
             self.visit(feature_ctx)
-        
 
+        self.tablaSimbolos.get_exitScope()
+        
     def visitFeature(self, ctx: yalpParser.FeatureContext):
         token_type = "FUNCTION" if ctx.LPAR() else "ATTRIBUTE"
         feature_name = ctx.ID().getText()
@@ -110,15 +122,14 @@ class codigoVisitor(yalpVisitor):
             feature_type = self.actual_class
 
         if token_type == "FUNCTION":
-            visited = self.handle_context(ctx)
-           #for i in self.tablaSimbolos.current_scope.parent.children:
-            #    print(i.name)
+            self.tablaSimbolos.get_enterScope()
 
-        #     #self.tablaSimbolos.get_enterScope()
-        
+            # visited = self.handle_context(ctx)
+           
         visited = []
         if ctx.expr():
             visited = self.visit(ctx.expr())
+        
         
         if ctx.ASSIGN() and ctx.expr():
             original_type = ctx.TYPE().getText() if ctx.TYPE() else None
@@ -130,27 +141,26 @@ class codigoVisitor(yalpVisitor):
             params.append(parametros)
             
         if token_type == "FUNCTION":
-            # self.tablaSimbolos.get_exitScope()
+            self.tablaSimbolos.get_exitScope()
+
+            # if self.in_main:
             self.cuadruplas.extend(create_function(feature_name, params, visited))
+            # else:
+            #     self.cuadruplas.extend(create_heap_function(feature_name, params, visited))
 
         return feature_name
     
     def upLabel(self):
         self.labels += 1
         return self.labels
-    
-    
-             
+      
     def visitExpr(self, ctx: yalpParser.ExprContext):
         
         if ctx.IF():
             
-            
-            # #self.tablaSimbolos.get_enterScope()
+            self.tablaSimbolos.get_enterScope()
 
             visited = self.handle_context(ctx)
-            #('if', visited)
-            
 
             if_expr = []
             then_expr = []
@@ -191,16 +201,19 @@ class codigoVisitor(yalpVisitor):
 
             cuadruplas = create_if(if_expr[0], then_expr, else_expr, self)
             # self.cuadruplas.extend(cuadruplas)
+            self.tablaSimbolos.get_exitScope()      
+            
             return cuadruplas
 
+        elif ctx.ELSE():
+            self.tablaSimbolos.get_enterScope()
 
-            return cuadruplas
+            visited = self.handle_context(ctx)
 
-            #self.tablaSimbolos.get_exitScope()      
-
+            self.tablaSimbolos.get_exitScope()
 
         elif ctx.WHILE():
-            #self.tablaSimbolos.get_enterScope()
+            self.tablaSimbolos.get_enterScope()
             
 
             visited_while = self.handle_context(ctx)
@@ -233,22 +246,23 @@ class codigoVisitor(yalpVisitor):
             cuadruplas = create_while(while_expr[0], loop_expr, self)
             # self.cuadruplas.extend(cuadruplas)
 
+            
+            self.tablaSimbolos.get_exitScope()
             return cuadruplas
 
             # return cuadruplas
-            #self.tablaSimbolos.get_exitScope()
 
             # return visited_while
 
         elif ctx.LET():
             
-            #self.tablaSimbolos.get_enterScope()
+            self.tablaSimbolos.get_enterScope()
             
             visited_let = self.handle_context(ctx)
             tipo = visited_let[-1][0]
             
             
-            #self.tablaSimbolos.get_exitScope()
+            self.tablaSimbolos.get_exitScope()
 
             return visited_let
 
@@ -263,6 +277,15 @@ class codigoVisitor(yalpVisitor):
                 clase = visited_dot[2]
                 funcion = visited_dot[4]
 
+                if len(visited_dot) > 5:
+                    parametros = visited_dot[5:]
+
+                else:
+                    parametros = []
+
+                # cuadruplas = create_inherit_call(variable, clase, funcion, parametros)
+
+                # return cuadruplas
 
 
             variable = visited_dot[0]
@@ -361,8 +384,34 @@ class codigoVisitor(yalpVisitor):
                     arg1 = stack.pop()
                     temp = f't{temp_counter}'
                     temp_counter += 1
+
+                    type_arg1 = self.tablaSimbolos.get_simbolo(arg1)
+                    type_arg2 = self.tablaSimbolos.get_simbolo(arg2)
+
+                    if type_arg1 is None:
+                        type_arg1 = arg1
+                        primero = [arg1, True]
+                        print(arg1, 'arg1')
+
+                    else:
+                        primero = [arg1, type_arg1.parametro]
+
+                    if type_arg2 is None:
+                        type_arg2 = arg2
+
+                        segundo = [arg2, True]
+                        print(arg2, 'arg2')
+
+                    else:
+                        segundo = [arg2, type_arg2.parametro]
+
+                    # print(type_arg1.lexema, type_arg1.tipo_token, type_arg1.parametro)
+                    # print(type_arg2.lexema, type_arg2.tipo_token, type_arg2.parametro)
+                    # primero = [arg1, type_arg1.parametro]
+                    # segundo = [arg2, type_arg2.parametro]
                     
-                    cuadruplas.append(operacion(token, arg1, arg2, temp))
+                    cuadruplas.extend(operacion(token, primero, segundo, temp, self.in_main))
+                    
                     stack.append(temp)
 
             return cuadruplas

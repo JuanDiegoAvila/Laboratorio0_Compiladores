@@ -102,7 +102,7 @@ class TablaSimbolos:
         for scope in self.all_scopes:
             if scope.name == self.index_scopes:                
                 self.current_scope = scope
-                
+
                 return scope
     
     def get_scope_simbolo(self, name, class_name):
@@ -134,6 +134,10 @@ class TablaSimbolos:
         return None, False
     
     def get_exitScope(self):
+        # if self.current_scope.name == 0:
+        #     return self.current_scope
+        
+        
         self.current_scope = self.current_scope.exit()
         # self.index_scopes = self.current_scope.name
 

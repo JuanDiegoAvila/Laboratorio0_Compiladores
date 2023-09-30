@@ -34,7 +34,8 @@ class SemanticVisitor(yalpVisitor):
         self.actual_class = class_name
         simbolos_clase = self.tablaSimbolos.current_scope.symbols
         parent_scope = self.tablaSimbolos.current_scope.parent
-        
+        # print(parent_scope.symbols, 'parent')
+        # print(class_name, 'class_name')
         if nombre:=parent_scope.symbols[class_name].hereda:
             #print('aaaa', parent_scope.symbols[class_name].size)
             parent_scope.symbols[class_name].size += parent_scope.symbols[nombre].size

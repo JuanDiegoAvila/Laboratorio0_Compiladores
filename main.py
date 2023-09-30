@@ -140,7 +140,7 @@ def codigoTresDirecciones(lexer, tree):
     visitor.visit(tree)
 
     terminal = get_global_terminal()
-    visitor.tablaSimbolos.print_tabla()
+    # visitor.tablaSimbolos.print_tabla()
 
     
     custom_print(terminal, "------------------")
@@ -150,7 +150,7 @@ def codigoTresDirecciones(lexer, tree):
     custom_print(terminal, escribir_cuadruplas(visitor.cuadruplas))
 
 #Llamar a la función para el scanner
-parser = Parser('./archivos/entrada7.txt')
+parser = Parser('./archivos/entrada8.txt')
 
 # app = interfaz.Interfaz(Parser)
 # app.mainloop()

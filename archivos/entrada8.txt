@@ -1,0 +1,21 @@
+class Hola {
+    x: Int;
+    y: Int;
+
+    algo(x: Int): Int {
+        x + y
+    };
+};
+
+class Main{
+    a: Hola <- new Hola;
+    b: Hola <- new Hola;
+    c: Int;
+
+    main() : Int{
+        {
+            c <- a.algo(c);
+            b.algo(c);
+        }
+    };
+};

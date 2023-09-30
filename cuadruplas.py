@@ -16,10 +16,45 @@ class Cuadrupla(object):
 def asignacion(arg1, res):
     return Cuadrupla("=", arg1, None, res)
 
-def operacion(op, arg1, arg2, res):
+def operacion(op, arg1, arg2, res, in_main):
     if op== '=':
         op = '=='
-    return Cuadrupla(op, arg1, arg2, res)
+
+    if in_main:
+        return Cuadrupla(op, arg1[0], arg2[0], res)
+
+    else:
+        current_instance = Cuadrupla("current_instance", None, None, "t1")
+
+        if not arg1[1]:
+            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg1[0]}]', None, "t2")
+            primero = temp
+        
+        else:
+            primero = Cuadrupla("=", arg1[0], None, "t2")
+        
+        if not arg2[1]:
+            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg2[0]}]', None, "t3")
+            segundo = temp
+        else:
+            segundo = Cuadrupla("=", arg2[0], None, "t3")
+
+        temp = Cuadrupla(op, "t2", "t3", "t4")
+
+
+        # if not arg2[1]:
+        #     update_instance = Cuadrupla("update_instance", "t1", f"offest{arg2[0]}", "current_instance")
+        #     return [current_instance, primero, segundo, temp, update_instance]
+        
+        # elif not arg1[1] and arg2[1]:
+        #     update_instance = Cuadrupla("update_instance", "t1", f"offest{arg1[0]}", "current_instance")
+        #     return [current_instance, primero, segundo, temp, update_instance]
+
+        return [current_instance, primero, segundo, temp]
+
+        
+    
+
 
 def Not(arg1, res):
     return Cuadrupla("!", arg1, None, res)
@@ -79,6 +114,58 @@ def create_function_call(variable, name, params):
     Cuadruplas.append(temp)
 
     return Cuadruplas
+
+# def create_heap_function(name, params, expr):
+#     Cuadruplas = []
+#     temps = 0
+
+#     inicio = Cuadrupla("func", name, None, None)
+#     Cuadruplas.append(inicio)
+
+#     parametros = []
+#     if params != []:
+#         for i in params:
+#             temp = Cuadrupla("param_decl", i[0], i[1], None)
+#             parametros += [i[0]]
+#             Cuadruplas.append(temp)
+
+#     t1 = Cuadrupla("current_heap_instance", None, None, "t1")
+#     Cuadruplas.append(t1)
+#     temps += 1
+
+#     print(parametros)
+#     for i in expr:
+#         print('op', i.op)
+#         print('arg1', i.arg1)
+#         print('arg2', i.arg2)
+#         print('res', i.res)
+
+
+#         if i.arg1 not in parametros:
+#             if i.arg1 != None:
+#                 temps += 1
+#                 temp = Cuadrupla("heap_assign", f'heap[t1 + offset{i.arg1}]', None, f't{temps}')
+#                 Cuadruplas.append(temp)
+#                 i.arg1 = f't{temps}'
+
+#         if i.arg2 not in parametros:
+#             if i.arg2 != None:
+#                 arg2_check = True
+#                 temps += 1
+#                 temp = Cuadrupla("heap_assign", f'heap[t1 + offset{i.arg2}]', None, f't{temps}')
+#                 Cuadruplas.append(temp)
+#                 i.arg2 = f't{temps}'
+
+
+#         Cuadruplas.append(i)
+
+#     print(Cuadruplas)
+
+        
+#     return Cuadruplas
+
+def heap_assign(arg1, res):
+    return Cuadrupla("heap_assign", arg1, None, res)
 
 def create_function(name, params, expr):
     Cuadruplas = []

@@ -1,13 +1,6 @@
 class Nuevo {
-    x: String;
-    y: Int;
-
-    adios(h:Int, i: String): Int{
-        0
-    };
+    x: Int;
 };
-
-
 
 class Main{
     x: Int <- 5;
