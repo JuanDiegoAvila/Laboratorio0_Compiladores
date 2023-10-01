@@ -46,10 +46,12 @@ class SemanticVisitor(yalpVisitor):
                 values = list(simbolos_clase.values())
                 index = values.index(value)
                 if value.tipo_token in value.nativesizes:
+                    
                     parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
-                    value.size = parent_scope.symbols[value.tipo_token].size
+                    value.size = value.nativesizes[value.tipo_token]
                     new_offset = values[index-1].offset + values[index-1].size
                     value.offset = new_offset
+                    
 
                 else:
                     value.size = parent_scope.symbols[value.tipo_token].size
@@ -399,6 +401,15 @@ class SemanticVisitor(yalpVisitor):
             self.tablaSimbolos.get_enterScope()
             
             visited_let = self.handle_context(ctx)
+            
+
+            variable = visited_let[1]
+            # if isinstance(variable, CommonToken):
+            #     token_type = self.lexer.symbolicNames[tipo.type]
+
+            #     if token_type == "ID":
+            #         self.tablaSimbolos 
+
             tipo = visited_let[-1][0]
             
             if isinstance(tipo, CommonToken):

@@ -257,12 +257,12 @@ class TreeVisitor(yalpVisitor):
                     variable_type = tipo_node.getText()
 
                     # verificar si la variable ya ha sido declarada en este alcance
-                    if self.tablaSimbolos.get_simbolo(variable_name):
+                    if self.tablaSimbolos.get_current_scope_simbolo(variable_name):
                         self.errors.append(f"Error semántico: La variable '{variable_name}' ya ha sido declarada en este alcance.")
                     
                     else:
                         # Crear un nuevo símbolo para esta variable y agregarlo a la tabla de símbolos
-                        simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope)
+                        simbolo = Simbolo(variable_name, ctx.start.line, ctx.start.column, variable_type, self.tablaSimbolos.current_scope, in_function = True)
                         self.tablaSimbolos.add_simbolo(variable_name, simbolo)
             
         

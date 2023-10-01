@@ -15,12 +15,20 @@ class Hola inherits Tambien{
 class Adios inherits Hola{
     x : String;
     
-    metodo1(): Int {
-        1
+    metodo1(): String {
+       let h : String, r: String in 
+        {
+            x+h;
+            prueba2();
+        }
+
     };
 
     prueba2(): String {
-        ""
+        let r : String, y: String in 
+        {
+            "" + x - y;
+        }
     };
 };
 
@@ -31,13 +39,13 @@ class Main {
     x: String ;
     valor : Int;
     y: Boolean ;
-    z: Hola;
+    z: Adios;
 
     prueba: Adios <- new Adios;
 
     main() : Object {
         if ( x = "" ) then {
-            prueba @ Hola.metodo1();
+            z.metodo1();
         } else {
             if (true) then {
                 false;

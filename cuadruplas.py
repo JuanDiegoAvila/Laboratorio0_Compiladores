@@ -17,25 +17,33 @@ def asignacion(arg1, res):
     return Cuadrupla("=", arg1, None, res)
 
 def operacion(op, arg1, arg2, res, in_main):
-    if op== '=':
-        op = '=='
-
     if in_main:
-        return Cuadrupla(op, arg1[0], arg2[0], res)
+        return [Cuadrupla(op, arg1[0], arg2[0], res)]
 
     else:
-        current_instance = Cuadrupla("current_instance", None, None, "t1")
+        Cuadruplas = []
+        
+        if not arg1[2] or not arg2[2]:
+            current_instance = Cuadrupla("current_heap_instance", None, None, "t1")
+            Cuadruplas.append(current_instance)
 
         if not arg1[1]:
-            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg1[0]}]', None, "t2")
-            primero = temp
-        
+            if not arg1[2]:
+                temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg1[0]}]', None, "t2")
+                primero = temp
+            else:
+                temp = Cuadrupla("stack_assign", f'stack[offset{arg1[0]}]', None, "t2")
+                primero = temp
         else:
             primero = Cuadrupla("=", arg1[0], None, "t2")
         
         if not arg2[1]:
-            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg2[0]}]', None, "t3")
-            segundo = temp
+            if not arg2[2]:
+                temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg2[0]}]', None, "t3")
+                segundo = temp
+            else:
+                temp = Cuadrupla("stack_assign", f'stack[offset{arg2[0]}]', None, "t3")
+                segundo = temp
         else:
             segundo = Cuadrupla("=", arg2[0], None, "t3")
 
@@ -49,11 +57,13 @@ def operacion(op, arg1, arg2, res, in_main):
         # elif not arg1[1] and arg2[1]:
         #     update_instance = Cuadrupla("update_instance", "t1", f"offest{arg1[0]}", "current_instance")
         #     return [current_instance, primero, segundo, temp, update_instance]
+        Cuadruplas.extend([primero, segundo, temp])
 
-        return [current_instance, primero, segundo, temp]
+        return Cuadruplas
 
         
-    
+def stack_variable(arg1):
+    return Cuadrupla("stack_declaration", arg1, None, None)
 
 
 def Not(arg1, res):
@@ -101,7 +111,6 @@ def create_if(if_expr, then_expr, else_expr, CI):
 
 def create_function_call(variable, name, params):
     # asignar primero los parametros
-
     Cuadruplas = []
     parametros = 0
     for i in params:
@@ -179,7 +188,10 @@ def create_function(name, params, expr):
             Cuadruplas.append(temp)
 
     for i in expr:
-        Cuadruplas.append(i)
+        if isinstance(i, Cuadrupla):
+            Cuadruplas.append(i)
+        else:
+            Cuadruplas.append(Cuadrupla("return_func", i, None, None))
         
     return Cuadruplas
 
@@ -230,7 +242,6 @@ def escribir_cuadruplas(cuadruplas):
     for i, cuadrupla in enumerate(cuadruplas):
         if isinstance(cuadrupla, Cuadrupla):
             x.add_row([i, cuadrupla.op, cuadrupla.arg1, cuadrupla.arg2, cuadrupla.res])
-        else:
-            print(cuadrupla)
+        
     return x
     

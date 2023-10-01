@@ -150,7 +150,7 @@ def codigoTresDirecciones(lexer, tree):
     custom_print(terminal, escribir_cuadruplas(visitor.cuadruplas))
 
 #Llamar a la función para el scanner
-parser = Parser('./archivos/entrada8.txt')
+parser = Parser('./archivos/entrada5.txt')
 
 # app = interfaz.Interfaz(Parser)
 # app.mainloop()

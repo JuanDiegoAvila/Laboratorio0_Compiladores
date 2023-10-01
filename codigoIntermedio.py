@@ -1,5 +1,6 @@
 from antlr4.tree.Tree import TerminalNode
 from graphviz import Digraph
+from antlr4.Token import CommonToken
 from dist.yalpParser import yalpParser
 from dist.yalpLexer import yalpLexer
 from dist.yalpVisitor import yalpVisitor
@@ -22,6 +23,7 @@ class codigoVisitor(yalpVisitor):
         self.stack = False
         self.heap = False
         self.in_main = False
+        self.stack_created = False
 
     def getLabel(self):
         self.labels += 1
@@ -68,7 +70,7 @@ class codigoVisitor(yalpVisitor):
             if isinstance(token, Cuadrupla):
                 output.append(token)
 
-            elif token.isnumeric() or token.isalpha():  # Operand
+            elif token.isnumeric() or token.isalpha() or token=='""':  # Operand
                 output.append(token)
 
             elif token in precedence:  # Operator
@@ -112,6 +114,9 @@ class codigoVisitor(yalpVisitor):
         for feature_ctx in ctx.feature():
             self.visit(feature_ctx)
 
+        if class_name == "Main":
+            self.in_main = False
+
         self.tablaSimbolos.get_exitScope()
         
     def visitFeature(self, ctx: yalpParser.FeatureContext):
@@ -145,6 +150,12 @@ class codigoVisitor(yalpVisitor):
 
             # if self.in_main:
             self.cuadruplas.extend(create_function(feature_name, params, visited))
+
+            if self.stack_created: 
+                temp = Cuadrupla("stack_pop", None, None, None)
+                self.cuadruplas.append(temp)
+
+                self.stack_created = False
             # else:
             #     self.cuadruplas.extend(create_heap_function(feature_name, params, visited))
 
@@ -257,14 +268,64 @@ class codigoVisitor(yalpVisitor):
         elif ctx.LET():
             
             self.tablaSimbolos.get_enterScope()
+            Cuadruplas = []
             
             visited_let = self.handle_context(ctx)
-            tipo = visited_let[-1][0]
+            # tipo = visited_let[-1][0]
+
+            variables = []
+            # # sin la primera posicion ni las ultimas dos
+            # variables = visited_let[1:-2]
+            in_ = False
+            for i in visited_let:
+                if i == "in":
+                    in_ = True
+                
+                else:
+                    if not in_ and i != "let":
+                        variables.append(i)
+
+
+            if '<-' in variables:
+                pass 
             
+            else:
+                variables = ''.join(variables).split(',')
+                
+                definido = False
+
+                for variable in variables:
+                    temp = variable.split(':')
+                    variable = temp[0]
+                    tipo = temp[1]
+
+                    token = self.tablaSimbolos.get_simbolo(variable)
+                    # print(token)
+                    # input()
+                    if token.in_function:
+
+                        if not definido:
+                            temp = Cuadrupla("stack_register_init", None, None, None)
+                            Cuadruplas.append(temp)
+                            definido = True
+                            self.stack_created = True
+
+                        cuadrupla = stack_variable(token.lexema)
+                        Cuadruplas.append(cuadrupla)
+
+            in_ = False
+            for i in visited_let:
+
+                if i == "in":
+                    in_ = True
+                else:
+                    if in_:
+                        Cuadruplas.append(i)
+
             
             self.tablaSimbolos.get_exitScope()
 
-            return visited_let
+            return Cuadruplas
 
         elif ctx.DOT():
             visited_dot = self.handle_context(ctx)
@@ -307,10 +368,18 @@ class codigoVisitor(yalpVisitor):
 
         elif ctx.ID() and ctx.LPAR():
             visited_func = self.handle_context(ctx)
+
             
             func_name = visited_func[0]
+            parametros = []
 
-            return visited_func
+
+            if len(visited_func) > 2:
+                parametros = visited_func[2:]
+                
+            cuadruplas = create_function_call(None, func_name, parametros)
+            self.cuadruplas.append(cuadruplas)
+            return cuadruplas
             
            
         elif ctx.LPAR() and not ctx.ID():
@@ -359,12 +428,11 @@ class codigoVisitor(yalpVisitor):
         elif ctx.LT() or ctx.RT() or ctx.LE() or ctx.RE() or ctx.EQUALS() or ctx.PLUS() or ctx.TIMES() or ctx.MINUS() or ctx.DIVIDE():
     
             visited_op = self.handle_context(ctx)
-            
+
             # print(visited_op, 'visited op')
             temp_counter = 1
             operacion_postfix = self.toPostfix(visited_op)
             # print(operacion_postfix, 'operacion postfix')
-
             cuadruplas = []
 
             stack = []
@@ -376,10 +444,11 @@ class codigoVisitor(yalpVisitor):
                     while token.res == f't{temp_counter}':
                         temp_counter += 1
 
-                elif token.isnumeric() or token.isalpha():
+                elif token.isnumeric() or token.isalpha() or token=='""':
                     stack.append(token)
 
                 else:
+                   
                     arg2 = stack.pop()
                     arg1 = stack.pop()
                     temp = f't{temp_counter}'
@@ -390,20 +459,24 @@ class codigoVisitor(yalpVisitor):
 
                     if type_arg1 is None:
                         type_arg1 = arg1
-                        primero = [arg1, True]
-                        print(arg1, 'arg1')
+                        if isinstance(arg1, CommonToken):
+                            print(type_arg1.lexema)
+                            primero = [arg1, False, type_arg1.in_function]
+                        else:
+                            primero = [arg1, True, False]
 
                     else:
-                        primero = [arg1, type_arg1.parametro]
+                        primero = [arg1, type_arg1.parametro, type_arg1.in_function]
 
                     if type_arg2 is None:
                         type_arg2 = arg2
-
-                        segundo = [arg2, True]
-                        print(arg2, 'arg2')
+                        if isinstance(arg2, CommonToken):
+                            segundo = [arg2, False, type_arg2.in_function]
+                        else:
+                            segundo = [arg2, True, False]
 
                     else:
-                        segundo = [arg2, type_arg2.parametro]
+                        segundo = [arg2, type_arg2.parametro, type_arg2.in_function]
 
                     # print(type_arg1.lexema, type_arg1.tipo_token, type_arg1.parametro)
                     # print(type_arg2.lexema, type_arg2.tipo_token, type_arg2.parametro)
@@ -413,6 +486,8 @@ class codigoVisitor(yalpVisitor):
                     cuadruplas.extend(operacion(token, primero, segundo, temp, self.in_main))
                     
                     stack.append(temp)
+                
+            
 
             return cuadruplas
             
@@ -472,7 +547,7 @@ class codigoVisitor(yalpVisitor):
             if isinstance(child_ctx, TerminalNode):
                 token = self.visitTerminal(child_ctx, formal)
 
-                if token not in ['{', '}', '(', ')', ';', ','] and not formal:
+                if token not in ['{', '}', '(', ')', ';'] and not formal:
                     visited.append(token)
             
             else:
