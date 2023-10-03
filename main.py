@@ -82,8 +82,10 @@ class Scanner (object):
         self.stream.fill()
 
 class Parser (object):
-    def __init__(self, input_file):
+    def __init__(self, input_file, interfaz):
         self.scanner = Scanner(input_file)
+        
+        self.app = interfaz
         self.parseTokens()
 
     def parseTokens(self):
@@ -103,9 +105,9 @@ class Parser (object):
             errors = True
 
 
-        analisis_semantico(tree, self.scanner.lexer.tablaSimbolos, self.scanner.lexer, errors)
+        analisis_semantico(tree, self.scanner.lexer.tablaSimbolos, self.scanner.lexer, errors, self.app)
 
-def analisis_semantico(tree, tablaSimbolos, lexer, errors):
+def analisis_semantico(tree, tablaSimbolos, lexer, errors, app):
     visitor = TreeVisitor(lexer)
 
 
@@ -132,10 +134,10 @@ def analisis_semantico(tree, tablaSimbolos, lexer, errors):
     
     if not errors:
         # custom_print(terminal, semanticVisitor.tablaSimbolos.print_tabla())
-        codigoTresDirecciones(lexer, tree)
+        codigoTresDirecciones(lexer, tree, app)
 
 
-def codigoTresDirecciones(lexer, tree):
+def codigoTresDirecciones(lexer, tree, app):
     visitor = codigoVisitor(lexer)
     visitor.visit(tree)
 
@@ -143,14 +145,15 @@ def codigoTresDirecciones(lexer, tree):
     # visitor.tablaSimbolos.print_tabla()
 
     
-    custom_print(terminal, "------------------")
-    custom_print(terminal, "Cuadruplas")
-    custom_print(terminal, "------------------")
+    # custom_print(terminal, "------------------")
+    # custom_print(terminal, "Cuadruplas")
+    # custom_print(terminal, "------------------")
 
-    custom_print(terminal, escribir_cuadruplas(visitor.cuadruplas))
+    # custom_print(terminal, escribir_cuadruplas(visitor.cuadruplas))
+    app.update_TDC(escribir_cuadruplas(visitor.cuadruplas))
 
 #Llamar a la función para el scanner
-parser = Parser('./archivos/entrada5.txt')
+# parser = Parser('./archivos/entrada5.txt')
 
-# app = interfaz.Interfaz(Parser)
-# app.mainloop()
+app = interfaz.Interfaz(Parser)
+app.mainloop()

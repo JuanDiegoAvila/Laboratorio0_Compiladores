@@ -152,10 +152,40 @@ class codigoVisitor(yalpVisitor):
             self.cuadruplas.extend(create_function(feature_name, params, visited))
 
             if self.stack_created: 
+                retorno = False
+                for i in self.cuadruplas:
+                    if isinstance(i, list):
+                        for j in i:
+                            if j.op == 'return_let' or j.op == 'return_func':
+                                retorno = True
+                    else:
+                        if i.op == 'return_let' or i.op == 'return_func':
+                            retorno = True
+
                 temp = Cuadrupla("stack_pop", None, None, None)
                 self.cuadruplas.append(temp)
 
+                if not retorno:
+                    temp = Cuadrupla("return_func", None, None, self.cuadruplas[-1].res)
+                    self.cuadruplas.append(temp)
+
                 self.stack_created = False
+
+            else:
+                retorno = False
+                for i in self.cuadruplas:
+                    if isinstance(i, list):
+                        for j in i:
+                            if j.op == 'return_let' or j.op == 'return_func':
+                                retorno = True
+                    else:
+                        if i.op == 'return_let' or i.op == 'return_func':
+                            retorno = True
+
+                if not retorno:
+                    temp = Cuadrupla("return_func", None, None, self.cuadruplas[-1].res)
+                    self.cuadruplas.append(temp)
+
             # else:
             #     self.cuadruplas.extend(create_heap_function(feature_name, params, visited))
 
@@ -322,6 +352,24 @@ class codigoVisitor(yalpVisitor):
                     if in_:
                         Cuadruplas.append(i)
 
+
+            ya_retorno = False
+            for i in Cuadruplas:
+                if isinstance(i, Cuadrupla):
+                    if "return_let" == i.op:
+                        ya_retorno = True
+
+
+            if not ya_retorno:
+                retorno = None
+                if Cuadruplas[-1].res == None:
+                    retorno = Cuadruplas[-1].arg1
+
+                else:
+                    retorno = Cuadruplas[-1].res
+
+                temp = Cuadrupla("return_let", None, None, retorno)
+                Cuadruplas.append(temp)
             
             self.tablaSimbolos.get_exitScope()
 
@@ -331,8 +379,6 @@ class codigoVisitor(yalpVisitor):
             visited_dot = self.handle_context(ctx)
             inherit_visited = []
 
-            print(visited_dot)
-            input()
             if ctx.AT():
 
                 variable = visited_dot[0][0]
@@ -415,9 +461,14 @@ class codigoVisitor(yalpVisitor):
         elif ctx.ID() and ctx.ASSIGN() and not ctx.LET():
             visited = self.handle_context(ctx)
             cuadruplas = []
+
+            # print(visited, ' visited assign')
+            # input()
+
             if isinstance(visited[2], Cuadrupla):
+                visited[2].res = visited[0]
                 cuadruplas.append(visited[2])
-                cuadruplas.append(asignacion(visited[2].res, visited[0]))
+                # cuadruplas.append(asignacion(visited[2].res, visited[0]))
             
             else:
                 cuadruplas.append(asignacion(visited[2], visited[0]))
