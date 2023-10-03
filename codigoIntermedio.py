@@ -331,7 +331,8 @@ class codigoVisitor(yalpVisitor):
             visited_dot = self.handle_context(ctx)
             inherit_visited = []
 
-
+            print(visited_dot)
+            input()
             if ctx.AT():
 
                 variable = visited_dot[0][0]
@@ -344,9 +345,9 @@ class codigoVisitor(yalpVisitor):
                 else:
                     parametros = []
 
-                # cuadruplas = create_inherit_call(variable, clase, funcion, parametros)
+                cuadruplas = create_inherit_call(variable, clase, funcion, parametros)
 
-                # return cuadruplas
+                return cuadruplas
 
 
             variable = visited_dot[0]

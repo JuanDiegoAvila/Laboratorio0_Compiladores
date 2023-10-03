@@ -16,6 +16,7 @@ class Cuadrupla(object):
 def asignacion(arg1, res):
     return Cuadrupla("=", arg1, None, res)
 
+
 def operacion(op, arg1, arg2, res, in_main):
     if in_main:
         return [Cuadrupla(op, arg1[0], arg2[0], res)]
@@ -123,6 +124,13 @@ def create_function_call(variable, name, params):
     Cuadruplas.append(temp)
 
     return Cuadruplas
+
+def create_inherit_call(variable, clase, funcion, parametros):
+    cuadruplas = [Cuadrupla('class_call', clase, None, None)]
+    cuadruplas.extend(create_function_call(variable, funcion, parametros))
+    
+    return cuadruplas
+    
 
 # def create_heap_function(name, params, expr):
 #     Cuadruplas = []
