@@ -2,7 +2,7 @@ grammar yalp;
 
 /* GRAMATICA */
 
-program: (class SEMICOLON)+;
+program: (class SEMICOLON)+ EOF;
 
 class: CLASS TYPE (INHERITS TYPE)? LBRACE (feature SEMICOLON)* RBRACE ;
 

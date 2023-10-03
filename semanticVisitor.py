@@ -46,18 +46,25 @@ class SemanticVisitor(yalpVisitor):
                 values = list(simbolos_clase.values())
                 index = values.index(value)
                 if value.tipo_token in value.nativesizes:
-                    
-                    parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
-                    value.size = value.nativesizes[value.tipo_token]
-                    new_offset = values[index-1].offset + values[index-1].size
-                    value.offset = new_offset
+                    clases = parent_scope.symbols.keys()
+                    if value.tipo_token in clases and class_name in clases:
+                        parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
+                        value.size = value.nativesizes[value.tipo_token]
+                        new_offset = values[index-1].offset + values[index-1].size
+                        value.offset = new_offset
+                    else:
+                        self.errors.append(f'Error semántico: No se logró encontrar la clase {value.tipo_token} en: {ctx.start.line}:{ctx.start.column}')
                     
 
                 else:
-                    value.size = parent_scope.symbols[value.tipo_token].size
-                    parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
-                    new_offset = values[index-1].offset + values[index-1].size
-                    value.offset = new_offset
+                    clases = parent_scope.symbols.keys()
+                    if value.tipo_token in clases and class_name in clases:
+                        value.size = parent_scope.symbols[value.tipo_token].size
+                        parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
+                        new_offset = values[index-1].offset + values[index-1].size
+                        value.offset = new_offset
+                    else:
+                        self.errors.append(f'Error semántico: No se logró encontrar la clase {value.tipo_token} en: {ctx.start.line}:{ctx.start.column}')
 
 
         
