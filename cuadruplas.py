@@ -194,7 +194,7 @@ def create_function(name, params, expr):
         if isinstance(i, Cuadrupla):
             Cuadruplas.append(i)
         else:
-            Cuadruplas.append(Cuadrupla("return_func", i, None, None))
+            Cuadruplas.append(Cuadrupla(None, i, None, i))
         
     return Cuadruplas
 

@@ -95,6 +95,10 @@ class Interfaz(tk.Tk):
         self.terminal.tag_configure("error", foreground="red")
         self.terminal.tag_configure("success", foreground="green")
 
+        self.TDC_visible = False  # Variable para rastrear la visibilidad del tercer espacio
+
+        self.TDC = Text(self.paned_window, bg="white", fg="black")  # Nuevo espacio de texto
+        self.TDC.config(state=tk.DISABLED)  # Desactivado por defecto
 
         set_global_terminal(self.terminal)
 
@@ -107,7 +111,28 @@ class Interfaz(tk.Tk):
         self.clean_terminal_button = Button(self.buttons_frame, text="Limpiar Terminal", command=self.clean_terminal)
         self.clean_terminal_button.grid(row=0, column=1, padx=5)
 
+        self.show_TDC_button = Button(self.buttons_frame, text="Mostrar Codigo de Tres direcciones", command=self.toggle_TDC)
+        self.show_TDC_button.grid(row=0, column=2, padx=5)  # Nuevo botón para mostrar/ocultar el tercer espacio
+
         self.is_terminal_visible = False
+
+    def toggle_TDC(self):
+        if self.TDC_visible:
+            self.paned_window.forget(self.TDC)
+            self.show_TDC_button.config(text="Mostrar Codigo de Tres direcciones")
+        else:
+            self.paned_window.add(self.TDC, width=300)
+            self.show_TDC_button.config(text="Esconder Codigo de Tres direcciones")
+        
+        self.TDC_visible = not self.TDC_visible
+
+    def update_TDC(self, content):
+        self.TDC.config(state=tk.NORMAL)
+        self.TDC.delete(1.0, tk.END)
+        self.TDC.insert(tk.END, content)
+        self.TDC.config(state=tk.DISABLED)
+
+        self.toggle_TDC()
 
     def update_line_numbers(self):
         line_count = self.area_texto.index(tk.END).split('.')[0]
@@ -143,7 +168,7 @@ class Interfaz(tk.Tk):
             file.write(self.area_texto.get(1.0, tk.END))
         
         if self.current_file_path:
-            parser = self.Parser(self.current_file_path)
+            parser = self.Parser(self.current_file_path, self)
         else:
             self.guardar_archivo()
 

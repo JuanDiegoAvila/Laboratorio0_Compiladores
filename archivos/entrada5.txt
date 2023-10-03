@@ -18,8 +18,10 @@ class Adios inherits Hola{
     metodo1(): String {
        let h : String, r: String in 
         {
+            "";
             x+h;
-            prueba2();
+            h <- prueba2();
+            
         }
 
     };
@@ -39,7 +41,7 @@ class Main {
     x: String ;
     valor : Int;
     y: Boolean ;
-    z: Adios;
+    z: Adios <- new Adios;
 
     prueba: Adios <- new Adios;
 
@@ -55,6 +57,10 @@ class Main {
         } FI
     };
 };
+
+
+
+
 
 
 
