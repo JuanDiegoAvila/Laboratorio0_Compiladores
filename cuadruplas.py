@@ -110,7 +110,7 @@ def create_if(if_expr, then_expr, else_expr, CI):
     return Cuadruplas
 
 
-def create_function_call(variable, name, params):
+def create_function_call(clase, variable, name, params):
     # asignar primero los parametros
     Cuadruplas = []
     parametros = 0
@@ -120,16 +120,11 @@ def create_function_call(variable, name, params):
         Cuadruplas.append(temp)
 
     # ULTIMA POSICION PARA EL VALOR DE RETORNO
-    temp = Cuadrupla("call", name, parametros, variable)
+    temp = Cuadrupla("call", name+"."+clase, parametros, variable)
     Cuadruplas.append(temp)
 
     return Cuadruplas
 
-def create_inherit_call(variable, clase, funcion, parametros):
-    cuadruplas = [Cuadrupla('class_call', clase, None, None)]
-    cuadruplas.extend(create_function_call(variable, funcion, parametros))
-    
-    return cuadruplas
     
 
 # def create_heap_function(name, params, expr):

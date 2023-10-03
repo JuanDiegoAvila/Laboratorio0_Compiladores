@@ -331,8 +331,7 @@ class codigoVisitor(yalpVisitor):
             visited_dot = self.handle_context(ctx)
             inherit_visited = []
 
-            print(visited_dot)
-            input()
+
             if ctx.AT():
 
                 variable = visited_dot[0][0]
@@ -345,7 +344,7 @@ class codigoVisitor(yalpVisitor):
                 else:
                     parametros = []
 
-                cuadruplas = create_inherit_call(variable, clase, funcion, parametros)
+                cuadruplas = create_function_call(clase, variable, funcion, parametros)
 
                 return cuadruplas
 
@@ -354,11 +353,15 @@ class codigoVisitor(yalpVisitor):
             function = visited_dot[2]
             parametros = []
             
+            type_variable = self.tablaSimbolos.get_simbolo(variable)
+            token = type_variable.tipo_token
+
+            
             if len(visited_dot) > 3:
                 # Apartir de la posicion 3 en adelante son los parametros
                 parametros = visited_dot[3:]
 
-            cuadruplas = create_function_call(variable, function, parametros)
+            cuadruplas = create_function_call(token, variable, function, parametros)
             return cuadruplas
 
         elif ctx.ISVOID():
@@ -369,16 +372,22 @@ class codigoVisitor(yalpVisitor):
 
         elif ctx.ID() and ctx.LPAR():
             visited_func = self.handle_context(ctx)
-
+            print(visited_func)
             
             func_name = visited_func[0]
             parametros = []
-
+            
+            func_symbol = self.tablaSimbolos.get_simbolo(func_name)
+            class_scope = func_symbol.scope
+            global_scope = class_scope.parent
+            index = global_scope.children.index(class_scope)
+            classes = list(global_scope.symbols.keys())
+            class_name = classes[index]
 
             if len(visited_func) > 2:
                 parametros = visited_func[2:]
                 
-            cuadruplas = create_function_call(None, func_name, parametros)
+            cuadruplas = create_function_call(class_name, None, func_name, parametros)
             self.cuadruplas.append(cuadruplas)
             return cuadruplas
             

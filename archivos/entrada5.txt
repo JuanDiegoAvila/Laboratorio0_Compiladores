@@ -45,7 +45,7 @@ class Main {
 
     main() : Object {
         if ( x = "" ) then {
-            z @Hola.metodo1();
+            z.metodo1();
         } else {
             if (true) then {
                 false;
