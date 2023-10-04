@@ -18,37 +18,37 @@ def asignacion(arg1, res):
 
 
 def operacion(op, arg1, arg2, res, in_main):
-    if in_main:
-        return [Cuadrupla(op, arg1[0], arg2[0], res)]
+    # if in_main:
+    #     return [Cuadrupla(op, arg1[0], arg2[0], res)]
 
+    # else:
+    Cuadruplas = []
+    
+    if not arg1[2] or not arg2[2]:
+        current_instance = Cuadrupla("current_heap_instance", None, None, "t1")
+        Cuadruplas.append(current_instance)
+
+    if not arg1[1]:
+        if not arg1[2]:
+            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg1[0]}]', None, "t2")
+            primero = temp
+        else:
+            temp = Cuadrupla("stack_assign", f'stack[offset{arg1[0]}]', None, "t2")
+            primero = temp
     else:
-        Cuadruplas = []
-        
-        if not arg1[2] or not arg2[2]:
-            current_instance = Cuadrupla("current_heap_instance", None, None, "t1")
-            Cuadruplas.append(current_instance)
-
-        if not arg1[1]:
-            if not arg1[2]:
-                temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg1[0]}]', None, "t2")
-                primero = temp
-            else:
-                temp = Cuadrupla("stack_assign", f'stack[offset{arg1[0]}]', None, "t2")
-                primero = temp
+        primero = Cuadrupla("=", arg1[0], None, "t2")
+    
+    if not arg2[1]:
+        if not arg2[2]:
+            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg2[0]}]', None, "t3")
+            segundo = temp
         else:
-            primero = Cuadrupla("=", arg1[0], None, "t2")
-        
-        if not arg2[1]:
-            if not arg2[2]:
-                temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg2[0]}]', None, "t3")
-                segundo = temp
-            else:
-                temp = Cuadrupla("stack_assign", f'stack[offset{arg2[0]}]', None, "t3")
-                segundo = temp
-        else:
-            segundo = Cuadrupla("=", arg2[0], None, "t3")
+            temp = Cuadrupla("stack_assign", f'stack[offset{arg2[0]}]', None, "t3")
+            segundo = temp
+    else:
+        segundo = Cuadrupla("=", arg2[0], None, "t3")
 
-        temp = Cuadrupla(op, "t2", "t3", "t4")
+    temp = Cuadrupla(op, "t2", "t3", "t4")
 
 
         # if not arg2[1]:
@@ -58,13 +58,13 @@ def operacion(op, arg1, arg2, res, in_main):
         # elif not arg1[1] and arg2[1]:
         #     update_instance = Cuadrupla("update_instance", "t1", f"offest{arg1[0]}", "current_instance")
         #     return [current_instance, primero, segundo, temp, update_instance]
-        Cuadruplas.extend([primero, segundo, temp])
+    Cuadruplas.extend([primero, segundo, temp])
 
-        return Cuadruplas
+    return Cuadruplas
 
         
-def stack_variable(arg1):
-    return Cuadrupla("stack_declaration", arg1, None, None)
+def stack_variable(arg1, tipo):
+    return Cuadrupla("stack_declaration", arg1, tipo, None)
 
 
 def Not(arg1, res):

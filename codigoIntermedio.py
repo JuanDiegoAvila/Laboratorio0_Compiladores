@@ -125,8 +125,10 @@ class codigoVisitor(yalpVisitor):
             v = self.visit(feature_ctx)
             func_symbol = self.tablaSimbolos.get_simbolo(v)
             if func_symbol.funcion==False:
-                if getSymbolClass(func_symbol) == class_name and class_name!="Main":
-                    self.cuadruplas.append(heap_variable(func_symbol.lexema, class_name))
+                if getSymbolClass(func_symbol) == class_name:
+                    self.cuadruplas.append(heap_variable(func_symbol.lexema, func_symbol.tipo_token))
+                # elif class_name=="Main":
+                #     self.cuadruplas.append(heap_variable(func_symbol.lexema, class_name))
             
         
 
@@ -335,32 +337,32 @@ class codigoVisitor(yalpVisitor):
                         variables.append(i)
 
 
-            if '<-' in variables:
-                pass 
+            # if '<-' in variables:
+            #     print(variables)
             
-            else:
-                variables = ''.join(variables).split(',')
-                
-                definido = False
+            # else:
+            variables = ''.join(variables).split(',')
+            
+            definido = False
 
-                for variable in variables:
-                    temp = variable.split(':')
-                    variable = temp[0]
-                    tipo = temp[1]
+            for variable in variables:
+                temp = variable.split(':')
+                variable = temp[0]
+                tipo = temp[1]
 
-                    token = self.tablaSimbolos.get_simbolo(variable)
-                    # print(token)
-                    # input()
-                    if token.in_function:
+                token = self.tablaSimbolos.get_simbolo(variable)
+                # print(token)
+                # input()
+                if token.in_function:
 
-                        if not definido:
-                            temp = Cuadrupla("stack_register_init", None, None, None)
-                            Cuadruplas.append(temp)
-                            definido = True
-                            self.stack_created = True
+                    if not definido:
+                        temp = Cuadrupla("stack_register_init", None, None, None)
+                        Cuadruplas.append(temp)
+                        definido = True
+                        self.stack_created = True
 
-                        cuadrupla = stack_variable(token.lexema)
-                        Cuadruplas.append(cuadrupla)
+                    cuadrupla = stack_variable(token.lexema, token.tipo_token)
+                    Cuadruplas.append(cuadrupla)
 
             in_ = False
             for i in visited_let:
@@ -419,9 +421,15 @@ class codigoVisitor(yalpVisitor):
             variable = visited_dot[0]
             function = visited_dot[2]
             parametros = []
-            
+            # print(variable)
             type_variable = self.tablaSimbolos.get_simbolo(variable)
-            token = type_variable.tipo_token
+
+            if None == type_variable:
+                # es nativo
+                token = variable
+            
+            else:
+                token = type_variable.tipo_token
 
             
             if len(visited_dot) > 3:
@@ -541,7 +549,7 @@ class codigoVisitor(yalpVisitor):
                         arg1 = None
                     else:
                         arg1 = stack.pop()
-                        
+
                     temp = f't{temp_counter}'
                     temp_counter += 1
 

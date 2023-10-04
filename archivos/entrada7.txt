@@ -18,7 +18,6 @@ class Main{
     main() : Object {
         
         if (true) then {
-            "".concat();
 
             isvoid 1;
             x.copy();
@@ -41,6 +40,10 @@ class Main{
         } FI
     };
 };
+
+
+
+
 
 
 
