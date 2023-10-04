@@ -279,6 +279,7 @@ class codigoVisitor(yalpVisitor):
             
 
             visited_while = self.handle_context(ctx)
+
             # visited_while = visited_while[1][0]
             # temp = visited_while
             while_expr = []
@@ -305,7 +306,7 @@ class codigoVisitor(yalpVisitor):
                     elif inLoop:
                         loop_expr.append(v)
 
-            cuadruplas = create_while(while_expr[0], loop_expr, self)
+            cuadruplas = create_while(while_expr, loop_expr, self)
             # self.cuadruplas.extend(cuadruplas)
 
             

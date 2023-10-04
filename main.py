@@ -142,18 +142,18 @@ def codigoTresDirecciones(lexer, tree, app):
     visitor.visit(tree)
 
     terminal = get_global_terminal()
-    visitor.tablaSimbolos.print_tabla()
+    # visitor.tablaSimbolos.print_tabla()
 
     
     # custom_print(terminal, "------------------")
     # custom_print(terminal, "Cuadruplas")
     # custom_print(terminal, "------------------")
 
-    # custom_print(terminal, escribir_cuadruplas(visitor.cuadruplas))
-    app.update_TDC(escribir_cuadruplas(visitor.cuadruplas))
+    custom_print(terminal, escribir_cuadruplas(visitor.cuadruplas))
+    # app.update_TDC(escribir_cuadruplas(visitor.cuadruplas))
 
 #Llamar a la función para el scanner
-# parser = Parser('./archivos/entrada5.txt',"a" )
+parser = Parser('./archivos/entrada6.txt',"a" )
 
-app = interfaz.Interfaz(Parser)
-app.mainloop()
+# app = interfaz.Interfaz(Parser)
+# app.mainloop()

@@ -22,6 +22,9 @@ def operacion(op, arg1, arg2, res, in_main):
     #     return [Cuadrupla(op, arg1[0], arg2[0], res)]
 
     # else:
+    if op == "=":
+        op = "=="
+        
     Cuadruplas = []
     
     if not arg1[2] or not arg2[2]:
@@ -210,8 +213,16 @@ def create_while(while_expr, loop_expr, CI):
     label_1 = Cuadrupla("label", None, None, label1)
     Cuadruplas.append(label_1)
 
+    if not isinstance(while_expr, list):
+        while_expr = [while_expr]
+
+    for i in while_expr:
+        if isinstance(i, Cuadrupla):
+            Cuadruplas.append(i)
+            # while_expr = while_expr.res
+
+    while_expr = while_expr[-1]
     if isinstance(while_expr, Cuadrupla):
-        Cuadruplas.append(while_expr)
         while_expr = while_expr.res
 
    
