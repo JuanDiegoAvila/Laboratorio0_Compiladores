@@ -125,7 +125,9 @@ def create_function_call(clase, variable, name, params):
 
     return Cuadruplas
 
-    
+
+def heap_variable(arg1, class_name):
+    return Cuadrupla("Heap_declaration", arg1, class_name, None)
 
 # def create_heap_function(name, params, expr):
 #     Cuadruplas = []

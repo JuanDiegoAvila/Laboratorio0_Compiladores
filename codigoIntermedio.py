@@ -101,6 +101,15 @@ class codigoVisitor(yalpVisitor):
 
     def visitClass(self, ctx: yalpParser.ClassContext):
         self.heap = True
+        
+        def getSymbolClass(func_symbol):
+            class_scope = func_symbol.scope
+            global_scope = class_scope.parent
+            index = global_scope.children.index(class_scope)
+            classes = list(global_scope.symbols.keys())
+            class_name = classes[index]
+            return class_name
+            
 
         class_name = ctx.TYPE()[0].getText()
 
@@ -111,8 +120,15 @@ class codigoVisitor(yalpVisitor):
             
         self.cuadruplas.append(create_class_label(class_name))
 
+        
         for feature_ctx in ctx.feature():
-            self.visit(feature_ctx)
+            v = self.visit(feature_ctx)
+            func_symbol = self.tablaSimbolos.get_simbolo(v)
+            if func_symbol.funcion==False:
+                if getSymbolClass(func_symbol) == class_name and class_name!="Main":
+                    self.cuadruplas.append(heap_variable(func_symbol.lexema, class_name))
+            
+        
 
         if class_name == "Main":
             self.in_main = False
@@ -120,6 +136,7 @@ class codigoVisitor(yalpVisitor):
         self.tablaSimbolos.get_exitScope()
         
     def visitFeature(self, ctx: yalpParser.FeatureContext):
+        
         token_type = "FUNCTION" if ctx.LPAR() else "ATTRIBUTE"
         feature_name = ctx.ID().getText()
         feature_type = ctx.TYPE().getText() if ctx.TYPE() else None
@@ -134,6 +151,7 @@ class codigoVisitor(yalpVisitor):
         visited = []
         if ctx.expr():
             visited = self.visit(ctx.expr())
+            
         
         
         if ctx.ASSIGN() and ctx.expr():
@@ -141,6 +159,7 @@ class codigoVisitor(yalpVisitor):
             assign = self.visit(ctx.expr())[0]
         
         params = []
+
         for formal_ctx in ctx.formal():
             parametros = self.visit(formal_ctx)
             params.append(parametros)
@@ -420,7 +439,6 @@ class codigoVisitor(yalpVisitor):
 
         elif ctx.ID() and ctx.LPAR():
             visited_func = self.handle_context(ctx)
-            print(visited_func)
             
             func_name = visited_func[0]
             parametros = []
