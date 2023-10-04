@@ -479,12 +479,17 @@ class codigoVisitor(yalpVisitor):
             return visited
 
             
-        elif ctx.DIAC():
+        # elif ctx.DIAC():
 
-            visited = self.handle_context(ctx)
+        #     visited = self.handle_context(ctx)
+        #     print(visited)
+        #     op = visited[0]
+        #     operador = visited[1]
 
+        #     # cuadrupla = operacion(op, operador, None, None, self.in_main)
+        #     # return [cuadrupla]
 
-            return visited
+        #     return visited
              
 
         elif ctx.ID() and ctx.ASSIGN() and not ctx.LET():
@@ -506,7 +511,7 @@ class codigoVisitor(yalpVisitor):
             return cuadruplas
             
         
-        elif ctx.LT() or ctx.RT() or ctx.LE() or ctx.RE() or ctx.EQUALS() or ctx.PLUS() or ctx.TIMES() or ctx.MINUS() or ctx.DIVIDE():
+        elif ctx.LT() or ctx.RT() or ctx.LE() or ctx.RE() or ctx.EQUALS() or ctx.PLUS() or ctx.TIMES() or ctx.MINUS() or ctx.DIVIDE() or ctx.DIAC():
     
             visited_op = self.handle_context(ctx)
 
@@ -531,7 +536,12 @@ class codigoVisitor(yalpVisitor):
                 else:
                    
                     arg2 = stack.pop()
-                    arg1 = stack.pop()
+
+                    if len(stack) == 0:
+                        arg1 = None
+                    else:
+                        arg1 = stack.pop()
+                        
                     temp = f't{temp_counter}'
                     temp_counter += 1
 
