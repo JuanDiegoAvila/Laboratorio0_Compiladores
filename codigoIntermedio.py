@@ -437,6 +437,13 @@ class codigoVisitor(yalpVisitor):
                 # Apartir de la posicion 3 en adelante son los parametros
                 parametros = visited_dot[3:]
 
+            temp = []
+            for parametro in parametros:
+                if parametro != ",":
+                    temp.append(parametro)
+
+            parametros = temp
+
             cuadruplas = create_function_call(token, variable, function, parametros)
             return cuadruplas
 

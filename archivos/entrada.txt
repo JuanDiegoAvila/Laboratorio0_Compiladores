@@ -1,15 +1,24 @@
 class Prueba {
-    hola (x:Int) : Int {
-        1
+    y: Int;
+    z: Int;
+
+    hola (x:Int, q: Int, z:Int) : Int {
+        {
+            z <- 6;
+            y <- 5;
+            z - y + y;
+        }
     } ; 
 };
 
 class Main { 
     prueba: Prueba;
     main() : Int { 
-        prueba.hola(1)
+        prueba.hola(1, 2, 3)
     } ; 
 }; 
+
+
 
 
 
