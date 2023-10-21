@@ -5,10 +5,10 @@ num2: .word 10
 .text
 .globl main
 main:
-    la $a0, $40
+    la $a0, num1
     lw $a0, 0($a0)
 
-    la $a1, $10
+    la $a1, num2
     lw $a1, 0($a1)
 
     jal sum

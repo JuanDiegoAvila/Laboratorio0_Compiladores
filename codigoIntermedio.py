@@ -543,7 +543,7 @@ class codigoVisitor(yalpVisitor):
                     cuadruplas.append(token)
                     stack.append(token.res)
 
-                    while token.res == f't{temp_counter}':
+                    while token.res == f'a{temp_counter}':
                         temp_counter += 1
 
                 elif token.isnumeric() or token.isalpha() or token=='""':
@@ -558,7 +558,7 @@ class codigoVisitor(yalpVisitor):
                     else:
                         arg1 = stack.pop()
 
-                    temp = f't{temp_counter}'
+                    temp = f'a{temp_counter}'
                     temp_counter += 1
 
                     type_arg1 = self.tablaSimbolos.get_simbolo(arg1)

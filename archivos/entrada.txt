@@ -16,7 +16,12 @@ class Main {
     main() : Int { 
         prueba.hola(1, 2, 3)
     } ; 
+
+    otra() : Int {
+        5 + 5
+    } ;
 }; 
+
 
 
 

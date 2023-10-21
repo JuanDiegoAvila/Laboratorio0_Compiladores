@@ -28,30 +28,30 @@ def operacion(op, arg1, arg2, res, in_main):
     Cuadruplas = []
     
     if not arg1[2] or not arg2[2]:
-        current_instance = Cuadrupla("current_heap_instance", None, None, "t1")
+        current_instance = Cuadrupla("current_heap_instance", None, None, "a1")
         Cuadruplas.append(current_instance)
 
     if not arg1[1]:
         if not arg1[2]:
-            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg1[0]}]', None, "t2")
+            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg1[0]}]', None, "a2")
             primero = temp
         else:
-            temp = Cuadrupla("stack_assign", f'stack[offset{arg1[0]}]', None, "t2")
+            temp = Cuadrupla("stack_assign", f'stack[offset{arg1[0]}]', None, "a2")
             primero = temp
     else:
-        primero = Cuadrupla("=", arg1[0], None, "t2")
+        primero = Cuadrupla("=", arg1[0], None, "a2")
     
     if not arg2[1]:
         if not arg2[2]:
-            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg2[0]}]', None, "t3")
+            temp = Cuadrupla("heap_assign", f'heap[t1 + offset{arg2[0]}]', None, "a3")
             segundo = temp
         else:
-            temp = Cuadrupla("stack_assign", f'stack[offset{arg2[0]}]', None, "t3")
+            temp = Cuadrupla("stack_assign", f'stack[offset{arg2[0]}]', None, "a3")
             segundo = temp
     else:
-        segundo = Cuadrupla("=", arg2[0], None, "t3")
+        segundo = Cuadrupla("=", arg2[0], None, "a3")
 
-    temp = Cuadrupla(op, "t2", "t3", "t4")
+    temp = Cuadrupla(op, "a2", "a3", "a4")
 
 
         # if not arg2[1]:
