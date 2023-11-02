@@ -23,6 +23,7 @@ class codigoVisitor(yalpVisitor):
         self.stack = False
         self.heap = False
         self.in_main = False
+        self.actual_class = None
         self.stack_created = False
 
     def getLabel(self):
@@ -112,6 +113,7 @@ class codigoVisitor(yalpVisitor):
             
 
         class_name = ctx.TYPE()[0].getText()
+        self.actual_class = class_name
 
         if class_name == "Main":
             self.in_main = True
@@ -126,7 +128,7 @@ class codigoVisitor(yalpVisitor):
             func_symbol = self.tablaSimbolos.get_simbolo(v)
             if func_symbol.funcion==False:
                 if getSymbolClass(func_symbol) == class_name:
-                    self.cuadruplas.append(heap_variable(func_symbol.lexema, func_symbol.tipo_token))
+                    self.cuadruplas.extend(heap_variable(func_symbol.lexema, func_symbol.tipo_token, func_symbol.size))
                 # elif class_name=="Main":
                 #     self.cuadruplas.append(heap_variable(func_symbol.lexema, class_name))
             
@@ -169,8 +171,10 @@ class codigoVisitor(yalpVisitor):
         if token_type == "FUNCTION":
             self.tablaSimbolos.get_exitScope()
 
+            clase = self.tablaSimbolos.get_simbolo(self.actual_class)
+
             # if self.in_main:
-            self.cuadruplas.extend(create_function(feature_name, params, visited))
+            self.cuadruplas.extend(create_function(feature_name, params, visited, clase.lexema))
 
             if self.stack_created: 
                 retorno = False
@@ -515,13 +519,20 @@ class codigoVisitor(yalpVisitor):
             # print(visited, ' visited assign')
             # input()
 
+
+
             if isinstance(visited[2], Cuadrupla):
                 visited[2].res = visited[0]
                 cuadruplas.append(visited[2])
                 # cuadruplas.append(asignacion(visited[2].res, visited[0]))
             
             else:
-                cuadruplas.append(asignacion(visited[2], visited[0]))
+                # print(visited[0], ' visited assign')
+                res = self.tablaSimbolos.get_simbolo(visited[0])
+
+                # print(arg1, 'arg1')
+
+                cuadruplas.append(asignacion(visited[2], visited[0], res.size))
             # cuadrupla = asignacion(visited[2], visited[0])
 
             return cuadruplas
@@ -568,22 +579,23 @@ class codigoVisitor(yalpVisitor):
                         type_arg1 = arg1
                         if isinstance(arg1, CommonToken):
                             print(type_arg1.lexema)
-                            primero = [arg1, False, type_arg1.in_function]
+                            primero = [arg1, False, type_arg1.in_function, type_arg1.size]
                         else:
-                            primero = [arg1, True, False]
+                            primero = [arg1, True, False, None]
 
                     else:
-                        primero = [arg1, type_arg1.parametro, type_arg1.in_function]
+
+                        primero = [arg1, type_arg1.parametro, type_arg1.in_function, type_arg1.size]
 
                     if type_arg2 is None:
                         type_arg2 = arg2
                         if isinstance(arg2, CommonToken):
-                            segundo = [arg2, False, type_arg2.in_function]
+                            segundo = [arg2, False, type_arg2.in_function, type_arg2.size]
                         else:
-                            segundo = [arg2, True, False]
+                            segundo = [arg2, True, False, None]
 
                     else:
-                        segundo = [arg2, type_arg2.parametro, type_arg2.in_function]
+                        segundo = [arg2, type_arg2.parametro, type_arg2.in_function, type_arg2.size]
 
                     # print(type_arg1.lexema, type_arg1.tipo_token, type_arg1.parametro)
                     # print(type_arg2.lexema, type_arg2.tipo_token, type_arg2.parametro)

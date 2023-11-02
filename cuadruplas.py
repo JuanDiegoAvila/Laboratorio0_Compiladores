@@ -13,8 +13,13 @@ class Cuadrupla(object):
     def __repr__(self):
         return str(self)
     
-def asignacion(arg1, res):
-    return Cuadrupla("=", arg1, None, res)
+    def copy(self):
+        return Cuadrupla(self.op, self.arg1, self.arg2, self.res)
+    
+    
+    
+def asignacion(arg1, res, size):
+    return Cuadrupla("=", arg1, size, res)
 
 
 def operacion(op, arg1, arg2, res, in_main):
@@ -39,7 +44,7 @@ def operacion(op, arg1, arg2, res, in_main):
             temp = Cuadrupla("stack_assign", f'stack[offset{arg1[0]}]', None, "a2")
             primero = temp
     else:
-        primero = Cuadrupla("=", arg1[0], None, "a2")
+        primero = Cuadrupla("=", arg1[0], arg1[3], "a2")
     
     if not arg2[1]:
         if not arg2[2]:
@@ -49,7 +54,7 @@ def operacion(op, arg1, arg2, res, in_main):
             temp = Cuadrupla("stack_assign", f'stack[offset{arg2[0]}]', None, "a3")
             segundo = temp
     else:
-        segundo = Cuadrupla("=", arg2[0], None, "a3")
+        segundo = Cuadrupla("=", arg2[0], arg2[3], "a3")
 
     temp = Cuadrupla(op, "a2", "a3", "a4")
 
@@ -123,14 +128,16 @@ def create_function_call(clase, variable, name, params):
         Cuadruplas.append(temp)
 
     # ULTIMA POSICION PARA EL VALOR DE RETORNO
-    temp = Cuadrupla("call", name+"."+clase, parametros, variable)
+    temp = Cuadrupla("call", name+"_"+clase, parametros, variable)
     Cuadruplas.append(temp)
 
     return Cuadruplas
 
 
-def heap_variable(arg1, class_name):
-    return Cuadrupla("Heap_declaration", arg1, class_name, None)
+def heap_variable(arg1, class_name, espacio):
+    # guardar_espacio = Cuadrupla("maloc", arg1, , None)
+    declaracion = Cuadrupla("heap_declaration", arg1, class_name, espacio)
+    return [ declaracion]
 
 # def create_heap_function(name, params, expr):
 #     Cuadruplas = []
@@ -184,10 +191,17 @@ def heap_variable(arg1, class_name):
 def heap_assign(arg1, res):
     return Cuadrupla("heap_assign", arg1, None, res)
 
-def create_function(name, params, expr):
+def create_function(name, params, expr, clase):
     Cuadruplas = []
 
-    inicio = Cuadrupla("func", name, None, None)
+    if clase == "Main" and name == "main":
+        llamada = Cuadrupla("call", "Main_main", 0, None)
+        salir = Cuadrupla("exit", None, None, None)
+
+        Cuadruplas.append(llamada)
+        Cuadruplas.append(salir)
+
+    inicio = Cuadrupla("func", name+"_"+clase, None, None)
     Cuadruplas.append(inicio)
 
     if params != []:
@@ -202,6 +216,8 @@ def create_function(name, params, expr):
             Cuadruplas.append(Cuadrupla(None, i, None, i))
         
     return Cuadruplas
+
+
 
 def create_while(while_expr, loop_expr, CI): 
     # print('WHILE')

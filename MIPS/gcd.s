@@ -1,6 +1,6 @@
 .data
-num1: .word 40  # Primer numero
-num2: .word 10  # Segundo numero
+num1: .word 10  # Primer numero
+num2: .word 5  # Segundo numero
 
 .text
 .globl main

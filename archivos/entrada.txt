@@ -9,10 +9,15 @@ class Prueba {
             z - y + y;
         }
     } ; 
+
+    otra() : Int {
+        5 + 5
+    } ;
 };
 
 class Main { 
     prueba: Prueba;
+    x: Prueba;
     main() : Int { 
         prueba.hola(1, 2, 3)
     } ; 

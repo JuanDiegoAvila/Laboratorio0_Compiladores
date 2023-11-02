@@ -10,6 +10,11 @@ main:
 
     la $a1, num2
     lw $a1, 0($a1)
+    
+    subu $sp, $sp, 12
+    sw $ra, 8($sp)
+    sw $a0, 4($sp)
+    sw $a1, 0($sp)
 
     jal sum
 
@@ -22,10 +27,9 @@ main:
 
 
 sum:
-    # subu $sp, $sp, 12
-    # sw $ra, 8($sp)
-    # sw $a0, 4($sp)
-    # sw $a1, 0($sp)
+
+
+    lw $ra, 8($sp)
 
     add $v0, $a0, $a1
 
