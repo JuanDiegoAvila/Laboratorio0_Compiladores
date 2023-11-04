@@ -111,6 +111,10 @@ class MIPS(object):
 
             texto += "\tdiv $" + str(arg1) + ", $" + str(arg2) + "\n\n"
             texto += "\tmfhi $t0\n\n"
+        
+        elif operador == "*":
+            texto += "\tmult $" + str(arg1) + ", $" + str(arg2) + "\n\n"
+            texto += "\tmflo $t0\n\n"
 
         elif operador == "heap_declaration" and self.in_class_main:
             espacio = res
