@@ -12,6 +12,7 @@ from cuadruplas import *
 from treeVisitor import TreeVisitor
 import interfaz as interfaz
 from mips import MIPS
+from traducirCodigo import *
 # import tkinter as tk
 # from tkinter import filedialog, Text, Menu, Scrollbar, font
 
@@ -151,13 +152,15 @@ def codigoTresDirecciones(lexer, tree, app):
     # custom_print(terminal, "------------------")
 
     custom_print(terminal, escribir_cuadruplas(visitor.cuadruplas))
-    # app.update_TDC(escribir_cuadruplas(visitor.cuadruplas))
-
+    # custom_print(terminal, traducirCodigo(visitor.cuadruplas))
+    
+    app.update_TDC(traducirCodigo(visitor.cuadruplas))
+    
     mips = MIPS(visitor.cuadruplas)
 
 
 #Llamar a la función para el scanner
-parser = Parser('./archivos/suma.txt',"a" )
+# parser = Parser('./archivos/entrada5.txt',"a" )
 
-# app = interfaz.Interfaz(Parser)
-# app.mainloop()
+app = interfaz.Interfaz(Parser)
+app.mainloop()

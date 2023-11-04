@@ -13,6 +13,9 @@ class MIPS(object):
         texto = ""
         temporal = ""
         for cuadrupla in self.cuadruplas:
+            if isinstance(cuadrupla, list):
+                cuadrupla = cuadrupla[0]
+
 
             if cuadrupla.op == "class" and cuadrupla.arg1 == "Main":
                 self.in_main = True
@@ -46,6 +49,10 @@ class MIPS(object):
         encontro_clase = False
         queue_temp = []
         for cuadrupla in cuadruplas:
+            
+            if isinstance(cuadrupla, list):
+                cuadrupla = cuadrupla[0]
+
             temp = cuadrupla.copy()
 
             if encontro_clase and cuadrupla.op in ["class", "func"]:
