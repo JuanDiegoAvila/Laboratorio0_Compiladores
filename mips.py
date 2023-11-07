@@ -91,7 +91,9 @@ class MIPS(object):
             nombre = arg1
 
             if self.in_main and self.llamada_main:
-                texto += "\tjal main\n"
+                texto += "\tjal main_Main\n"
+                texto += "\n\tli $v0, 10\n"
+                texto += "\tsyscall\n"
                 self.llamada_main = False
 
             # if nombre == "main":
@@ -144,6 +146,9 @@ class MIPS(object):
         elif operador == "exit":
             texto += "\tli $v0, 10\n"
             texto += "\tsyscall\n\n"
+
+        elif operador == "return_func":
+            texto += "\tjr $ra\n\n"
 
 
         # texto += "operador: " + cuadrupla.op + "\n"

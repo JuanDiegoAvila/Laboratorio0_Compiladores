@@ -163,7 +163,7 @@ def codigoTresDirecciones(lexer, tree, app):
 
 
 #Llamar a la función para el scanner
-parser = Parser('./archivos/entrada7.txt',"a" )
+parser = Parser('./archivos/suma.txt',"a" )
 
 # app = interfaz.Interfaz(Parser)
 # app.mainloop()

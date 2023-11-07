@@ -1,8 +1,7 @@
 
 class Main { 
-    x : Int <- new Int;
     main() : Int { 
-        1 = 7
+        1 + 7
     } ; 
 }; 
 
