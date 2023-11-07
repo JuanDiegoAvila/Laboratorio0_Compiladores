@@ -31,7 +31,12 @@ main:
 	syscall
 	sw $v0, print_address
 
+	jal main
+
+
 hola_Main:
+
+
 main_Main:
 	jal copy_Int
 

@@ -124,6 +124,7 @@ class codigoVisitor(yalpVisitor):
 
         
         for feature_ctx in ctx.feature():
+            print(feature_ctx.getText())
             v = self.visit(feature_ctx)
             func_symbol = self.tablaSimbolos.get_simbolo(v)
             if func_symbol.funcion==False:

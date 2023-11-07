@@ -2,6 +2,7 @@
 def traducirCodigo(cuadruplas):
     texto = ""
     clase_actual = ""
+    llamada_main = True
 
     for cuadrupla in cuadruplas:
         if isinstance(cuadrupla, list):
@@ -20,8 +21,10 @@ def traducirCodigo(cuadruplas):
             texto += f"\t {respuesta} = {argumento1} {operador} {argumento2}\n"
 
         elif operador == "func":
-            # if clase_actual == "Main" and argumento1 == "main":
-            #     texto += f"\t call {argumento1}\n"
+            
+            if clase_actual == "Main" and llamada_main:
+                texto += f"\t call {argumento1}\n"
+                llamada_main = False
 
             texto += f"\n{argumento1}:\n"
 

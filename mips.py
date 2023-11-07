@@ -4,6 +4,7 @@ class MIPS(object):
         
         self.in_main = False
         self.in_class_main = False
+        self.llamada_main = True
         self.texto = self.traducirTAC()
         self.escribiCodigo()
         self.queue = []
@@ -84,10 +85,14 @@ class MIPS(object):
             texto += ".globl main\n"
             texto += "main:\n"
             self.in_class_main = True
+        
 
- 
         elif operador == "func":
             nombre = arg1
+
+            if self.in_main and self.llamada_main:
+                texto += "\tjal main\n"
+                self.llamada_main = False
 
             # if nombre == "main":
             #     texto += ".text\n"
@@ -96,7 +101,7 @@ class MIPS(object):
             # else:
             #     texto += "\n\n"
 
-            texto += nombre + ":\n"
+            texto += "\n\n"+nombre + ":\n"
 
         elif operador == "=":
             # Si es un numero usar li, sino usar la
