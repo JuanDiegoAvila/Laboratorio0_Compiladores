@@ -32,11 +32,6 @@ main:
 	sw $v0, print_address
 
 hola_Main:
-	jal Main_main
-
-	li $v0, 10
-	syscall
-
 main_Main:
 	jal copy_Int
 

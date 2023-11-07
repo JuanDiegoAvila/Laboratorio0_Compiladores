@@ -194,12 +194,12 @@ def heap_assign(arg1, res):
 def create_function(name, params, expr, clase):
     Cuadruplas = []
 
-    if clase == "Main" and name == "main":
-        llamada = Cuadrupla("call", "Main_main", 0, None)
-        salir = Cuadrupla("exit", None, None, None)
+    # if clase == "Main" and name == "main":
+    #     llamada = Cuadrupla("call", "Main_main", 0, None)
+    #     # salir = Cuadrupla("exit", None, None, None)
 
-        Cuadruplas.append(llamada)
-        Cuadruplas.append(salir)
+    #     Cuadruplas.append(llamada)
+        # Cuadruplas.append(salir)
 
     inicio = Cuadrupla("func", name+"_"+clase, None, None)
     Cuadruplas.append(inicio)

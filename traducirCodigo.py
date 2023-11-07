@@ -1,6 +1,7 @@
 
 def traducirCodigo(cuadruplas):
     texto = ""
+    clase_actual = ""
 
     for cuadrupla in cuadruplas:
         if isinstance(cuadrupla, list):
@@ -12,12 +13,16 @@ def traducirCodigo(cuadruplas):
         respuesta = cuadrupla.res
 
         if operador == "class" and argumento1 == "Main":
+            clase_actual = argumento1
             texto += f"\n{argumento1}:\n"
 
         if operador in ["+", "-", "*", "/", "==", "<", ">", "<=", ">=", "and", "or", "~"]:
             texto += f"\t {respuesta} = {argumento1} {operador} {argumento2}\n"
 
         elif operador == "func":
+            # if clase_actual == "Main" and argumento1 == "main":
+            #     texto += f"\t call {argumento1}\n"
+
             texto += f"\n{argumento1}:\n"
 
         elif operador == "call":
@@ -52,6 +57,9 @@ def traducirCodigo(cuadruplas):
 
         elif operador == "ifFalse":
             texto += f"\t ifFalse {argumento1}, {respuesta}\n"
+
+        elif operador in ["heap_declaration", "stack_declaration"]:
+            texto += f"\t {operador} {argumento1} : {argumento2}\n"
 
     return(texto)
 
