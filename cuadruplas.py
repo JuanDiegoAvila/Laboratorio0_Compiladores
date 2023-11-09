@@ -81,41 +81,79 @@ def Not(arg1, res):
 def create_class_label(name):
     return Cuadrupla("class", name, None, None)
 
+# def create_if(if_expr, then_expr, else_expr, CI):
+#     label1 = f'L{CI.upLabel()}'
+    
+#     Cuadruplas = []
+
+#     # print(if_expr, type(if_expr))
+
+#     if isinstance(if_expr, Cuadrupla):
+#         Cuadruplas.append(if_expr)
+#         if_expr = if_expr.res
+    
+#     inicio = Cuadrupla("ifFalse", if_expr, None, label1)
+#     Cuadruplas.append(inicio)
+    
+#     for i in then_expr:
+#         Cuadruplas.append(i)
+
+#     temp = []
+#     label1 = Cuadrupla("label", None, None, label1)
+#     temp.append(label1)
+
+#     for i in else_expr:
+#         temp.append(i)
+
+#     label2 = f'L{CI.upLabel()}'
+
+#     goto = Cuadrupla("goto", None, None, label2)
+#     Cuadruplas.append(goto)
+
+#     Cuadruplas.extend(temp)
+
+#     label2 = Cuadrupla("label", None, None, label2)
+#     Cuadruplas.append(label2)
+
+#     return Cuadruplas
+
 def create_if(if_expr, then_expr, else_expr, CI):
-    label1 = f'L{CI.upLabel()}'
+    # Genera etiquetas únicas
+    label_then_end = f'L{CI.upLabel()}'
+    label_else_start = f'L{CI.upLabel()}'
     
     Cuadruplas = []
 
-    # print(if_expr, type(if_expr))
-
+    # Si if_expr es una Cuadrupla, la agregamos y usamos su resultado
     if isinstance(if_expr, Cuadrupla):
         Cuadruplas.append(if_expr)
         if_expr = if_expr.res
+
+    if isinstance(if_expr, list):
+        Cuadruplas.extend(if_expr)
+        if_expr = if_expr[-1].res if isinstance(if_expr[-1], Cuadrupla) else if_expr[-1]
     
-    inicio = Cuadrupla("ifFalse", if_expr, None, label1)
-    Cuadruplas.append(inicio)
     
-    for i in then_expr:
-        Cuadruplas.append(i)
+    # Agrega la cuádrupla inicial para saltar al bloque else si la condición es falsa
+    Cuadruplas.append(Cuadrupla("ifFalse", if_expr, None, label_else_start))
+    
+    # Agrega cuádruplas para el bloque then
+    Cuadruplas.extend(then_expr)
+    
+    # Agrega un salto incondicional al final del bloque if-else
+    Cuadruplas.append(Cuadrupla("goto", None, None, label_then_end))
 
-    temp = []
-    label1 = Cuadrupla("label", None, None, label1)
-    temp.append(label1)
+    # Agrega la etiqueta del inicio del bloque else
+    Cuadruplas.append(Cuadrupla("label", None, None, label_else_start))
 
-    for i in else_expr:
-        temp.append(i)
+    # Agrega cuádruplas para el bloque else
+    Cuadruplas.extend(else_expr)
 
-    label2 = f'L{CI.upLabel()}'
-
-    goto = Cuadrupla("goto", None, None, label2)
-    Cuadruplas.append(goto)
-
-    Cuadruplas.extend(temp)
-
-    label2 = Cuadrupla("label", None, None, label2)
-    Cuadruplas.append(label2)
+    # Agrega la etiqueta del final del bloque if-else
+    Cuadruplas.append(Cuadrupla("label", None, None, label_then_end))
 
     return Cuadruplas
+
 
 
 def create_function_call(clase, variable, name, params):
@@ -219,48 +257,87 @@ def create_function(name, params, expr, clase):
 
 
 
-def create_while(while_expr, loop_expr, CI): 
-    # print('WHILE')
+# def create_while(while_expr, loop_expr, CI): 
+#     # print('WHILE')
     
-    label1 = f'L{CI.upLabel()}'
+#     label1 = f'L{CI.upLabel()}'
     
-    Cuadruplas = []
+#     Cuadruplas = []
 
-    label_1 = Cuadrupla("label", None, None, label1)
-    Cuadruplas.append(label_1)
+#     label_1 = Cuadrupla("label", None, None, label1)
+#     Cuadruplas.append(label_1)
 
-    if not isinstance(while_expr, list):
-        while_expr = [while_expr]
+#     if not isinstance(while_expr, list):
+#         while_expr = [while_expr]
 
-    for i in while_expr:
-        if isinstance(i, Cuadrupla):
-            Cuadruplas.append(i)
-            # while_expr = while_expr.res
+#     for i in while_expr:
+#         if isinstance(i, Cuadrupla):
+#             Cuadruplas.append(i)
+#             # while_expr = while_expr.res
 
-    while_expr = while_expr[-1]
-    if isinstance(while_expr, Cuadrupla):
-        while_expr = while_expr.res
+#     while_expr = while_expr[-1]
+#     if isinstance(while_expr, Cuadrupla):
+#         while_expr = while_expr.res
 
    
 
-    temp = []
-    for i in loop_expr:
-        temp.append(i)
+#     temp = []
+#     for i in loop_expr:
+#         temp.append(i)
 
-    goto = Cuadrupla("goto", None, None, label1)
-    temp.append(goto)
+#     goto = Cuadrupla("goto", None, None, label1)
+#     temp.append(goto)
 
     
-    label2 = f'L{CI.upLabel()}'
-    inicio = Cuadrupla("ifFalse", while_expr, None, label2)
-    Cuadruplas.append(inicio)
+#     label2 = f'L{CI.upLabel()}'
+#     inicio = Cuadrupla("ifFalse", while_expr, None, label2)
+#     Cuadruplas.append(inicio)
 
-    Cuadruplas.extend(temp)
+#     Cuadruplas.extend(temp)
 
-    label2 = Cuadrupla("label", None, None, label2)
-    Cuadruplas.append(label2)
+#     label2 = Cuadrupla("label", None, None, label2)
+#     Cuadruplas.append(label2)
 
+#     return Cuadruplas
+def create_while(while_expr, loop_expr, CI):
+    # Create the label for the start of the loop
+    label_start = f'L{CI.upLabel()}'
+    label_end = f'L{CI.upLabel()}'
+    Cuadruplas = []
+
+    call_label1 = Cuadrupla("goto", None, None, label_start)
+    Cuadruplas.append(call_label1)
+    
+    # Label at the beginning of the loop
+    label_start_cuad = Cuadrupla("label", None, None, label_start)
+    Cuadruplas.append(label_start_cuad)
+    
+    # Process the condition, the result of the last evaluation in while_expr should be the condition result
+    if not isinstance(while_expr, list):
+        while_expr = [while_expr]
+    Cuadruplas.extend(while_expr)
+    
+    # This assumes that the last quadruple of while_expr evaluates the condition
+    condition_result = while_expr[-1].res if isinstance(while_expr[-1], Cuadrupla) else while_expr[-1]
+    
+    # Check if the result is false, if so jump to the end (exit the loop)
+    exit_loop_cuad = Cuadrupla("ifFalse", condition_result, None, label_end)
+    Cuadruplas.append(exit_loop_cuad)
+    
+    # Body of the loop
+    for expr in loop_expr:
+        Cuadruplas.extend(expr if isinstance(expr, list) else [expr])
+    
+    # Jump back to the start of the loop
+    goto_start_cuad = Cuadrupla("goto", None, None, label_start)
+    Cuadruplas.append(goto_start_cuad)
+    
+    # Label for the end of the loop
+    label_end_cuad = Cuadrupla("label", None, None, label_end)
+    Cuadruplas.append(label_end_cuad)
+    
     return Cuadruplas
+
 
 def create_isVoid(variable, res):
     return Cuadrupla("isVoid", variable, None, res)

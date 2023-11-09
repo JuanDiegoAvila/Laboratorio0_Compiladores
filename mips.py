@@ -77,6 +77,8 @@ class MIPS(object):
         arg2 = cuadrupla.arg2
         res = cuadrupla.res
 
+
+
         if operador == "class" and self.in_class_main:
             self.in_class_main = False
 
@@ -87,8 +89,11 @@ class MIPS(object):
             self.in_class_main = True
         
 
-        elif operador == "func":
-            nombre = arg1
+        elif operador in ["func", "label"]:
+            if operador == "func":
+                nombre = arg1
+            elif operador == "label":
+                nombre = res
 
             if self.in_main and self.llamada_main:
                 texto += "\tjal main_Main\n"
@@ -139,16 +144,84 @@ class MIPS(object):
             texto += "\tli $v0, 9\n"
             texto += "\tsyscall\n"
             texto += "\tsw $v0, " + nombre + "_address\n\n"
+        
+        elif operador == ">":
+            operador1 = arg1
+            operador2 = arg2
+            resultado = res
+
+            # text= f"bgt $t0, $t1, true_label"
+            texto += f"\tsgt ${resultado}, ${operador1}, ${operador2}\n"
+        
+        elif operador == "<":
+            operador1 = arg1
+            operador2 = arg2
+            resultado = res
+
+            # text= f"bgt $t0, $t1, true_label"
+            texto += f"\tslt ${resultado}, ${operador1}, ${operador2}\n"
+
+        elif operador == ">=":
+            operador1 = arg1
+            operador2 = arg2
+            resultado = res
+            texto += f"\tslt ${resultado}, ${operador1}, ${operador2}\n"
+            texto += f"\txori ${resultado}, ${resultado}, 0x1\n"
+
+        elif operador == "<=":
+            operador1 = arg1
+            operador2 = arg2
+            resultado = res
+            texto += f"\tsgt ${resultado}, ${operador1}, ${operador2}\n"
+            texto += f"\txori ${resultado}, ${resultado}, 0x1\n"
+        
+        elif operador == "==":
+            operador1 = arg1
+            operador2 = arg2
+            resultado = res
+
+            # text= f"bgt $t0, $t1, true_label"
+            texto += f"\tseq ${resultado}, ${operador1}, ${operador2}\n"
 
         elif operador == "call":
-            texto += "\tjal " + arg1 + "\n\n"
+            texto += "\tjal " + arg1 + "\n"
+        
+        elif operador == "goto":
+            texto += "\tj " + res + "\n"
 
         elif operador == "exit":
-            texto += "\tli $v0, 10\n"
+            texto += "\tli $a0, 10\n"
             texto += "\tsyscall\n\n"
 
         elif operador == "return_func":
             texto += "\tjr $ra\n\n"
+
+        elif operador == None:
+            # carga el operando 1 en el registro res y regresa la direccion de memoria
+            # texto += f"\tli $a0, {arg1}\n"
+            try:
+                int(arg1)
+                texto += f"\tli $a0, {arg1} \n"
+            except:
+                texto += f"\tla $a0, {arg1} \n"
+                
+                # cargar el valor en la direccion de memoria con lw
+                texto += f"\tlw $a0, 0($a0)\n\n"
+        
+        elif operador == "ifFalse":
+
+            try:
+                int(arg1)
+                texto += f"\tli $t0, {arg1} \n"
+            except:
+                texto += f"\tla $t0, {arg1} \n"
+                
+                # cargar el valor en la direccion de memoria con lw
+                texto += f"\tlw $t0, 0($t0)\n\n"
+
+            
+            texto += f"\tbeqz $t0, {res}\n\n"
+            
 
 
         # texto += "operador: " + cuadrupla.op + "\n"

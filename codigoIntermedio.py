@@ -265,8 +265,7 @@ class codigoVisitor(yalpVisitor):
             # label = self.getLabel()
             # label = f'Label{label}'
 
-
-            cuadruplas = create_if(if_expr[0], then_expr, else_expr, self)
+            cuadruplas = create_if(if_expr, then_expr, else_expr, self)
             # self.cuadruplas.extend(cuadruplas)
             self.tablaSimbolos.get_exitScope()      
             
@@ -579,7 +578,6 @@ class codigoVisitor(yalpVisitor):
                     if type_arg1 is None:
                         type_arg1 = arg1
                         if isinstance(arg1, CommonToken):
-                            print(type_arg1.lexema)
                             primero = [arg1, False, type_arg1.in_function, type_arg1.size]
                         else:
                             primero = [arg1, True, False, None]
