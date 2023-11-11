@@ -10,9 +10,16 @@ main:
 main_Main:
 	li $a2, 1 
 	li $a3, 0 
-	slt $a4, $a2, $a3
-	xori $a4, $a4, 0x1
-	beqz $t0, L2
+	sub $t0, $a2, $a3
+	slti $t1, $t0, 0
+	seq $t0, $t0, 0
+	or $t0, $t0, $t1
+
+	move $a0, $t0
+	li $v0, 1
+	syscall
+
+	jr $ra
 
 	li $a0, 3 
 	j L1

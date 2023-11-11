@@ -159,21 +159,29 @@ class MIPS(object):
             resultado = res
 
             # text= f"bgt $t0, $t1, true_label"
-            texto += f"\tslt ${resultado}, ${operador1}, ${operador2}\n"
+            texto += f"\tslt ${resultado}, ${operador1}, ${operador2}\n" # resultado = op1 < op2
 
         elif operador == ">=":
             operador1 = arg1
             operador2 = arg2
             resultado = res
-            texto += f"\tslt ${resultado}, ${operador1}, ${operador2}\n"
-            texto += f"\txori ${resultado}, ${resultado}, 0x1\n"
+            if resultado[-1]=='4':
+                resultado = 't0'
+            texto += f"\tsub ${resultado}, ${operador1}, ${operador2}\n" #resultado = op1 - op2
+            texto += f"\tsgt $t1, ${resultado}, $zero\n" #resultado = resultado < 0 (significa que op1 si es menor a op2)
+            texto += f"\tseq $t0, $t0, 0\n"
+            texto += f"\tor $t0, $t0, t1\n"
 
         elif operador == "<=":
             operador1 = arg1
             operador2 = arg2
             resultado = res
-            texto += f"\tsgt ${resultado}, ${operador1}, ${operador2}\n"
-            texto += f"\txori ${resultado}, ${resultado}, 0x1\n"
+            if resultado[-1]=='4':
+                resultado = 't0'
+            texto += f"\tsub ${resultado}, ${operador1}, ${operador2}\n" #resultado = op1 - op2
+            texto += f"\slti $t1, ${resultado}, \n" #resultado = resultado < 0 (significa que op1 si es menor a op2)
+            texto += f"\tseq $t0, $t0, 0\n"
+            texto += f"\tor $t0, $t0, t1\n"
         
         elif operador == "==":
             operador1 = arg1
