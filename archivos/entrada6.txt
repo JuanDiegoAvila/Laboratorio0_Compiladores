@@ -1,13 +1,12 @@
 class Main {
-    id_1 : Int <- 0;
+    id_1 : String;
 
-    str : String <- "Hello World";
     main() : Object {
         {
             let x : Int <- 5 in
             {
-                while id_1 loop
-                    1 + x
+                while true loop
+                    id_1 <- "hola"
                 pool ;
             };
         }

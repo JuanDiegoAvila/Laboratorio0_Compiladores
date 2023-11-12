@@ -5,9 +5,26 @@ class MIPS(object):
         self.in_main = False
         self.in_class_main = False
         self.llamada_main = True
+        self.data = {}
+        self.nativas = [
+            "abort_Object",
+            "type_name",
+            "copy_Object",
+            "length_String",
+            "concat_String",
+            "substr_String",
+            "out_string_IO",
+            "in_string_IO",
+            "out_int_IO",
+            "in_int_IO",
+        ]
+        self.cargar_nativas = []
+        self.value_assign = None
+
         self.texto = self.traducirTAC()
         self.escribiCodigo()
         self.queue = []
+        self.parameters = 0
 
 
     def traducirTAC(self):
@@ -22,20 +39,23 @@ class MIPS(object):
                 self.in_main = True
 
             texto_temp = ""
-            if cuadrupla.op in ["heap_declaration"] and self.in_main:
-                clase = cuadrupla.arg2
-                variable = cuadrupla.arg1
+            # if cuadrupla.op in ["heap_declaration"] and self.in_main:
+            #     clase = cuadrupla.arg2
+            #     variable = cuadrupla.arg1
 
-                queue_temp = self.recorrerCuadruplasCondicion(self.cuadruplas, clase, variable)
+            #     print(clase, 'clase')
+            #     print(variable, 'variable')
 
-                if queue_temp != []:
-                    for cuadr in queue_temp:
-                        texto_temp += self.traducirCuadupla(cuadr)
+            #     queue_temp = self.recorrerCuadruplasCondicion(self.cuadruplas, clase, variable)
+
+            #     print(queue_temp)
+            #     if queue_temp != []:
+            #         for cuadr in queue_temp:
+            #             texto_temp += self.traducirCuadupla(cuadr)
 
             traducido = self.traducirCuadupla(cuadrupla)
             
             if self.in_class_main:
-
                 texto += traducido
                 texto += texto_temp if texto_temp != "" else ""
 
@@ -44,6 +64,51 @@ class MIPS(object):
                 temporal += texto_temp if texto_temp != "" else ""
 
         texto += temporal
+
+        if self.data != {}:
+            texto = self.traducirData() + texto
+
+        if self.cargar_nativas != []:
+            texto = texto + self.crearNativas()
+        return texto
+    
+    def crearNativas(self):
+        texto = ""
+        for nativa in self.cargar_nativas:
+            if nativa == "abort_Object":
+                pass
+            elif nativa == "type_name":
+                pass
+            elif nativa == "copy_Object":
+                pass
+            elif nativa == "length_String":
+                texto += self.stringLength()
+            elif nativa == "concat_String":
+                texto += self.concat()
+            elif nativa == "substr_String":
+                texto += self.substr()
+            elif nativa == "out_string_IO":
+                texto += self.outString()
+            elif nativa == "in_string_IO":
+                texto += self.inString()
+            elif nativa == "out_int_IO":
+                texto += self.outInt()
+            elif nativa == "in_int_IO":
+                texto += self.inInt()
+        
+        return texto
+                
+    def traducirData(self):
+        texto = ".data\n"
+        for key in self.data:
+            tipo = self.data[key]["type"]
+            valor = self.data[key]["value"]
+            texto += f"{key}: {tipo} {valor}\n"
+            # texto += key + ":\n"
+            # for key2 in self.data[key]:
+            #     texto += "\t" + key2 + " " + str(self.data[key][key2]) + "\n"
+            # texto += "\n"
+        texto += "\n\n"
         return texto
 
     def recorrerCuadruplasCondicion(self, cuadruplas, clase, variable):
@@ -69,6 +134,129 @@ class MIPS(object):
         
         return queue_temp
 
+    # El string debe estar en $a0
+    def stringLength(self):
+        texto = ""
+        # Funcion length
+        texto += "\n\n length:\n"
+        texto += "\tli $v0, 0\n"
+        texto += "\tli $t0, 0\n"
+
+
+        texto += "\n\n\tloopLength:\n"
+        texto += "\t\tlb $t1, 0($a0)\n"
+        texto += "\t\tbeqz $t1, endLength\n"
+        texto += "\t\taddi $v0, $v0, 1\n"
+        texto += "\t\taddi $a0, $a0, 1\n"
+        texto += "\t\tj loopLength\n"
+
+        texto += "\n\n\tendLength:\n"
+        texto += "\t\tjr $ra\n\n"
+
+        return texto
+
+    def concat(self):
+        self.data["buffer"] = {"type": ".space", "value": "100"}
+        texto = ""
+
+        texto += "\n\nconcat:\n"
+        texto += "\tla $t0, buffer\n"
+
+        texto += "\n\n\tloopConcat:\n"
+        texto += "\t\tlb $t1, 0($a0)\n"
+        texto += "\t\tbeqz $t1, nextConcat\n"
+        texto += "\t\tsb $t1, 0($t0)\n"
+        texto += "\t\taddi $a0, $a0, 1\n"
+        texto += "\t\taddi $t0, $t0, 1\n"
+        texto += "\t\tj loopConcat\n"
+
+        texto += "\n\n\tnextConcat:\n"
+        texto += "\t\tlb $t1, 0($a1)\n"
+        texto += "\t\tbeqz $t1, endConcat\n"
+        texto += "\t\tsb $t1, 0($t0)\n"
+        texto += "\t\taddi $a1, $a1, 1\n"
+        texto += "\t\taddi $t0, $t0, 1\n"
+        texto += "\t\tj nextConcat\n"
+
+        texto += "\n\n\tendConcat:\n"
+        texto += "\t\tsb $zero, 0($t0)\n"
+        texto += "\t\tla $v0, buffer\n"
+        texto += "\t\tjr $ra\n\n"
+
+        return texto
+    
+    def substr(self):
+        if "buffer" not in self.data.keys():
+            self.data["buffer"] = {"type": ".space", "value": "100"}
+        
+        texto = ""
+
+        texto += "\n\nsubstr:\n"
+        texto += "\tla $t0, buffer\n"
+        texto += "\tadd $t1, $zero, $a1"
+
+        texto += "\n\n\tloopSubstr:\n"
+        texto += "\t\tbge $t1, $a2, endSubstr\n"
+        texto += "\t\tadd $t2, $a0, $t1\n"
+        texto += "\t\tlb $t3, 0($t2)\n"
+        texto += "\t\tbeqz $t3, endSubstr\n"
+        texto += "\t\tsb $t3, 0($t0)\n"
+        texto += "\t\taddi $t0, $t0, 1\n"
+        texto += "\t\taddi $t1, $t1, 1\n"
+        texto += "\t\tj loopSubstr\n"
+
+
+        texto += "\n\n\tendSubstr:\n"
+        texto += "\t\tsb $zero, 0($t0)\n"
+        texto += "\t\tla $v0, buffer\n"
+        texto += "\t\tjr $ra\n\n"
+
+        return texto
+
+    def outString(self):
+        texto = ""
+        
+        texto += "\n\noutString:\n"
+        texto += "\tli $v0, 4\n"
+        texto += "\tsyscall\n"
+        texto += "\tjr $ra\n\n"
+
+        return texto
+    
+    def outInt(self):
+        texto = ""
+
+        texto += "\n\noutInt:\n"
+        texto += "\tli $v0, 1\n"
+        texto += "\tsyscall\n"
+        texto += "\tjr $ra\n\n"
+
+        return texto
+    
+    def inInt(self):
+        texto = ""
+
+        texto += "\n\ninInt:\n"
+        texto += "\tli $v0, 5\n"
+        texto += "\tsyscall\n"
+        texto += "\tjr $ra\n\n"
+
+        return texto
+    
+    def inString(self):
+        if "buffer" not in self.data.keys():
+            self.data["buffer"] = {"type": ".space", "value": "100"}
+        
+        texto = ""
+
+        texto += "\n\ninString:\n"
+        texto += "\tla $a0, buffer\n"
+        texto += "\tli $a1, 100\n"
+        texto += "\tli $v0, 8\n"
+        texto += "\tsyscall\n"
+        texto += "\tjr $ra\n\n"
+
+        return texto
     
     def traducirCuadupla(self, cuadrupla):
         texto = ""
@@ -76,6 +264,11 @@ class MIPS(object):
         arg1 = cuadrupla.arg1
         arg2 = cuadrupla.arg2
         res = cuadrupla.res
+
+        if arg1 == "false":
+            arg1 = 0
+        elif arg1 == "true":
+            arg1 = 1
 
 
 
@@ -116,10 +309,21 @@ class MIPS(object):
                 int(arg1)
                 texto += f"\tli ${res}, {arg1} \n"
             except:
-                texto += f"\tla ${res}, {arg1} \n"
-                
-                # cargar el valor en la direccion de memoria con lw
-                texto += f"\tlw ${res}, 0(${res})\n\n"
+
+                if arg1 == "true":
+                    texto += f"\tli ${res}, 1 \n"
+
+                elif arg1 == "false":
+                    texto += f"\tli ${res}, 0 \n"
+                # Si tiene el formato "{texto}" entonces es un string
+                elif arg1[0] == "\"" and arg1[-1] == "\"":
+                    pass
+
+                else:
+                    texto += f"\tla ${res}, {arg1} \n"
+                    
+                    # cargar el valor en la direccion de memoria con lw
+                    texto += f"\tlw ${res}, 0(${res})\n\n"
 
 
         elif operador == "+":
@@ -135,16 +339,7 @@ class MIPS(object):
             texto += "\tmult $" + str(arg1) + ", $" + str(arg2) + "\n\n"
             texto += "\tmflo $t0\n\n"
 
-        elif operador == "heap_declaration" and self.in_class_main:
-            espacio = res
-            nombre = arg1 
-            tipo = arg2
-
-            texto += "\tli $a0, " + str(espacio) + "\n"
-            texto += "\tli $v0, 9\n"
-            texto += "\tsyscall\n"
-            texto += "\tsw $v0, " + nombre + "_address\n\n"
-        
+       
         elif operador == ">":
             operador1 = arg1
             operador2 = arg2
@@ -192,7 +387,14 @@ class MIPS(object):
             texto += f"\tseq ${resultado}, ${operador1}, ${operador2}\n"
 
         elif operador == "call":
-            texto += "\tjal " + arg1 + "\n"
+            
+            texto += "\tjal " + arg1 + "\n\n"
+
+            if arg1 in self.nativas:
+                self.cargar_nativas.append(arg1)
+
+        # elif operador == "param":
+        #     self.parameters += 1
         
         elif operador == "goto":
             texto += "\tj " + res + "\n"
@@ -229,7 +431,57 @@ class MIPS(object):
 
             
             texto += f"\tbeqz $t0, {res}\n\n"
+
+        elif operador == "value_assign":
+            self.value_assign = res
             
+        # elif operador == "heap_declaration":
+        #     espacio = res
+        #     nombre = arg1 
+
+        #     texto += "\tli $a0, " + str(espacio) + "\n"
+        #     texto += "\tli $v0, 9\n"
+        #     texto += "\tsyscall\n"
+        #     texto += "\tla $t0, " + nombre + "_address\n"
+        #     texto += "\tsw $v0, 0($t0)\n\n"
+
+        #     # Asignando el valor
+        #     texto += f"\tli $t1, {self.value_assign}\n\n"
+        #     texto += f"\tsw $t1, 0($v0)\n\n"
+        #     self.value_assign = None
+
+        #     return texto
+
+        elif operador == "heap_declaration":
+            espacio = res
+            nombre = arg1 
+            tipo = arg2
+
+            texto += "\tli $a0, " + str(espacio) + "\n"
+            texto += "\tli $v0, 9\n"
+            texto += "\tsyscall\n"
+            texto += "\tsw $v0, " + nombre + "_address\n\n"
+
+            #  # Asignando el valor
+            # texto += f"\tli $t1, {self.value_assign}\n\n"
+            # texto += f"\tsw $t1, 0($v0)\n\n"
+            # self.value_assign = None
+            if self.value_assign is not None:
+                self.data[nombre + "_address"] = {"type": ".word", "value": self.value_assign}
+
+        
+
+        elif operador == "stack_declaration":
+            espacio = res
+            nombre = arg1 
+
+            texto += "\taddi $sp, $sp, -" + str(espacio) + "\n"
+            texto += f"\tli $t0, {self.value_assign}\n\n"
+            texto += f"\tsw $t0, 0($sp)\n\n"
+
+            self.value_assign = None
+            return texto
+
 
 
         # texto += "operador: " + cuadrupla.op + "\n"
@@ -241,7 +493,6 @@ class MIPS(object):
 
         return texto
 
-    
     def escribiCodigo(self):
         path = "./MIPS/codigoMIPS.s"
         archivo = open(path, "w")

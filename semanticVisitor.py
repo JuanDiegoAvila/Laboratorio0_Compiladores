@@ -34,12 +34,9 @@ class SemanticVisitor(yalpVisitor):
         self.actual_class = class_name
         simbolos_clase = self.tablaSimbolos.current_scope.symbols
         parent_scope = self.tablaSimbolos.current_scope.parent
-        # print(parent_scope.symbols, 'parent')
-        # print(class_name, 'class_name')
+
         if nombre:=parent_scope.symbols[class_name].hereda:
-            #print('aaaa', parent_scope.symbols[class_name].size)
             parent_scope.symbols[class_name].size += parent_scope.symbols[nombre].size
-            #print('bbbb', class_name, parent_scope.symbols[class_name].size)
         
         for key, value in simbolos_clase.items():
             if value.funcion==False:
@@ -426,6 +423,8 @@ class SemanticVisitor(yalpVisitor):
                     
                     if simbolo:
                         token_type = simbolo.tipo_token
+                        simbolo.size = simbolo.scope.native[token_type].size
+                        
                         self.tablaSimbolos.get_exitScope()
                         return [token_type]
                     else:

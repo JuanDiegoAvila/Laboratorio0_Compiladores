@@ -153,8 +153,8 @@ def codigoTresDirecciones(lexer, tree, app):
 
     
     custom_print(terminal, escribir_cuadruplas(visitor.cuadruplas))
-    custom_print(terminal, visitor.cuadruplas)
-    custom_print(terminal, traducirCodigo(visitor.cuadruplas))
+    # custom_print(terminal, visitor.cuadruplas)
+    # custom_print(terminal, traducirCodigo(visitor.cuadruplas))
     
     # app.update_TDC(traducirCodigo(visitor.cuadruplas))
 

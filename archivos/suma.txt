@@ -1,11 +1,16 @@
+class Otra {
+    x: Int;
+
+    otra() : Int {
+        3
+    };
+};
+
 
 class Main { 
+    str : Otra ;
     main() : Int { 
-        if (1 >= 0) then {
-            3;
-        } else {
-            1;
-        } FI
+        str.otra()
     } ; 
 } ; 
-
+ 

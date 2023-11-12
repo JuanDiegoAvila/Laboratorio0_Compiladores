@@ -124,9 +124,10 @@ class codigoVisitor(yalpVisitor):
 
         
         for feature_ctx in ctx.feature():
-            print(feature_ctx.getText())
+            # print(feature_ctx.getText())
             v = self.visit(feature_ctx)
             func_symbol = self.tablaSimbolos.get_simbolo(v)
+            
             if func_symbol.funcion==False:
                 if getSymbolClass(func_symbol) == class_name:
                     self.cuadruplas.extend(heap_variable(func_symbol.lexema, func_symbol.tipo_token, func_symbol.size))
@@ -162,7 +163,20 @@ class codigoVisitor(yalpVisitor):
         if ctx.ASSIGN() and ctx.expr():
             original_type = ctx.TYPE().getText() if ctx.TYPE() else None
             assign = self.visit(ctx.expr())[0]
-        
+            self.cuadruplas.append(valueAssign(assign))
+            #('STack...', None, None, valor)
+        else:
+            if token_type == "ATTRIBUTE":
+                #print('tipo', feature_type)
+                if feature_type == "Int":
+                    self.cuadruplas.append(valueAssign(0))
+                elif feature_type == "String":
+                    self.cuadruplas.append(valueAssign('""'))
+                elif feature_type == "Boolean":
+                    self.cuadruplas.append(valueAssign(0)) # 0 = false, 1 = true
+                else:
+                    self.cuadruplas.append(valueAssign(None))
+                    
         params = []
 
         for formal_ctx in ctx.formal():
@@ -353,7 +367,8 @@ class codigoVisitor(yalpVisitor):
             for variable in variables:
                 temp = variable.split(':')
                 variable = temp[0]
-                tipo = temp[1]
+                tipo = temp[1].split('<-')[0]
+                valor = temp[1].split('<-')[1]
 
                 token = self.tablaSimbolos.get_simbolo(variable)
                 # print(token)
@@ -365,8 +380,9 @@ class codigoVisitor(yalpVisitor):
                         Cuadruplas.append(temp)
                         definido = True
                         self.stack_created = True
-
-                    cuadrupla = stack_variable(token.lexema, token.tipo_token)
+                    Cuadruplas.append(valueAssign(valor))
+                    #stack_assign_declare()
+                    cuadrupla = stack_variable(token.lexema, token.tipo_token, token.size)
                     Cuadruplas.append(cuadrupla)
 
             in_ = False
@@ -516,21 +532,18 @@ class codigoVisitor(yalpVisitor):
             visited = self.handle_context(ctx)
             cuadruplas = []
 
-            # print(visited, ' visited assign')
-            # input()
+            variable = visited[0]
+            asig = visited[2::]
+            
+            res = self.tablaSimbolos.get_simbolo(visited[0])
 
-
-
-            if isinstance(visited[2], Cuadrupla):
-                visited[2].res = visited[0]
-                cuadruplas.append(visited[2])
+            if isinstance(asig[0], Cuadrupla):
+                cuadruplas.extend(asig)
+                cuadruplas.append(asignacion(asig[-1].res, variable, res.size))
                 # cuadruplas.append(asignacion(visited[2].res, visited[0]))
             
             else:
-                # print(visited[0], ' visited assign')
-                res = self.tablaSimbolos.get_simbolo(visited[0])
-
-                # print(arg1, 'arg1')
+                print(res)
 
                 cuadruplas.append(asignacion(visited[2], visited[0], res.size))
             # cuadrupla = asignacion(visited[2], visited[0])

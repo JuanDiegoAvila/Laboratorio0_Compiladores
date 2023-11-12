@@ -81,6 +81,9 @@ class TreeVisitor(yalpVisitor):
         self.tablaSimbolos.enterScope()
         # agregar parametro str de tipo String
         self.tablaSimbolos.add_simbolo("str", Simbolo("str", 0, 0, "String", self.tablaSimbolos.current_scope, True))
+        
+        # agregar segundo parametro str2
+        self.tablaSimbolos.add_simbolo("str2", Simbolo("str2", 0, 0, "String", self.tablaSimbolos.current_scope, True))
         self.tablaSimbolos.exitScope()
 
         self.tablaSimbolos.add_simbolo("substr", Simbolo("substr", 0, 0, "String", self.tablaSimbolos.current_scope))
