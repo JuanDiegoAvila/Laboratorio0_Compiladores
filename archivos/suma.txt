@@ -1,7 +1,7 @@
 class Otra {
     x: Int;
 
-    otra() : Int {
+    otra(x: Int, y: Int) : Int {
         3
     };
 };
@@ -10,7 +10,7 @@ class Otra {
 class Main { 
     str : Otra ;
     main() : Int { 
-        str.otra()
+        str.otra(1,2)
     } ; 
 } ; 
  

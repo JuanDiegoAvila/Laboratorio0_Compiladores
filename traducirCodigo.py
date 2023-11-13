@@ -30,6 +30,9 @@ def traducirCodigo(cuadruplas):
 
         elif operador == "call":
             texto += f"\t call {argumento1}\n"
+        
+        elif operador == "reserve_space":
+            texto += f"\t Reserve stack space {argumento1}\n"
 
         elif operador == "param_decl":
             texto += f"\t param {argumento1} : {argumento2}\n"

@@ -3,13 +3,14 @@ class Main {
 
     main() : Object {
         {
-            let x : Int <- 5 in
+            let x : String <- 5, y:Int <-6 in
             {
                 while true loop
                     id_1 <- "hola"
                 pool ;
             };
         }
+        
     };
 
     count(x : Int) : Int {

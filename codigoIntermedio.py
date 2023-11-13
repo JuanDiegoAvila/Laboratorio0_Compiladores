@@ -157,7 +157,6 @@ class codigoVisitor(yalpVisitor):
         visited = []
         if ctx.expr():
             visited = self.visit(ctx.expr())
-            
         
         
         if ctx.ASSIGN() and ctx.expr():
@@ -178,10 +177,12 @@ class codigoVisitor(yalpVisitor):
                     self.cuadruplas.append(valueAssign(None))
                     
         params = []
-
+        sizes = []
         for formal_ctx in ctx.formal():
             parametros = self.visit(formal_ctx)
             params.append(parametros)
+            
+            sizes.append(self.tablaSimbolos.current_scope.symbols[parametros[0]].size)
             
         if token_type == "FUNCTION":
             self.tablaSimbolos.get_exitScope()
@@ -189,7 +190,7 @@ class codigoVisitor(yalpVisitor):
             clase = self.tablaSimbolos.get_simbolo(self.actual_class)
 
             # if self.in_main:
-            self.cuadruplas.extend(create_function(feature_name, params, visited, clase.lexema))
+            self.cuadruplas.extend(create_function(feature_name, params, visited, clase.lexema, sizes))
 
             if self.stack_created: 
                 retorno = False
@@ -420,7 +421,7 @@ class codigoVisitor(yalpVisitor):
         elif ctx.DOT():
             visited_dot = self.handle_context(ctx)
             inherit_visited = []
-
+            #print(visited_dot)
 
             if ctx.AT():
 
@@ -435,6 +436,7 @@ class codigoVisitor(yalpVisitor):
                     parametros = []
 
                 cuadruplas = create_function_call(clase, variable, funcion, parametros)
+
 
                 return cuadruplas
 
@@ -461,10 +463,11 @@ class codigoVisitor(yalpVisitor):
             for parametro in parametros:
                 if parametro != ",":
                     temp.append(parametro)
+            #print(temp)
 
             parametros = temp
 
-            cuadruplas = create_function_call(token, variable, function, parametros)
+            cuadruplas = create_function_call(token, variable, function, parametros, self.cuadruplas)
             return cuadruplas
 
         elif ctx.ISVOID():
@@ -475,7 +478,6 @@ class codigoVisitor(yalpVisitor):
 
         elif ctx.ID() and ctx.LPAR():
             visited_func = self.handle_context(ctx)
-            
             func_name = visited_func[0]
             parametros = []
             
@@ -489,8 +491,9 @@ class codigoVisitor(yalpVisitor):
             if len(visited_func) > 2:
                 parametros = visited_func[2:]
                 
-            cuadruplas = create_function_call(class_name, None, func_name, parametros)
+            cuadruplas = create_function_call(class_name, None, func_name, parametros, self.cuadruplas)
             self.cuadruplas.append(cuadruplas)
+
             return cuadruplas
             
            
@@ -543,7 +546,7 @@ class codigoVisitor(yalpVisitor):
                 # cuadruplas.append(asignacion(visited[2].res, visited[0]))
             
             else:
-                print(res)
+                #print(res)
 
                 cuadruplas.append(asignacion(visited[2], visited[0], res.size))
             # cuadrupla = asignacion(visited[2], visited[0])
@@ -689,7 +692,6 @@ class codigoVisitor(yalpVisitor):
                 
                 elif v is not None:
                     visited.append(v)
-                             
         return visited
 
     def visitTerminal(self, node: TerminalNode, formal=False):

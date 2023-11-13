@@ -20,11 +20,14 @@ class MIPS(object):
         ]
         self.cargar_nativas = []
         self.value_assign = None
-
+        self.register_counter = 0
+        self.register_used = 'a'
+        
         self.texto = self.traducirTAC()
         self.escribiCodigo()
         self.queue = []
         self.parameters = 0
+
 
 
     def traducirTAC(self):
@@ -264,6 +267,8 @@ class MIPS(object):
         arg1 = cuadrupla.arg1
         arg2 = cuadrupla.arg2
         res = cuadrupla.res
+        
+        register_used = 'a'
 
         if arg1 == "false":
             arg1 = 0
@@ -387,15 +392,30 @@ class MIPS(object):
             texto += f"\tseq ${resultado}, ${operador1}, ${operador2}\n"
 
         elif operador == "call":
-            
+            register_used = 'a'
             texto += "\tjal " + arg1 + "\n\n"
 
             if arg1 in self.nativas:
                 self.cargar_nativas.append(arg1)
+                
+        elif operador == "reserve_space":
+            texto += f"\taddiu $sp, $sp, -{arg1}\n"
+        
+        elif operador == "param":
+            texto += f"\tli $t0, {arg1}\n"
+            texto += f"\tsw $t0, {res}($sp)\n"
 
         # elif operador == "param":
         #     self.parameters += 1
-        
+        elif operador == "param_decl":
+            if self.register_counter == 4:
+                self.register_used = 't'
+                self.register_counter =0
+                
+            texto += f"\tlw ${self.register_used}{self.register_counter}, {res}($sp)\n"
+
+            self.register_counter +=1
+            
         elif operador == "goto":
             texto += "\tj " + res + "\n"
 

@@ -161,16 +161,30 @@ def create_if(if_expr, then_expr, else_expr, CI):
 
 
 
-def create_function_call(clase, variable, name, params):
+def create_function_call(clase, variable, name, params, cuadruplas=None):
     # asignar primero los parametros
     Cuadruplas = []
     parametros = 0
-    for i in params:
+    sizes = []
+    size_reserve = 0
+    if cuadruplas:
+        for i in range(len(cuadruplas)):
+            if cuadruplas[i].arg1 == name+"_"+clase:
+                for j in range(len(params)):
+                    sizes.append((cuadruplas[i+j+1].arg2, cuadruplas[i+j+1].res))
+                    size_reserve+=cuadruplas[i+j+1].arg2
+                break
+            
+    Cuadruplas.append(Cuadrupla('reserve_space', size_reserve, None, None))
+    for i in range(len(params)):
+        if cuadruplas:
+            size, offset = sizes[i]
+        else:
+            size, offset = None, None
         parametros += 1
-        temp = Cuadrupla("param", i, None, None)
+        temp = Cuadrupla("param", params[i], size, offset)
         Cuadruplas.append(temp)
 
-    # ULTIMA POSICION PARA EL VALOR DE RETORNO
     temp = Cuadrupla("call", name+"_"+clase, parametros, variable)
     Cuadruplas.append(temp)
 
@@ -234,7 +248,7 @@ def heap_variable(arg1, class_name, espacio):
 def heap_assign(arg1, res):
     return Cuadrupla("heap_assign", arg1, None, res)
 
-def create_function(name, params, expr, clase):
+def create_function(name, params, expr, clase, sizes):
     Cuadruplas = []
 
     # if clase == "Main" and name == "main":
@@ -248,8 +262,10 @@ def create_function(name, params, expr, clase):
     Cuadruplas.append(inicio)
 
     if params != []:
-        for i in params:
-            temp = Cuadrupla("param_decl", i[0], i[1], None)
+        offset = 0
+        for i in range(len(params)):
+            temp = Cuadrupla("param_decl", params[i][0], sizes[i], offset)
+            offset = sizes[i]
             Cuadruplas.append(temp)
 
     for i in expr:

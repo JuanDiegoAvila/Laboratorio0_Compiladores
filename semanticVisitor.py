@@ -96,8 +96,6 @@ class SemanticVisitor(yalpVisitor):
             parent_scope = self.tablaSimbolos.current_scope.parent
             simbolos = self.tablaSimbolos.current_scope.symbols
             for key, value in simbolos.items():
-                values = list(simbolos.values())
-                index = values.index(value)
                 if value.parametro == True:
                     if value.tipo_token in value.nativesizes:
                         parent_scope.symbols[feature_name].size += value.nativesizes[value.tipo_token]
@@ -408,22 +406,34 @@ class SemanticVisitor(yalpVisitor):
             
 
             variable = visited_let[1]
-            # if isinstance(variable, CommonToken):
-            #     token_type = self.lexer.symbolicNames[tipo.type]
 
-            #     if token_type == "ID":
-            #         self.tablaSimbolos 
 
             tipo = visited_let[-1][0]
             
+            simbolos = self.tablaSimbolos.current_scope.symbols
+            for key, value in simbolos.items():
+                if value.tipo_token in value.nativesizes:
+                        simbolos[key].size += value.nativesizes[value.tipo_token]
+                        value.size = value.nativesizes[value.tipo_token]
+
+                else:
+                    temp_var = self.tablaSimbolos.current_scope.parent
+                    while True:
+                        if temp_var.parent == None:
+                            break
+                        else:
+                            temp_var = temp_var.parent
+                    simbolos[key].size += temp_var.symbols[value.tipo_token].size
+                    value.size = temp_var.symbols[value.tipo_token].size
+            
+        
+                
             if isinstance(tipo, CommonToken):
                 token_type = self.lexer.symbolicNames[tipo.type]
                 if token_type == "ID":
                     simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(tipo.text, self.actual_class)
                     
                     if simbolo:
-                        token_type = simbolo.tipo_token
-                        simbolo.size = simbolo.scope.native[token_type].size
                         
                         self.tablaSimbolos.get_exitScope()
                         return [token_type]
@@ -452,10 +462,52 @@ class SemanticVisitor(yalpVisitor):
             else:
                 self.tablaSimbolos.get_exitScope()
                 return [tipo]
-
-            type_variable , heredado = self.tablaSimbolos.get_scope_simbolo(variable.text, self.actual_class)
+                    
             
-            self.tablaSimbolos.get_exitScope()
+
+            
+            # if isinstance(tipo, CommonToken):
+            #     token_type = self.lexer.symbolicNames[tipo.type]
+            #     print(token_type)
+            #     input()
+            #     if token_type == "ID":
+            #         simbolo , heredado = self.tablaSimbolos.get_scope_simbolo(tipo.text, self.actual_class)
+                    
+            #         if simbolo:
+            #             token_type = simbolo.tipo_token
+            #             simbolo.size = simbolo.scope.native[token_type].size
+                        
+            #             self.tablaSimbolos.get_exitScope()
+            #             return [token_type]
+            #         else:
+            #             linea = tipo.line
+            #             columna = tipo.column
+            #             message = f"Error semántico: la variable '{tipo.text}' en la posición '{linea}':'{columna}' no ha sido declarada."
+
+            #             if message not in self.errors:
+            #                 self.errors.append(message)
+            #                 self.tablaSimbolos.get_exitScope()
+            #             return [None]
+            #     else:
+            #         if token_type == "DIGIT" or token_type == "Int":
+            #             self.tablaSimbolos.get_exitScope()
+            #             return ['Int']
+            #         elif token_type == "STRING" or token_type == "String":
+            #             self.tablaSimbolos.get_exitScope()
+            #             return ['String']
+            #         elif token_type == "TRUE" or token_type == "FALSE" or token_type == "Boolean" or token_type == 'Boolean':
+            #             self.tablaSimbolos.get_exitScope()
+            #             return ['Boolean']
+            #         else:
+            #             self.tablaSimbolos.get_exitScope()
+            #             return [None]
+            # else:
+            #     self.tablaSimbolos.get_exitScope()
+            #     return [tipo]
+
+            # type_variable , heredado = self.tablaSimbolos.get_scope_simbolo(variable.text, self.actual_class)
+            
+            # self.tablaSimbolos.get_exitScope()
 
         elif ctx.DOT():
             visited_dot = self.handle_context(ctx)
