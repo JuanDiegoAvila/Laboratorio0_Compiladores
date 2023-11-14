@@ -1,3 +1,20 @@
+class Clase:
+    def __init__(self, nombre, metodos, clase_base=None):
+        self.nombre = nombre
+        self.metodos = metodos  
+        self.clase_base = clase_base
+
+    def __repr__(self):
+        return f"Clase: {self.nombre}\n\tMetodos: {self.metodos}\n\tClase base: {self.clase_base}\n"
+
+class Metodo:
+    def __init__(self, nombre, direccion):
+        self.nombre = nombre
+        self.direccion = direccion
+
+    def __repr__(self):
+        return f"Metodo: {self.nombre}\n\tDireccion: {self.direccion}"
+
 class MIPS(object):
     def __init__(self, cuadruplas):
         self.cuadruplas = cuadruplas
@@ -20,6 +37,10 @@ class MIPS(object):
         ]
         self.cargar_nativas = []
         self.value_assign = None
+
+        self.contador_direcciones = 0
+        self.recolectarInformacionClases()
+        self.generarVTables()
         self.register_counter = 0
         self.register_used = 'a'
         
@@ -75,6 +96,51 @@ class MIPS(object):
             texto = texto + self.crearNativas()
         return texto
     
+    def generarVTables(self):
+        self.VTables = {}
+        for clase in self.lista_de_clases:
+            vtable = {}
+            for metodo in clase.metodos:
+                vtable[metodo.nombre] = metodo.nombre
+            self.VTables[clase.nombre] = vtable
+
+    def recolectarInformacionClases(self):
+        self.lista_de_clases = []
+        for cuadrupla in self.cuadruplas:
+            if isinstance(cuadrupla, list):
+                cuadrupla = cuadrupla[0]
+            if cuadrupla.op == "class":
+                nombre_clase = cuadrupla.arg1
+                metodos = self.obtenerMetodos(nombre_clase)
+                clase_base = self.obtenerClaseBase(nombre_clase)
+                self.lista_de_clases.append(Clase(nombre_clase, metodos, clase_base))
+
+    def obtenerMetodos(self, nombre_clase):
+        metodos = []
+        for cuadrupla in self.cuadruplas:
+            if isinstance(cuadrupla, list):
+                cuadrupla = cuadrupla[0]
+
+            if cuadrupla.op == "func" and cuadrupla.arg1.split('_')[1] == nombre_clase:
+                nombre_metodo = cuadrupla.arg1.split('_')[0]
+                
+                metodos.append(self.asignarDireccionAMetodo(nombre_metodo))
+        return metodos
+    
+    def asignarDireccionAMetodo(self, nombre_metodo):
+        direccion = self.contador_direcciones
+        self.contador_direcciones += 1
+        return Metodo(nombre_metodo, direccion)
+
+    def obtenerClaseBase(self, nombre_clase):
+        for cuadrupla in self.cuadruplas:
+            if isinstance(cuadrupla, list):
+                cuadrupla = cuadrupla[0]
+            if cuadrupla.arg2 != None and cuadrupla.arg1 == nombre_clase:
+                return cuadrupla.arg2  # Suponiendo que 'arg2' contiene el nombre de la clase base
+        return None  # Si no hay herencia
+
+
     def crearNativas(self):
         texto = ""
         for nativa in self.cargar_nativas:
@@ -103,14 +169,19 @@ class MIPS(object):
                 
     def traducirData(self):
         texto = ".data\n"
-        for key in self.data:
-            tipo = self.data[key]["type"]
-            valor = self.data[key]["value"]
-            texto += f"{key}: {tipo} {valor}\n"
+        # for key in self.data:
+        #     tipo = self.data[key]["type"]
+        #     valor = self.data[key]["value"]
+        #     texto += f"{key}: {tipo} {valor}\n"
             # texto += key + ":\n"
             # for key2 in self.data[key]:
             #     texto += "\t" + key2 + " " + str(self.data[key][key2]) + "\n"
             # texto += "\n"
+        for clase in self.lista_de_clases:
+            texto += f"{clase.nombre}_vtable:\n"
+            for metodo in clase.metodos:
+                texto += f"\t.word {metodo.nombre}\n"  # Suponiendo que el nombre del método es también la etiqueta de su código MIPS
+        
         texto += "\n\n"
         return texto
 
@@ -275,8 +346,6 @@ class MIPS(object):
         elif arg1 == "true":
             arg1 = 1
 
-
-
         if operador == "class" and self.in_class_main:
             self.in_class_main = False
 
@@ -308,19 +377,19 @@ class MIPS(object):
 
             texto += "\n\n"+nombre + ":\n"
 
-        elif operador == "=":
+        elif operador == "=" and arg1 != None:
             # Si es un numero usar li, sino usar la
             try:
                 int(arg1)
                 texto += f"\tli ${res}, {arg1} \n"
             except:
-
                 if arg1 == "true":
                     texto += f"\tli ${res}, 1 \n"
 
                 elif arg1 == "false":
                     texto += f"\tli ${res}, 0 \n"
                 # Si tiene el formato "{texto}" entonces es un string
+                
                 elif arg1[0] == "\"" and arg1[-1] == "\"":
                     pass
 

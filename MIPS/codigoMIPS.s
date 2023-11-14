@@ -1,5 +1,8 @@
 .data
-x_address: .word 0
+Otra_vtable:
+	.word otra
+Main_vtable:
+	.word main
 
 
 .text

@@ -83,8 +83,8 @@ def stack_variable(arg1, tipo, size):
 def Not(arg1, res):
     return Cuadrupla("!", arg1, None, res)
 
-def create_class_label(name):
-    return Cuadrupla("class", name, None, None)
+def create_class_label(name, hereda):
+    return Cuadrupla("class", name, hereda, None)
 
 # def create_if(if_expr, then_expr, else_expr, CI):
 #     label1 = f'L{CI.upLabel()}'

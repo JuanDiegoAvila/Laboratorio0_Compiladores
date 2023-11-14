@@ -118,9 +118,10 @@ class codigoVisitor(yalpVisitor):
         if class_name == "Main":
             self.in_main = True
 
+        hereda = self.tablaSimbolos.get_simbolo(class_name).hereda
         self.tablaSimbolos.get_enterScope()
             
-        self.cuadruplas.append(create_class_label(class_name))
+        self.cuadruplas.append(create_class_label(class_name, hereda))
 
         
         for feature_ctx in ctx.feature():
@@ -369,7 +370,7 @@ class codigoVisitor(yalpVisitor):
                 temp = variable.split(':')
                 variable = temp[0]
                 tipo = temp[1].split('<-')[0]
-                valor = temp[1].split('<-')[1]
+                valor = temp[1].split('<-')[1] if len(temp[1].split('<-')) > 1 else None
 
                 token = self.tablaSimbolos.get_simbolo(variable)
                 # print(token)
@@ -539,9 +540,12 @@ class codigoVisitor(yalpVisitor):
             asig = visited[2::]
             
             res = self.tablaSimbolos.get_simbolo(visited[0])
-
+            print(asig)
             if isinstance(asig[0], Cuadrupla):
                 cuadruplas.extend(asig)
+                if(asig[-1].op == "call"):
+                    asig[-1].res = variable
+
                 cuadruplas.append(asignacion(asig[-1].res, variable, res.size))
                 # cuadruplas.append(asignacion(visited[2].res, visited[0]))
             
