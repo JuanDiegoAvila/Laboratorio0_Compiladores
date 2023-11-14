@@ -493,7 +493,7 @@ class codigoVisitor(yalpVisitor):
                 parametros = visited_func[2:]
                 
             cuadruplas = create_function_call(class_name, None, func_name, parametros, self.cuadruplas)
-            self.cuadruplas.append(cuadruplas)
+            self.cuadruplas.extend(cuadruplas)
 
             return cuadruplas
             

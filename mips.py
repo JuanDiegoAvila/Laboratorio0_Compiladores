@@ -35,6 +35,18 @@ class MIPS(object):
             "out_int_IO",
             "in_int_IO",
         ]
+        self.nativas_original = {
+            "abort_Object": "abort",
+            "type_name": "type_name",
+            "copy_Object": "copy",
+            "length_String": "length",
+            "concat_String": "concat",
+            "substr_String": "substr",
+            "out_string_IO": "out_string",
+            "in_string_IO": "in_string",
+            "out_int_IO": "out_int",
+            "in_int_IO": "in_int",
+        }
         self.cargar_nativas = []
         self.value_assign = None
 
@@ -140,7 +152,6 @@ class MIPS(object):
                 return cuadrupla.arg2  # Suponiendo que 'arg2' contiene el nombre de la clase base
         return None  # Si no hay herencia
 
-
     def crearNativas(self):
         texto = ""
         for nativa in self.cargar_nativas:
@@ -169,18 +180,15 @@ class MIPS(object):
                 
     def traducirData(self):
         texto = ".data\n"
-        # for key in self.data:
-        #     tipo = self.data[key]["type"]
-        #     valor = self.data[key]["value"]
-        #     texto += f"{key}: {tipo} {valor}\n"
-            # texto += key + ":\n"
-            # for key2 in self.data[key]:
-            #     texto += "\t" + key2 + " " + str(self.data[key][key2]) + "\n"
-            # texto += "\n"
+        for key in self.data:
+            tipo = self.data[key]["type"]
+            valor = self.data[key]["value"]
+            texto += f"{key}: {tipo} {valor}\n"
+
         for clase in self.lista_de_clases:
             texto += f"{clase.nombre}_vtable:\n"
             for metodo in clase.metodos:
-                texto += f"\t.word {metodo.nombre}\n"  # Suponiendo que el nombre del método es también la etiqueta de su código MIPS
+                texto += f"\t.word {metodo.nombre}_{clase.nombre}\n"  # Suponiendo que el nombre del método es también la etiqueta de su código MIPS
         
         texto += "\n\n"
         return texto
@@ -290,7 +298,7 @@ class MIPS(object):
     def outString(self):
         texto = ""
         
-        texto += "\n\noutString:\n"
+        texto += "\n\nout_string:\n"
         texto += "\tli $v0, 4\n"
         texto += "\tsyscall\n"
         texto += "\tjr $ra\n\n"
@@ -300,7 +308,7 @@ class MIPS(object):
     def outInt(self):
         texto = ""
 
-        texto += "\n\noutInt:\n"
+        texto += "\n\nout_int:\n"
         texto += "\tli $v0, 1\n"
         texto += "\tsyscall\n"
         texto += "\tjr $ra\n\n"
@@ -310,7 +318,7 @@ class MIPS(object):
     def inInt(self):
         texto = ""
 
-        texto += "\n\ninInt:\n"
+        texto += "\n\nin_int:\n"
         texto += "\tli $v0, 5\n"
         texto += "\tsyscall\n"
         texto += "\tjr $ra\n\n"
@@ -323,7 +331,7 @@ class MIPS(object):
         
         texto = ""
 
-        texto += "\n\ninString:\n"
+        texto += "\n\nin_string:\n"
         texto += "\tla $a0, buffer\n"
         texto += "\tli $a1, 100\n"
         texto += "\tli $v0, 8\n"
@@ -332,6 +340,23 @@ class MIPS(object):
 
         return texto
     
+    def calcularOffsetMetodo(self, nombre_clase, nombre_metodo):
+        offset = 0
+        tamaño_palabra = 4  # Tamaño de una palabra en MIPS (32 bits = 4 bytes)
+
+        # Encuentra la clase correspondiente
+        clase = next((clase for clase in self.lista_de_clases if clase.nombre == nombre_clase), None)
+        if clase is None:
+            return None  # Clase no encontrada
+
+        # Calcula el offset buscando la posición del método en la lista de métodos
+        for metodo in clase.metodos:
+            if metodo.nombre == nombre_metodo:
+                return offset
+            offset += tamaño_palabra
+
+        return None  # Método no encontrado en la clase
+
     def traducirCuadupla(self, cuadrupla):
         texto = ""
         operador = cuadrupla.op
@@ -367,13 +392,6 @@ class MIPS(object):
                 texto += "\n\tli $v0, 10\n"
                 texto += "\tsyscall\n"
                 self.llamada_main = False
-
-            # if nombre == "main":
-            #     texto += ".text\n"
-            #     texto += ".globl main\n"
-            
-            # else:
-            #     texto += "\n\n"
 
             texto += "\n\n"+nombre + ":\n"
 
@@ -461,11 +479,25 @@ class MIPS(object):
             texto += f"\tseq ${resultado}, ${operador1}, ${operador2}\n"
 
         elif operador == "call":
-            register_used = 'a'
-            texto += "\tjal " + arg1 + "\n\n"
+
+            objeto = arg1.split('_')[1]
+            metodo = arg1.split('_')[0]
 
             if arg1 in self.nativas:
+                register_used = 'a'
+                nombre = self.nativas_original[arg1]
+                texto += "\tjal " + nombre + "\n\n"
                 self.cargar_nativas.append(arg1)
+
+            else:
+                texto += f"\tlw $t0, {res}_address\n"
+                texto += f"\tlw $t1, 0($t0)\n"
+                offset = self.calcularOffsetMetodo(objeto, metodo)
+
+                texto += f"\tlw $t2, {offset}($t1)\n"
+
+                # Paso 5: Hacer la llamada al método
+                texto += "\tjal $t2\n"
                 
         elif operador == "reserve_space":
             texto += f"\taddiu $sp, $sp, -{arg1}\n"
@@ -551,13 +583,20 @@ class MIPS(object):
             texto += "\tsyscall\n"
             texto += "\tsw $v0, " + nombre + "_address\n\n"
 
+            # Cargar la direccion de la VTable
+            if tipo not in ["Int", "Bool", "String", "IO"]:
+                texto += f"\tla $t0, {tipo}_vtable\n"
+                texto += f"\tsw $t0, 0($v0)\n\n"
+            
+
             #  # Asignando el valor
             # texto += f"\tli $t1, {self.value_assign}\n\n"
             # texto += f"\tsw $t1, 0($v0)\n\n"
             # self.value_assign = None
             if self.value_assign is not None:
                 self.data[nombre + "_address"] = {"type": ".word", "value": self.value_assign}
-
+            else:
+                self.data[nombre + "_address"] = {"type": ".word", "value": "0"}
         
 
         elif operador == "stack_declaration":

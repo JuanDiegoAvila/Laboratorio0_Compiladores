@@ -1,0 +1,12 @@
+
+
+class Main { 
+    str : IO ;
+    main() : Int { 
+        {
+            str.out_int(1);
+            1;
+        }
+    } ; 
+} ; 
+ 
