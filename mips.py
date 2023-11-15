@@ -53,8 +53,10 @@ class MIPS(object):
         self.contador_direcciones = 0
         self.recolectarInformacionClases()
         self.generarVTables()
-        self.register_counter = 0
+        self.t_register = 0
+        self.a_register = 0
         self.register_used = 'a'
+        
         
         self.texto = self.traducirTAC()
         self.escribiCodigo()
@@ -484,12 +486,13 @@ class MIPS(object):
             metodo = arg1.split('_')[0]
 
             if arg1 in self.nativas:
-                register_used = 'a'
+                self.register_used = 'a'
                 nombre = self.nativas_original[arg1]
                 texto += "\tjal " + nombre + "\n\n"
                 self.cargar_nativas.append(arg1)
 
             else:
+                self.register_used = 'a'
                 texto += f"\tlw $t0, {res}_address\n"
                 texto += f"\tlw $t1, 0($t0)\n"
                 offset = self.calcularOffsetMetodo(objeto, metodo)
@@ -500,22 +503,29 @@ class MIPS(object):
                 texto += "\tjal $t2\n"
                 
         elif operador == "reserve_space":
-            texto += f"\taddiu $sp, $sp, -{arg1}\n"
+            if self.register_used=='t':
+                texto += f"\taddiu $sp, $sp, -{arg1}\n"
         
         elif operador == "param":
-            texto += f"\tli $t0, {arg1}\n"
-            texto += f"\tsw $t0, {res}($sp)\n"
+            if self.register_used == 't':
+                texto += f"\tli $t0, {arg1}\n"
+                texto += f"\tsw $t0, {res}($sp)\n"
+            elif self.register_used == 'a':
+                texto += f"\tli ${self.register_used}{self.a_register}, {arg1}\n"
+
 
         # elif operador == "param":
         #     self.parameters += 1
         elif operador == "param_decl":
-            if self.register_counter == 4:
+            if self.register_used == 'a' and self.a_register== 4:
                 self.register_used = 't'
-                self.register_counter =0
+                self.a_register = 0
+                self.t_register = 0
                 
-            texto += f"\tlw ${self.register_used}{self.register_counter}, {res}($sp)\n"
+            if self.register_used == 't':
+                texto += f"\tlw ${self.register_used}{self.t_register}, {res}($sp)\n"
+                self.t_register += 1
 
-            self.register_counter +=1
             
         elif operador == "goto":
             texto += "\tj " + res + "\n"
