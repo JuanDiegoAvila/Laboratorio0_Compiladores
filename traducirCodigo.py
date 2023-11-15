@@ -67,7 +67,7 @@ def traducirCodigo(cuadruplas):
         elif operador in ["heap_declaration", "stack_declaration"]:
             texto += f"\t {operador} {argumento1} : {argumento2}\n"
 
-    return(texto)
+    return texto
 
 
              

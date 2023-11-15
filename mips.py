@@ -47,6 +47,7 @@ class MIPS(object):
             "out_int_IO": "out_int",
             "in_int_IO": "in_int",
         }
+        self.clases_nativas = ["Int", "Boolean", "String", "IO"]
         self.cargar_nativas = []
         self.value_assign = None
 
@@ -108,6 +109,7 @@ class MIPS(object):
 
         if self.cargar_nativas != []:
             texto = texto + self.crearNativas()
+
         return texto
     
     def generarVTables(self):
@@ -163,21 +165,20 @@ class MIPS(object):
                 pass
             elif nativa == "copy_Object":
                 pass
-            elif nativa == "length_String":
+            elif nativa == "length_String" or nativa == "length_String_IO":
                 texto += self.stringLength()
-            elif nativa == "concat_String":
+            elif nativa == "concat_String" or nativa == "concat_String_IO":
                 texto += self.concat()
-            elif nativa == "substr_String":
+            elif nativa == "substr_String" or nativa == "substr_String_IO":
                 texto += self.substr()
-            elif nativa == "out_string_IO":
+            elif nativa == "out_string" or nativa == "out_string_IO":
                 texto += self.outString()
-            elif nativa == "in_string_IO":
+            elif nativa == "in_string_IO" or nativa == "in_string":
                 texto += self.inString()
-            elif nativa == "out_int_IO":
+            elif nativa == "out_int_IO" or nativa == "out_int":
                 texto += self.outInt()
-            elif nativa == "in_int_IO":
+            elif nativa == "in_int_IO" or nativa == "in_int":
                 texto += self.inInt()
-        
         return texto
                 
     def traducirData(self):
@@ -356,7 +357,7 @@ class MIPS(object):
             if metodo.nombre == nombre_metodo:
                 return offset
             offset += tamaño_palabra
-
+    
         return None  # Método no encontrado en la clase
 
     def traducirCuadupla(self, cuadrupla):
@@ -481,9 +482,15 @@ class MIPS(object):
             texto += f"\tseq ${resultado}, ${operador1}, ${operador2}\n"
 
         elif operador == "call":
+            palabras = arg1.split("_")
+            if len(palabras) > 2:
+                objeto = palabras[-1]
 
-            objeto = arg1.split('_')[1]
-            metodo = arg1.split('_')[0]
+                palabas_metodo = palabras[:-1]
+                metodo = "_".join(palabas_metodo)
+            else:
+                objeto = arg1.split('_')[1]
+                metodo = arg1.split('_')[0]
 
             if arg1 in self.nativas:
                 self.register_used = 'a'
@@ -492,21 +499,52 @@ class MIPS(object):
                 self.cargar_nativas.append(arg1)
 
             else:
-                self.register_used = 'a'
-                texto += f"\tlw $t0, {res}_address\n"
-                texto += f"\tlw $t1, 0($t0)\n"
+                
                 offset = self.calcularOffsetMetodo(objeto, metodo)
 
-                texto += f"\tlw $t2, {offset}($t1)\n"
+                if offset is not None:
+                    self.register_used = 'a'
+                    texto += f"\tlw $t0, {res}_address\n"
+                    texto += f"\tlw $t1, 0($t0)\n"
 
-                # Paso 5: Hacer la llamada al método
-                texto += "\tjal $t2\n"
+                    texto += f"\tlw $t2, {offset}($t1)\n"
+
+                    
+                    # Paso 5: Hacer la llamada al método
+                    texto += "\tjal $t2\n"
+
+                else:
+                    # Si no se encontró el método en la clase, buscar en la clase base
+                    clase = next((clase for clase in self.lista_de_clases if clase.nombre == objeto), None)
+                    if clase is None:
+                        pass
+
+                    clase_base = clase.clase_base
+                    
+                    if clase_base in self.clases_nativas:
+                        self.register_used = 'a'
+                        texto += "\tjal " + metodo + "\n\n"
+                        self.cargar_nativas.append(metodo)
+                        
+                    else:
+                        offset = self.calcularOffsetMetodo(clase_base, metodo)
+                        if offset is not None:
+                            self.register_used = 'a'
+                            texto += f"\tlw $t0, {res}_address\n"
+                            texto += f"\tlw $t1, 0($t0)\n"
+
+                            texto += f"\tlw $t2, {offset}($t1)\n"
+                        else:
+                            pass
+                    
+
                 
         elif operador == "reserve_space":
             if self.register_used=='t':
                 texto += f"\taddiu $sp, $sp, -{arg1}\n"
         
         elif operador == "param":
+            print(arg1, 'parametros')
             if self.register_used == 't':
                 texto += f"\tli $t0, {arg1}\n"
                 texto += f"\tsw $t0, {res}($sp)\n"

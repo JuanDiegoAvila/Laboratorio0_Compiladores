@@ -1,8 +1,12 @@
 class Otra {
     x: Int;
+    z: IO;
 
     otra(x: Int, y: Int) : Int {
-        3
+        {
+            z.out_int(x);
+            1;
+        }
     };
 };
 

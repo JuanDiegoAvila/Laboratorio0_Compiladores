@@ -192,7 +192,6 @@ class codigoVisitor(yalpVisitor):
 
             # if self.in_main:
             self.cuadruplas.extend(create_function(feature_name, params, visited, clase.lexema, sizes))
-
             if self.stack_created: 
                 retorno = False
                 for i in self.cuadruplas:
@@ -223,7 +222,6 @@ class codigoVisitor(yalpVisitor):
                     else:
                         if i.op == 'return_let' or i.op == 'return_func':
                             retorno = True
-
                 if not retorno:
                     temp = Cuadrupla("return_func", None, None, self.cuadruplas[-1].res)
                     self.cuadruplas.append(temp)

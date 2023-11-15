@@ -1,10 +1,18 @@
 
+class Util inherits IO {
+    x: Int; 
+    test() : Int {
+        1
+    } ;
+} ;
 
 class Main { 
-    str : IO ;
+    str : Util ;
+    x : Int ;
     main() : Int { 
         {
-            str.out_int(1);
+            x <- str.in_int();
+            str.out_int(x);
             1;
         }
     } ; 
