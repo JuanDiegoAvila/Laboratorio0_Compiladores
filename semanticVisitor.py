@@ -36,6 +36,8 @@ class SemanticVisitor(yalpVisitor):
         parent_scope = self.tablaSimbolos.current_scope.parent
 
         if nombre:=parent_scope.symbols[class_name].hereda:
+            if parent_scope.symbols[nombre].size == 0:
+                parent_scope.symbols[nombre].size = 10
             parent_scope.symbols[class_name].size += parent_scope.symbols[nombre].size
         
         for key, value in simbolos_clase.items():
@@ -56,6 +58,8 @@ class SemanticVisitor(yalpVisitor):
                 else:
                     clases = parent_scope.symbols.keys()
                     if value.tipo_token in clases and class_name in clases:
+                        if parent_scope.symbols[value.tipo_token].size == 0:
+                            parent_scope.symbols[value.tipo_token].size = 10
                         value.size = parent_scope.symbols[value.tipo_token].size
                         parent_scope.symbols[class_name].size+=parent_scope.symbols[value.tipo_token].size
                         new_offset = values[index-1].offset + values[index-1].size
@@ -108,6 +112,8 @@ class SemanticVisitor(yalpVisitor):
                                 break
                             else:
                                 temp_var = temp_var.parent
+                        if  temp_var.symbols[value.tipo_token].size == 0:
+                            temp_var.symbols[value.tipo_token].size = 10
                         parent_scope.symbols[feature_name].size += temp_var.symbols[value.tipo_token].size
                         value.size = temp_var.symbols[value.tipo_token].size
 
@@ -423,6 +429,8 @@ class SemanticVisitor(yalpVisitor):
                             break
                         else:
                             temp_var = temp_var.parent
+                    if  temp_var.symbols[value.tipo_token].size == 0:
+                        temp_var.symbols[value.tipo_token].size = 10
                     simbolos[key].size += temp_var.symbols[value.tipo_token].size
                     value.size = temp_var.symbols[value.tipo_token].size
             

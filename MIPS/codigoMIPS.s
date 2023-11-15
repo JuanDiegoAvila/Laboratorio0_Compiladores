@@ -10,7 +10,7 @@ Main_vtable:
 .text
 .globl main
 main:
-	li $a0, 4
+	li $a0, 14
 	li $v0, 9
 	syscall
 	sw $v0, str_address
