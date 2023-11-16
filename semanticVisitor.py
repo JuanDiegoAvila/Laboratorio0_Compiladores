@@ -27,13 +27,23 @@ class SemanticVisitor(yalpVisitor):
     
     def visitClass(self, ctx: yalpParser.ClassContext):
         class_name = ctx.TYPE()[0].getText()
-
+        
+        #print(self.tablaSimbolos.current_scope.name, 'ant')
         self.tablaSimbolos.get_enterScope()
+        #print(self.tablaSimbolos.current_scope.name, 'des')
+
         hay_main = False
 
         self.actual_class = class_name
         simbolos_clase = self.tablaSimbolos.current_scope.symbols
         parent_scope = self.tablaSimbolos.current_scope.parent
+        # print(simbolos_clase)
+        # print(parent_scope.symbols)
+        # print(self.tablaSimbolos.current_scope.name)
+        # print(parent_scope.name)
+        # input()
+        
+        self.tablaSimbolos.get_exitScope()
 
         if nombre:=parent_scope.symbols[class_name].hereda:
             if parent_scope.symbols[nombre].size == 0:
@@ -70,6 +80,7 @@ class SemanticVisitor(yalpVisitor):
 
         
         for feature_ctx in ctx.feature():
+
             feature = self.visit(feature_ctx)
 
             # verificar si hay un metodo main en la clase Main
@@ -83,7 +94,6 @@ class SemanticVisitor(yalpVisitor):
         if not hay_main and "Main" == class_name:
             self.errors.append(f"Error semántico: no se encontró el método main dentro de la clase Main.")
 
-        self.tablaSimbolos.get_exitScope()
 
         return class_name
 
@@ -96,7 +106,10 @@ class SemanticVisitor(yalpVisitor):
             feature_type = self.actual_class
 
         if token_type == "FUNCTION":
+            #print(feature_name, 'aaaaaaa', self.tablaSimbolos.current_scope.name)
+
             self.tablaSimbolos.get_enterScope()
+            #print(feature_name, 'aaaaaaa', self.tablaSimbolos.current_scope.name)
             parent_scope = self.tablaSimbolos.current_scope.parent
             simbolos = self.tablaSimbolos.current_scope.symbols
             for key, value in simbolos.items():
@@ -116,15 +129,16 @@ class SemanticVisitor(yalpVisitor):
                             temp_var.symbols[value.tipo_token].size = 10
                         parent_scope.symbols[feature_name].size += temp_var.symbols[value.tipo_token].size
                         value.size = temp_var.symbols[value.tipo_token].size
+            #print(feature_name, 'aaaaaaa', self.tablaSimbolos.current_scope.name)
 
-            #print(self.tablaSimbolos.current_scope.symbols)
-            #print(parent_scope.symbols)
+            self.tablaSimbolos.get_exitScope()
+            #print(feature_name, 'aaaaaaa', self.tablaSimbolos.current_scope.name)
+
             
             
         visited = []
         if ctx.expr():
             visited = self.visit(ctx.expr())
-            
             if isinstance(visited, list):
                 for v in visited:
                     if isinstance(v, CommonToken):
@@ -151,7 +165,6 @@ class SemanticVisitor(yalpVisitor):
                             message = f"Error semántico: se está devolviendo un tipo {token_type} a una función de tipo {feature_type} en la posición {linea}:{columna}."
                             if message not in self.errors:
                                 self.errors.append(message)
-                            
                             return feature_name
                         # print(token_type, ' visited en ', self.actual_class, feature_name, feature_type)
                     else:
@@ -177,8 +190,11 @@ class SemanticVisitor(yalpVisitor):
                             message = f"Error semántico: se está devolviendo un tipo {token_type} en una funcion de tipo {feature_type} en la posición {linea}:{columna}."
                             if message not in self.errors:
                                 self.errors.append(message)
-                            
+
                             return feature_name
+                        
+
+
 
 
         if ctx.ASSIGN() and ctx.expr():
@@ -207,10 +223,9 @@ class SemanticVisitor(yalpVisitor):
                     self.errors.append(message)
         
         for formal_ctx in ctx.formal():
-            self.visit(formal_ctx)
+            a= self.visit(formal_ctx)
             
         if token_type == "FUNCTION":
-            
             self.tablaSimbolos.get_exitScope()
 
         return feature_name
@@ -245,6 +260,7 @@ class SemanticVisitor(yalpVisitor):
                         return i
                 return None
             
+
             self.tablaSimbolos.get_enterScope()
 
             visited = self.handle_context(ctx)
@@ -312,13 +328,14 @@ class SemanticVisitor(yalpVisitor):
                 if visited_if == "Boolean" or visited_if == "TRUE" or visited_if == "FALSE" or visited_if == "Int" or visited_if == "DIGIT":
                     argumento = ["Boolean"]
                     self.tablaSimbolos.get_exitScope()
+
                     if if_expr !=else_expr:
                         herencia_if = []
                         herencia_else = []
-                    
                     return [mcst]
                 
                 if visited_if == None:
+
                     self.tablaSimbolos.get_exitScope()
                     return None
                 
@@ -328,11 +345,9 @@ class SemanticVisitor(yalpVisitor):
                     error = f'Error semántico: la variable de tipo {visited_if} no puede ser argumento del if {linea}:{columna}'
                     if error not in self.errors:
                         self.errors.append(error)
-
                     self.tablaSimbolos.get_exitScope()
                     return None
 
-            
             
             self.tablaSimbolos.get_exitScope()
             return mcst
@@ -747,8 +762,12 @@ class SemanticVisitor(yalpVisitor):
                         return [tipo_func]
 
         elif ctx.ID() and ctx.LPAR():
+            
+            
             visited_func = self.handle_context(ctx)
             
+            # for i in visited_func:
+            #     print('aaaaaa', i.text)
             
             func_name = visited_func[0]
             
@@ -1120,6 +1139,14 @@ class SemanticVisitor(yalpVisitor):
         
         elif ctx.LBRACE() and ctx.RBRACE():
             visited = self.handle_context(ctx)
+            
+            # for i in visited:
+            #     if isinstance(i, list):
+            #         for j in i:
+            #             print(j)
+            #     else:
+            #         print(i.text)
+
             expressions = [i for i in visited if isinstance(i, list)]
             
             if len(expressions) == 0:

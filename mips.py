@@ -415,10 +415,15 @@ class MIPS(object):
                     pass
 
                 else:
-                    texto += f"\tla ${res}, {arg1} \n"
+                    if arg1==res:
+                        texto+=f"\tlw $t0, {arg1}_address\n"
+                        texto+=f"\tsw $v0, 0($t0)\n"
                     
-                    # cargar el valor en la direccion de memoria con lw
-                    texto += f"\tlw ${res}, 0(${res})\n\n"
+                    else:    
+                        texto += f"\tla ${res}, {arg1} \n"
+                        
+                        # cargar el valor en la direccion de memoria con lw
+                        texto += f"\tlw ${res}, 0(${res})\n\n"
 
 
         elif operador == "+":
@@ -546,10 +551,14 @@ class MIPS(object):
         elif operador == "param":
             print(arg1, 'parametros')
             if self.register_used == 't':
-                texto += f"\tli $t0, {arg1}\n"
+                texto += f"\tli $t0, {arg1}_address\n"
                 texto += f"\tsw $t0, {res}($sp)\n"
             elif self.register_used == 'a':
-                texto += f"\tli ${self.register_used}{self.a_register}, {arg1}\n"
+                try:
+                    int(arg1)
+                    texto += f"\tli ${self.register_used}{self.a_register}, {arg1}\n"
+                except:
+                    texto += f"\tmove ${self.register_used}{self.a_register}, $v0\n"
 
 
         # elif operador == "param":

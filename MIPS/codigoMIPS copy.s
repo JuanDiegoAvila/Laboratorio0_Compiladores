@@ -32,17 +32,11 @@ main:
 main_Main:
 	jal in_int
 
-	lw $t0, x_address
+	lw $t0, x_address 
 	sw $v0, 0($t0)
+
 	move $a0, $v0
 	jal out_int
-
-	li $a0, 1 
-	li $a0, 4
-	li $v0, 9
-	syscall
-	sw $v0, x_address
-
 
 
 test_Util:
