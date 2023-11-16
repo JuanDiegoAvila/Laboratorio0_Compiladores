@@ -1,20 +1,31 @@
 
 class Util inherits IO {
-    x: Int; 
+    x: Int <- 3; 
     test() : Int {
-        1
+        2
     } ;
 } ;
 
 class Main { 
     str : Util ;
+    hola : Util ;
     x : Int ;
+    y: Int ; 
     main() : Int { 
         {
-            x <- str.in_int();
-            str.out_int(x);
+            x <- hola.test();
+            y <- hola.in_int();
+            hola.out_int(x);
             1;
         }
     } ; 
 } ; 
  
+
+
+
+
+
+
+
+

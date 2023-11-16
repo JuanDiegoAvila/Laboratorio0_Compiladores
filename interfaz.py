@@ -20,6 +20,10 @@ def custom_print(terminal, *args, is_error=False, is_success=False, **kwargs):
     
     elif is_success:
         terminal.tag_add("success", start_position, end_position)
+
+    # Regresar el color a normal
+    terminal.tag_add("continue", end_position, tk.END)
+
     
     terminal.config(state="disabled")
     terminal.see("end")
@@ -63,6 +67,15 @@ class Interfaz(tk.Tk):
         self.menu_archivo.add_command(label="Guardar", command=self.guardar_archivo)
         self.menu_archivo.add_command(label="Salir", command=self.quit)
 
+        # Títulos para los cuadros de texto
+        self.titulo_editor = tk.Label(self.frame_editor, text="Editor", bg=self.color_fondo, fg=self.color_texto, font=self.fuente)
+        self.titulo_editor.pack(side=tk.TOP, fill=tk.X)
+        self.titulo_terminal = tk.Label(self.paned_window, text="Terminal", bg="black", fg="white", font=self.fuente)
+        self.titulo_TDC = tk.Label(self.paned_window, text="Código de Tres Direcciones", bg="white", fg="black", font=self.fuente)
+        self.titulo_MIPS = tk.Label(self.paned_window, text="Código MIPS", bg="white", fg="black", font=self.fuente)
+    
+
+
         self.menu.add_command(label="Ejecutar", command=self.ejecutar_parser)
 
         self.frame_texto = tk.Frame(self.frame_editor)
@@ -94,11 +107,17 @@ class Interfaz(tk.Tk):
         self.terminal.config(state=tk.DISABLED)
         self.terminal.tag_configure("error", foreground="red")
         self.terminal.tag_configure("success", foreground="green")
+        self.terminal.tag_configure("continue", foreground="white")
 
         self.TDC_visible = False  # Variable para rastrear la visibilidad del tercer espacio
 
         self.TDC = Text(self.paned_window, bg="white", fg="black")  # Nuevo espacio de texto
         self.TDC.config(state=tk.DISABLED)  # Desactivado por defecto
+
+        self.MIPS_visible = False  # Variable para rastrear la visibilidad del cuarto espacio
+
+        self.MIPS = Text(self.paned_window, bg="#282a36", fg="#f8f8f2")  # Nuevo espacio de texto para MIPS
+        self.MIPS.config(state=tk.DISABLED)  # Desactivado por defecto
 
         set_global_terminal(self.terminal)
 
@@ -113,6 +132,10 @@ class Interfaz(tk.Tk):
 
         self.show_TDC_button = Button(self.buttons_frame, text="Mostrar Codigo de Tres direcciones", command=self.toggle_TDC)
         self.show_TDC_button.grid(row=0, column=2, padx=5)  # Nuevo botón para mostrar/ocultar el tercer espacio
+
+        self.show_MIPS_button = Button(self.buttons_frame, text="Mostrar código MIPS", command=self.toggle_MIPS)
+        self.show_MIPS_button.grid(row=0, column=3, padx=5)  # Nuevo botón para mostrar/ocultar el espacio de MIPS
+
 
         self.is_terminal_visible = False
 
@@ -133,6 +156,24 @@ class Interfaz(tk.Tk):
         self.TDC.config(state=tk.DISABLED)
 
         self.toggle_TDC()
+
+    def toggle_MIPS(self):
+        if self.MIPS_visible:
+            self.paned_window.forget(self.MIPS)
+            self.show_MIPS_button.config(text="Mostrar código MIPS")
+        else:
+            self.paned_window.add(self.MIPS, width=300)
+            self.show_MIPS_button.config(text="Esconder código MIPS")
+        
+        self.MIPS_visible = not self.MIPS_visible
+
+    def update_MIPS(self, content):
+        self.MIPS.config(state=tk.NORMAL)
+        self.MIPS.delete(1.0, tk.END)
+        self.MIPS.insert(tk.END, content)
+        self.MIPS.config(state=tk.DISABLED)
+
+        self.toggle_MIPS()
 
     def update_line_numbers(self):
         line_count = self.area_texto.index(tk.END).split('.')[0]
@@ -199,8 +240,10 @@ class Interfaz(tk.Tk):
     def toggle_terminal(self):
         if self.is_terminal_visible:
             self.paned_window.forget(self.terminal)
+            self.paned_window.forget(self.titulo_terminal)
             self.show_terminal_button.config(text="Mostrar Terminal")
         else:
+            self.paned_window.add(self.titulo_terminal, height=30)
             self.paned_window.add(self.terminal, width=300)
             self.show_terminal_button.config(text="Esconder Terminal")
         self.is_terminal_visible = not self.is_terminal_visible

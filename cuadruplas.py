@@ -195,6 +195,7 @@ def create_function_call(clase, variable, name, params, cuadruplas=None):
 
 def heap_variable(arg1, class_name, espacio):
     # guardar_espacio = Cuadrupla("maloc", arg1, , None)
+    # nombre = arg1 + "_" + class_name
     declaracion = Cuadrupla("heap_declaration", arg1, class_name, espacio)
     return [ declaracion]
 

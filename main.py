@@ -144,7 +144,7 @@ def codigoTresDirecciones(lexer, tree, app):
     visitor.visit(tree)
 
     terminal = get_global_terminal()
-    visitor.tablaSimbolos.print_tabla()
+    #visitor.tablaSimbolos.print_tabla()
 
     
     # custom_print(terminal, "------------------")
@@ -156,10 +156,12 @@ def codigoTresDirecciones(lexer, tree, app):
     # custom_print(terminal, visitor.cuadruplas)
     # custom_print(terminal, traducirCodigo(visitor.cuadruplas))
     
-    # app.update_TDC(traducirCodigo(visitor.cuadruplas))
+    #app.update_TDC(traducirCodigo(visitor.cuadruplas))
 
     
     mips = MIPS(visitor.cuadruplas)
+
+    #app.update_MIPS(mips.texto)
 
 
 #Llamar a la función para el scanner

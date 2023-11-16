@@ -16,6 +16,14 @@ def traducirCodigo(cuadruplas):
         if operador == "class" and argumento1 == "Main":
             clase_actual = argumento1
             texto += f"\n{argumento1}:\n"
+        elif operador == "class":
+            clase_actual = argumento1
+            texto += f"\nClass {argumento1}:\n"
+        
+        elif operador == "value_assign":
+            texto += f"\t value_assign {respuesta} = {argumento1}\n"
+
+        
 
         if operador in ["+", "-", "*", "/", "==", "<", ">", "<=", ">=", "and", "or", "~"]:
             texto += f"\t {respuesta} = {argumento1} {operador} {argumento2}\n"
