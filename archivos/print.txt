@@ -14,8 +14,11 @@ class Main {
     main() : Int { 
         {
             x <- hola.test();
+            hola.out_string("Ingrese un numero: ");
             y <- hola.in_int();
+            hola.out_string("El valor de x es: ");
             hola.out_int(x);
+            hola.out_string("El valor ingresado es: ");
             hola.out_int(y);
             1;
         }

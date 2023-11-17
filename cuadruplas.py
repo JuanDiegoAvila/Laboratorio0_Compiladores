@@ -177,7 +177,6 @@ def create_function_call(clase, variable, name, params, cuadruplas=None):
             
     Cuadruplas.append(Cuadrupla('reserve_space', size_reserve, None, None))
     for i in range(len(params)):
-        print(sizes)
         if cuadruplas and sizes != []:
         
             size, offset = sizes[i]

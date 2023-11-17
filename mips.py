@@ -61,6 +61,7 @@ class MIPS(object):
 
         self.atributos_clase = {}
         self.funcion_main = False
+        self.strings = 0
         
         
         self.texto = self.traducirTAC()
@@ -205,6 +206,8 @@ class MIPS(object):
             for metodo in clase.metodos:
                 texto += f"\t.word {metodo.nombre}_{clase.nombre}\n"  # Suponiendo que el nombre del método es también la etiqueta de su código MIPS
         
+
+        texto += "newline: .asciiz \"\\n\"\n"
         texto += "\n\n"
         return texto
 
@@ -326,7 +329,13 @@ class MIPS(object):
         texto += "\n\nout_int:\n"
         texto += "\tli $v0, 1\n"
         texto += "\tsyscall\n"
+
+        texto += "\n\tla $a0, newline\n"
+        texto += "\tli $v0, 4\n"
+        texto += "\tsyscall\n"
+
         texto += "\tjr $ra\n\n"
+
 
         return texto
     
@@ -581,8 +590,17 @@ class MIPS(object):
                     int(arg1)
                     texto += f"\tli ${self.register_used}{self.a_register}, {arg1}\n"
                 except:
-                    texto += f"\tlw $t0, {arg1}_{self.current_class}_address\n"	
-                    texto += f"\tlw ${self.register_used}{self.a_register}, 0($t0)\n\n"
+
+                    # si es un string cargar la direccion de memoria y crear un espacio
+                    if arg1[0] == "\"" and arg1[-1] == "\"":
+                        self.strings += 1
+                        nombre = f"string_{self.strings}"
+                        texto += f"\tla $a0, {nombre}\n"
+                        self.data[nombre] = {"type": ".asciiz", "value": arg1}
+
+                    else:
+                        texto += f"\tlw $t0, {arg1}_{self.current_class}_address\n"	
+                        texto += f"\tlw ${self.register_used}{self.a_register}, 0($t0)\n\n"
 
 
         # elif operador == "param":
