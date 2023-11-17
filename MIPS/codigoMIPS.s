@@ -38,10 +38,18 @@ main:
 	syscall
 	sw $v0, x_Main_address
 
+	li $t1, 0
+
+	sw $t1, 0($v0)
+
 	li $a0, 4
 	li $v0, 9
 	syscall
 	sw $v0, y_Main_address
+
+	li $t1, 0
+
+	sw $t1, 0($v0)
 
 	jal main_Main
 
@@ -86,6 +94,10 @@ main_Main:
 	li $v0, 1 
 
 	jr $ra
+	li $t1, 3
+
+	sw $t1, 0($v0)
+
 
 
 test_Util:

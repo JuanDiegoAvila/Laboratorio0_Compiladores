@@ -532,7 +532,6 @@ class MIPS(object):
             else:
                 #print(cuadrupla)
                 offset = self.calcularOffsetMetodo(objeto, metodo)
-                print(offset, res)
                 if offset is not None:
                     self.register_used = 'a'
                     texto += f"\tlw $t0, {objeto}_vtable\n"
@@ -546,7 +545,6 @@ class MIPS(object):
 
                 else:
                     # Si no se encontró el método en la clase, buscar en la clase base
-                    print(cuadrupla, 'bb')
                     clase = next((clase for clase in self.lista_de_clases if clase.nombre == objeto), None)
                     if clase is None:
                         pass
@@ -581,7 +579,6 @@ class MIPS(object):
                 texto += f"\taddiu $sp, $sp, -{arg1}\n\n"
         
         elif operador == "param":
-            print(arg1, 'parametros')
             if self.register_used == 't':
                 texto += f"\tli $t0, {arg1}_{self.current_class}_address\n"
                 texto += f"\tsw $t0, {res}($sp)\n"
@@ -599,8 +596,12 @@ class MIPS(object):
                         self.data[nombre] = {"type": ".asciiz", "value": arg1}
 
                     else:
-                        texto += f"\tlw $t0, {arg1}_{self.current_class}_address\n"	
-                        texto += f"\tlw ${self.register_used}{self.a_register}, 0($t0)\n\n"
+                        if f"{arg1}_{self.current_class}_address" in self.data.keys() and self.data[f"{arg1}_{self.current_class}_address"]["type"] == ".asciiz":
+                            texto += f"\tla ${self.register_used}{self.a_register}, {arg1}_{self.current_class}_address\n"
+                        
+                        else:
+                            texto += f"\tlw $t0, {arg1}_{self.current_class}_address\n"	
+                            texto += f"\tlw ${self.register_used}{self.a_register}, 0($t0)\n\n"
 
 
         # elif operador == "param":
@@ -633,10 +634,19 @@ class MIPS(object):
                 int(arg1)
                 texto += f"\tli $v0, {arg1} \n"
             except:
-                texto += f"\tla $a0, {arg1}_{self.current_class}_address \n"
+
+                # si es un string cargar la direccion de memoria y crear un espacio
+                if arg1[0] == "\"" and arg1[-1] == "\"":
+                    self.strings += 1
+                    nombre = f"string_{self.strings}"
+                    texto += f"\tla $a0, {nombre}\n"
+                    self.data[nombre] = {"type": ".asciiz", "value": arg1}
                 
-                # cargar el valor en la direccion de memoria con lw
-                texto += f"\tlw $a0, 0($a0)\n\n"
+                else:
+                    texto += f"\tla $a0, {arg1}_{self.current_class}_address \n"
+                    
+                    # cargar el valor en la direccion de memoria con lw
+                    texto += f"\tlw $a0, 0($a0)\n\n"
         
         elif operador == "ifFalse":
 
@@ -726,7 +736,16 @@ class MIPS(object):
             # texto += f"\tsw $t1, 0($v0)\n\n"
             # self.value_assign = None
             if self.value_assign is not None:
-                self.data[nombre +"_"+self.current_class+"_address"] = {"type": ".word", "value": self.value_assign}
+
+                try:
+                    int(self.value_assign)
+                    texto += f"\tli $t1, {self.value_assign}\n\n"
+                    texto += f"\tsw $t1, 0($v0)\n\n"
+                    self.data[nombre +"_"+self.current_class+"_address"] = {"type": ".word", "value": self.value_assign}
+                except:
+                # si es un string cargar la direccion de memoria y crear un espacio
+                    if self.value_assign[0] == "\"" and self.value_assign[-1] == "\"":
+                        self.data[nombre +"_"+self.current_class+"_address"] = {"type": ".asciiz", "value": self.value_assign}
             else:
                 self.data[nombre +"_"+self.current_class+"_address"] = {"type": ".word", "value": "0"}
         

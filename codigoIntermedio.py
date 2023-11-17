@@ -538,7 +538,6 @@ class codigoVisitor(yalpVisitor):
             asig = visited[2::]
             
             res = self.tablaSimbolos.get_simbolo(visited[0])
-            print(asig)
             if isinstance(asig[0], Cuadrupla):
                 cuadruplas.extend(asig)
                 if(asig[-1].op == "call"):
