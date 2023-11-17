@@ -51,25 +51,32 @@ main_Main:
 	jal $t1
 
 	lw $t0, x_Main_address
-	sw $v0, 0($t0)
+	move $t1, $v0
+	sw $t1, 0($t0)
 
 	jal in_int
 
 	lw $t0, y_Main_address
-	sw $v0, 0($t0)
+	move $t1, $v0
+	sw $t1, 0($t0)
 
 	lw $t0, x_Main_address
 	lw $a0, 0($t0)
 
 	jal out_int
 
-	li $a0, 1 
+	lw $t0, y_Main_address
+	lw $a0, 0($t0)
+
+	jal out_int
+
+	li $v0, 1 
 
 	jr $ra
 
 
 test_Util:
-	li $a0, 2 
+	li $v0, 2 
 	jr $ra
 
 

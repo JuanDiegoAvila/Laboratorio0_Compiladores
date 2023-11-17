@@ -413,7 +413,6 @@ class MIPS(object):
 
         elif operador == "=" and arg1 != None:
             # Si es un numero usar li, sino usar la
-            print(cuadrupla, 'aa')
             try:
                 int(arg1)
                 texto += f"\tli ${res}, {arg1} \n\n"
@@ -433,7 +432,8 @@ class MIPS(object):
                     # #     texto+=f"\tlw $t0, {arg1}_{self.current_class}_address\n"
                     # #     texto+=f"\tsw $v0, 0($t0)\n\n"
                     texto+=f"\tlw $t0, {arg1}_{self.current_class}_address\n"
-                    texto+=f"\tsw $v0, 0($t0)\n\n"
+                    texto+=f"\tmove $t1, $v0\n"
+                    texto+=f"\tsw $t1, 0($t0)\n\n"
                     
                     # if arg1!=res:    
                     #     texto += f"\tla ${res}, {arg1} \n"
@@ -581,8 +581,8 @@ class MIPS(object):
                     int(arg1)
                     texto += f"\tli ${self.register_used}{self.a_register}, {arg1}\n"
                 except:
-                    texto += f"\t "
-                    texto += f"\tmove ${self.register_used}{self.a_register}, $v0\n"
+                    texto += f"\tlw $t0, {arg1}_{self.current_class}_address\n"	
+                    texto += f"\tlw ${self.register_used}{self.a_register}, 0($t0)\n\n"
 
 
         # elif operador == "param":
@@ -613,7 +613,7 @@ class MIPS(object):
             # texto += f"\tli $a0, {arg1}\n"
             try:
                 int(arg1)
-                texto += f"\tli $a0, {arg1} \n"
+                texto += f"\tli $v0, {arg1} \n"
             except:
                 texto += f"\tla $a0, {arg1}_{self.current_class}_address \n"
                 

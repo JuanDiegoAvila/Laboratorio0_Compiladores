@@ -16,6 +16,7 @@ class Main {
             x <- hola.test();
             y <- hola.in_int();
             hola.out_int(x);
+            hola.out_int(y);
             1;
         }
     } ; 
