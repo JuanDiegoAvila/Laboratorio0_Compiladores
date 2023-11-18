@@ -18,7 +18,7 @@ class Metodo:
 class MIPS(object):
     def __init__(self, cuadruplas):
         self.cuadruplas = cuadruplas
-        
+        self.registers_available = ['t'+str(i) for i in range(10)]
         self.in_main = False
         self.in_class_main = False
         self.llamada_main = True
@@ -437,18 +437,26 @@ class MIPS(object):
                     pass
 
                 else:
-                    # # if arg1==res:
-                    # #     texto+=f"\tlw $t0, {arg1}_{self.current_class}_address\n"
-                    # #     texto+=f"\tsw $v0, 0($t0)\n\n"
-                    texto+=f"\tlw $t0, {arg1}_{self.current_class}_address\n"
-                    texto+=f"\tmove $t1, $v0\n"
-                    texto+=f"\tsw $t1, 0($t0)\n\n"
-                    
-                    # if arg1!=res:    
-                    #     texto += f"\tla ${res}, {arg1} \n"
+                    if res in self.registers_available and not arg2 and res in self.registers_available:
+                        texto += f"\tmove ${res}, ${arg1}\n\n"
                         
-                    #     # cargar el valor en la direccion de memoria con lw
-                    #     texto += f"\tlw ${res}, 0(${res})\n\n"
+                    elif arg1 in self.registers_available and res not in self.registers_available:
+                        texto+=f"\tlw $t0, {res}_{self.current_class}_address\n"
+                        texto+=f"\tmove $t1, $t4\n"
+                        texto+=f"\tsw $t1, 0($t0)\n\n"
+                    else:
+                        # # if arg1==res:
+                        # #     texto+=f"\tlw $t0, {arg1}_{self.current_class}_address\n"
+                        # #     texto+=f"\tsw $v0, 0($t0)\n\n"
+                        texto+=f"\tlw $t0, {arg1}_{self.current_class}_address\n"
+                        texto+=f"\tmove $t1, $v0\n"
+                        texto+=f"\tsw $t1, 0($t0)\n\n"
+                        
+                        # if arg1!=res:    
+                        #     texto += f"\tla ${res}, {arg1} \n"
+                            
+                        #     # cargar el valor en la direccion de memoria con lw
+                        #     texto += f"\tlw ${res}, 0(${res})\n\n"
 
 
         elif operador == "+":
@@ -462,7 +470,7 @@ class MIPS(object):
         
         elif operador == "*":
             texto += "\tmult $" + str(arg1) + ", $" + str(arg2) + "\n\n"
-            texto += "\tmflo $t0\n\n"
+            texto += f"\tmflo ${res}\n\n"
 
        
         elif operador == ">":
@@ -625,6 +633,8 @@ class MIPS(object):
             texto += "\tsyscall\n\n"
 
         elif operador == "return_func":
+            if res != None:
+                texto += f"\tmove $v0, ${res}\n\n"
             texto += "\tjr $ra\n\n"
 
         elif operador == None:

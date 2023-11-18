@@ -101,7 +101,24 @@ main_Main:
 
 
 test_Util:
-	li $v0, 2 
+	li $t2, 2 
+
+	li $t3, 3 
+
+	mult $t2, $t3
+
+	mflo $t4
+
+	move $t2, $t4
+
+	li $t3, 4 
+
+	mult $t2, $t3
+
+	mflo $t4
+
+	move $v0, $t4
+
 	jr $ra
 
 

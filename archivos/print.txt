@@ -2,7 +2,7 @@
 class Util inherits IO {
     x: Int <- 3; 
     test() : Int {
-        2
+        2*3*4
     } ;
 } ;
 
