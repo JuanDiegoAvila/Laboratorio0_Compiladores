@@ -2,7 +2,7 @@
 class Util inherits IO {
     x: Int <- 3; 
     test() : Int {
-        2*3*4
+        2*2*4+1
     } ;
 } ;
 
@@ -18,7 +18,7 @@ class Main {
             y <- hola.in_int();
             hola.out_string("El valor de x es: ");
             hola.out_int(x);
-            hola.out_string("El valor ingresado es: ");
+            hola.out_string("El valor ingresado y es: ");
             hola.out_int(y);
             1;
         }

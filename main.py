@@ -156,16 +156,16 @@ def codigoTresDirecciones(lexer, tree, app):
     # custom_print(terminal, visitor.cuadruplas)
     # custom_print(terminal, traducirCodigo(visitor.cuadruplas))
     
-    #app.update_TDC(traducirCodigo(visitor.cuadruplas))
+    app.update_TDC(traducirCodigo(visitor.cuadruplas))
 
     
     mips = MIPS(visitor.cuadruplas)
 
-    #app.update_MIPS(mips.texto)
+    app.update_MIPS(mips.texto)
 
 
 #Llamar a la función para el scanner
-parser = Parser('./archivos/print.txt',"a" )
+# parser = Parser('./archivos/print.txt',"a" )
 
-# app = interfaz.Interfaz(Parser)
-# app.mainloop()
+app = interfaz.Interfaz(Parser)
+app.mainloop()

@@ -178,13 +178,16 @@ def create_function_call(clase, variable, name, params, cuadruplas=None):
     Cuadruplas.append(Cuadrupla('reserve_space', size_reserve, None, None))
     for i in range(len(params)):
         if cuadruplas and sizes != []:
-        
             size, offset = sizes[i]
         else:
             size, offset = None, None
         parametros += 1
-        temp = Cuadrupla("param", params[i], size, offset)
-        Cuadruplas.append(temp)
+
+        if isinstance(params[i], Cuadrupla):
+            cuadruplas.append(params[i])
+        else:
+            temp = Cuadrupla("param", params[i], size, offset)
+            Cuadruplas.append(temp)
 
     temp = Cuadrupla("call", name+"_"+clase, parametros, variable)
     Cuadruplas.append(temp)
@@ -248,6 +251,7 @@ def heap_variable(arg1, class_name, espacio):
 #     return Cuadruplas
 
 def heap_assign(arg1, res):
+    
     return Cuadrupla("heap_assign", arg1, None, res)
 
 def create_function(name, params, expr, clase, sizes):

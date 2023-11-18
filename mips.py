@@ -387,6 +387,8 @@ class MIPS(object):
         arg1 = cuadrupla.arg1
         arg2 = cuadrupla.arg2
         res = cuadrupla.res
+
+
         
 
         if arg1 == "false":
@@ -461,7 +463,7 @@ class MIPS(object):
 
         elif operador == "+":
 
-            texto += "\tadd $a0, $" + str(arg1) + ", $" + str(arg2) + "\n\n"
+            texto += "\tadd $"+str(res)+", $" + str(arg1) + ", $" + str(arg2) + "\n\n"
 
         elif operador == "/":
 
@@ -652,7 +654,7 @@ class MIPS(object):
                     texto += f"\tla $a0, {nombre}\n"
                     self.data[nombre] = {"type": ".asciiz", "value": arg1}
                 
-                else:
+                elif arg1 != "fi":
                     texto += f"\tla $a0, {arg1}_{self.current_class}_address \n"
                     
                     # cargar el valor en la direccion de memoria con lw
@@ -665,10 +667,13 @@ class MIPS(object):
                 texto += f"\tli $t0, {arg1} \n"
             
             except:
-                texto += f"\tla $t0, {arg1}_{self.current_class}_address \n"
+                if arg1[0] == "t":
+                    texto += f"\tmove $t0, ${arg1}\n"
+                else:
+                    texto += f"\tla $t0, {arg1}_{self.current_class}_address \n"
                 
-                # cargar el valor en la direccion de memoria con lw
-                texto += f"\tlw $t0, 0($t0)\n\n"
+                    # cargar el valor en la direccion de memoria con lw
+                    texto += f"\tlw $t0, 0($t0)\n\n"
 
             
             texto += f"\tbeqz $t0, {res}\n\n"

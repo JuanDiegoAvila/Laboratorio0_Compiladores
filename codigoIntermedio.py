@@ -458,11 +458,11 @@ class codigoVisitor(yalpVisitor):
                 # Apartir de la posicion 3 en adelante son los parametros
                 parametros = visited_dot[3:]
 
+
             temp = []
             for parametro in parametros:
                 if parametro != ",":
                     temp.append(parametro)
-            #print(temp)
 
             parametros = temp
 

@@ -6,7 +6,7 @@ x_Main_address: .word 0
 y_Main_address: .word 0
 string_1: .asciiz "Ingrese un numero: "
 string_2: .asciiz "El valor de x es: "
-string_3: .asciiz "El valor ingresado es: "
+string_3: .asciiz "El valor ingresado y es: "
 Util_vtable:
 	.word test_Util
 Main_vtable:
@@ -103,7 +103,7 @@ main_Main:
 test_Util:
 	li $t2, 2 
 
-	li $t3, 3 
+	li $t3, 2 
 
 	mult $t2, $t3
 
@@ -116,6 +116,12 @@ test_Util:
 	mult $t2, $t3
 
 	mflo $t4
+
+	move $t2, $t4
+
+	li $t3, 1 
+
+	add $t4, $t2, $t3
 
 	move $v0, $t4
 
